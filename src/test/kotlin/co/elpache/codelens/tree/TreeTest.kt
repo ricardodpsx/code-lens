@@ -2,6 +2,7 @@ package co.elpache.codelens.tree
 
 import co.elpache.codelens.tree
 import co.elpache.codelens.inorder
+import co.elpache.codelens.printTree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -38,6 +39,7 @@ class TreeTest {
         )
       )
     )
+
 
     assertThat(inorder(subTree(tree, "b"))).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
   }

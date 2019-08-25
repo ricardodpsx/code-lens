@@ -8,6 +8,7 @@
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
 -[ ] Add CleanCode Metrics for javascript #cleanCode
+-[ ] Support Big Directories (Avoid code searching etc in non code files)
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Use ANTLR for css selectors
 -[ ] Add Graph Simplification so you can search using fun or class or easy thing in any language.

@@ -6,16 +6,18 @@ import co.elpache.codelens.printTree
 import org.junit.Test
 
 //Todo: Change tests to be more independent using utils graph
-class JsSupportTest {
+class JsSupport {
 
   private val codeBase =
     expandFullCodeTree(CodeBase.load("src/../frontend/src/"))
 
   @Test
-  fun `can print tree`() {
+  fun `Can select files`() {
 
-    println(printTree(codeBase))
+    System.out.println(printTree(codeBase))
 
+    //Todo: Pending assertion
   }
+
 
 }

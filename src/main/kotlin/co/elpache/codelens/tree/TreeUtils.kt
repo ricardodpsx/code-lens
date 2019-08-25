@@ -14,17 +14,17 @@ private fun <T> descendants(tree: Tree<T>, vid: String): List<Vid> {
 }
 
 
-fun <T> buildTreeFromChildren(tree: Tree<T>, res: List<Vid>): Tree<T> {
+fun <T> buildTreeFromChildren(sourceTree: Tree<T>, res: List<Vid>): Tree<T> {
   var resTree = Tree<T>()
 
   res.forEach { vid ->
-    descendants(tree, vid).reversed()
+    descendants(sourceTree, vid).reversed()
       .windowed(2, partialWindows = true).forEach {
-        resTree = resTree.addIfAbsent(it[0], tree.v(it[0]))
-        if (it.size == 2) resTree = resTree.addChild(it[0], it[1], tree.v(it[1]))
+        resTree = resTree.addIfAbsent(it[0], sourceTree.v(it[0]))
+        if (it.size == 2) resTree = resTree.addChild(it[0], it[1], sourceTree.v(it[1]))
       }
   }
-  resTree.rootVid = tree.rootVid
+  resTree.rootVid = sourceTree.rootVid
   return resTree
 }
 

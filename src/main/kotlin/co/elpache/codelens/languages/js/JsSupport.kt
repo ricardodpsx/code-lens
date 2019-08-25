@@ -100,7 +100,8 @@ private fun toJsCodeEntity(c: JsNode, fileCode: String): CodeEntity {
 }
 
 
-//Todo: Analytics must happen on Demand
+
+//Todo: Analytics must happen on Demand?
 fun jsApplyAnalytics(tree: CodeTree): CodeTree {
 
   search(tree, "fun").forEach {

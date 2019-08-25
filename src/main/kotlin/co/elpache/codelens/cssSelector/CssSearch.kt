@@ -5,9 +5,9 @@ import co.elpache.codelens.tree.Vid
 
 data class CssSearch(val selectors: CssSelectors, val tree: CodeTree) {
 
-  fun search(vid: Vid = tree.rootVid()): List<Vid> {
+  fun search(fromVertice: Vid = tree.rootVid()): List<Vid> {
     val found = arrayListOf<Vid>()
-    dfs(vid, buildSearchStateMachine(selectors.selectors, found))
+    dfs(fromVertice, buildSearchStateMachine(selectors.selectors, found))
     return found
   }
 

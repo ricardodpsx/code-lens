@@ -7,7 +7,8 @@ import java.lang.StringBuilder
 
 typealias CodeTree = Tree<CodeTreeNode>
 
-fun buildCodeTree(node: CodeTreeNode): CodeTree =
+//Todo: Test tree expansion
+fun expandFullCodeTree(node: CodeTreeNode): CodeTree =
   applyAnalytics(_expandTreeNode(CodeTree(), node, node.data()["name"] as String))
 
 fun toMap(tree: CodeTree): Map<String, Any> {

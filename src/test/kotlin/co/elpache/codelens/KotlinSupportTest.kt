@@ -1,7 +1,7 @@
 package codelens
 
 import co.elpache.codelens.CodeBase
-import co.elpache.codelens.buildCodeTree
+import co.elpache.codelens.expandFullCodeTree
 import co.elpache.codelens.printTree
 import co.elpache.codelens.selectCode
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +11,7 @@ import org.junit.Test
 class KotlinSupportTest {
 
   private val codeBase =
-    buildCodeTree(CodeBase.load("src/test/kotlin/co/elpache/codelens/subpackage/"))
+    expandFullCodeTree(CodeBase.load("src/test/kotlin/co/elpache/codelens/subpackage/"))
 
   @Test
   fun `can print tree`() {
@@ -23,13 +23,13 @@ class KotlinSupportTest {
   fun `Can select files`() {
     assertThat(selectCode(codeBase, "file[name*='Example']"))
       .extracting("name")
-      .containsExactly("ExampleClass.kt", "ExampleClassB.kt")
+      .containsExactlyInAnyOrder("ExampleClass.kt", "ExampleClassB.kt")
   }
 
   @Test
   fun `Can select Functions whitin files`() {
     val list = selectCode(codeBase, "file[name*='Example'] fun[name^='my']")
-    assertThat(list).extracting("name").containsExactly("myFunction1", "myFunction2", "myFunction3")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("myFunction1", "myFunction2", "myFunction3")
   }
 
   @Test
@@ -41,7 +41,7 @@ class KotlinSupportTest {
   @Test
   fun `Looking for nested functions`() {
     val list = selectCode(codeBase, "file[name*='ExampleClassB'] fun fun fun")
-    assertThat(list).extracting("name").containsExactly("b", "c")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("b", "c")
   }
 
   @Test
@@ -53,13 +53,13 @@ class KotlinSupportTest {
   @Test
   fun `Can use direct descendant selectors`() {
     val list = selectCode(codeBase, "class[name='ExampleClassB'] classBody>fun")
-    assertThat(list).extracting("name").containsExactly("method1", "method2")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("method1", "method2")
   }
 
   @Test
   fun `Can use direct child character`() {
     val list = selectCode(codeBase, "class[name='ExampleClassB'] classBody>fun fun")
-    assertThat(list).extracting("name").containsExactly("x", "y")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("x", "y")
   }
 
   @Test

@@ -13,4 +13,6 @@ fun nodeDataOf(vararg pairs: Pair<String, Any?>) =
 interface CodeTreeNode {
   fun expand(): List<CodeTreeNode>
   fun data(): NodeData
+  fun<T> value(key: String): T = data()[key] as T
+  fun contains(key: String) = data().contains(key)
 }
