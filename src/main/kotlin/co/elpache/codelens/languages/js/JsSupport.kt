@@ -201,17 +201,12 @@ private fun toJsCodeEntity(c: JsNode, codeFile: CodeFile, parent: CodeEntity): C
     startOffset = c.getInt("start")!!,
     endOffset = c.getInt("end")!!
   )
-
-
+  
   e.data.addAll(
     "keys" to c.keys,
     "firstLine" to e.code.firstLine(),
     "lines" to e.code.relevantCodeLines()
   )
-  c.jsonValues().forEach {
-    if (it.value != null)
-      e.data.put(it.key, it.value!!)
-  }
 
   return e
 }
