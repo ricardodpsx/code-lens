@@ -11,6 +11,7 @@ import DirectoryTree from "./DirectoryTree";
 import FileViewer from "./FileViewer";
 import FitnessFunction from "./FitnessFunction";
 import Metrics from "./Metrics"
+import History from "./History"
 
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -170,10 +171,6 @@ class App extends Component {
       );
   }
 
-}
-
-function History() {
-    return <h2>History!</h2>;
 }
 
 export default App;
