@@ -155,7 +155,7 @@ fun toJson(js: String): Map<String, Any> {
 fun parseFile(file: File): String {
   val e = Runtime.getRuntime().exec(
     "node JavaScriptSupport.js ${file.absolutePath}", null,
-    File("/Users/ricardodps/PROJECTS/CodeLens/frontend")
+    File("frontend")
   );
 
   val programOutput = e.inputStream.bufferedReader().readText()
