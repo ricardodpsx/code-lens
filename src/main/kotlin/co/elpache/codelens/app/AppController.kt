@@ -47,4 +47,10 @@ class AppController {
   fun analytics(@PathVariable param: String, @RequestParam query: String) =
     useCases.getFrequencyByParam(query, param).rows
 
+
+  @GetMapping("/history/{param}")
+  @ResponseBody
+  fun history(@PathVariable param: String, @RequestParam query: String) =
+    useCases.collectHistory(query, param, listOf("d37fb4b", "a1e3958"))//Todo: remove hardcode
+
 }
