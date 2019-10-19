@@ -3,23 +3,24 @@ package codelens
 import co.elpache.codelens.codetree.CodeFolder
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.codetree.NodeData
-import co.elpachecode.codelens.cssSelector.CssSearch
-import co.elpachecode.codelens.cssSelector.parseCssSelector
+import co.elpachecode.codelens.cssSelector.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
 
+private val n = CodeFolder(
+  File("../code-examples/kotlin/fixtures/"))
+private val tree = CodeTree().expandFullCodeTree(n).applyAnalytics()
+
 //Todo: Change tests to be more independent using utils graph
 class KotlinSupportTest2 {
 
-  private val n = CodeFolder(
-    File("../code-examples/kotlin/fixtures/"))
-  private val tree = CodeTree().expandFullCodeTree(n).applyAnalytics()
+
   val ext = "kt"
 
   @Test
   fun `print tree`() {
-    println(tree.printTree())
+    println(tree.asString())
   }
 
   @Test
@@ -41,7 +42,7 @@ class KotlinSupportTest2 {
     assertThat(search("#functionWith3Params>params>param")).extracting("name").containsExactly("x", "y", "z")
 
     assertThat(getValue("#functionWith2NestingLevels", "depth") as Int).isEqualTo(2)
-    assertThat(getValue("#functionWith2Lines", "lines") as Int).isEqualTo(2)
+      assertThat(getValue("#functionWith2Lines", "lines") as Int).isEqualTo(2)
     assertThat(getValue("#functionWith3Params", "params") as Int).isEqualTo(3)
   }
 
@@ -65,6 +66,7 @@ class KotlinSupportTest2 {
 
   @Test
   fun `Test Classes`() {
+    tree.finder().first("#Rectangle4").printTree()
     assertThat(search("class")).extracting("name").contains("Animal")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
@@ -75,15 +77,13 @@ class KotlinSupportTest2 {
   @Test
   fun `loops`() {
 
-    assertThat(search("loop")).hasSize(4)
+    assertThat(tree.finder().find("loop")).hasSize(3)
   }
 
   private fun getValue(funName: String, metric: String) = search(funName).first()[metric] as Any
 
 
-  private fun search(css: String): List<NodeData> {
-    val res = CssSearch(parseCssSelector(css), tree).search()
-    return res.map { tree.tree.v(it).data }
-  }
+  private fun search(css: String): List<NodeData> =
+    tree.finder().find(css).map { it.data }
 
 }

@@ -11,6 +11,7 @@ import java.util.LinkedList
 
 
 
+fun CodeTree.finder() = NodeResult(tree.rootVid(), this)
 
 open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   val tree = codeBase.tree
@@ -25,8 +26,11 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   fun children(selector: String? = null) =
     children.filter { selector == null || it.matches(selector) }
 
-  open fun first(type: String) =
-    children.firstOrNull { it.type == type } ?: EmptyResult()
+  open fun firstChildren(selector: String) =
+    children(selector).firstOrNull() ?: EmptyResult()
+
+  open fun first(selector: String) =
+    find(selector).firstOrNull() ?: EmptyResult()
 
   open fun find(css: String): List<NodeResult> {
     return CssSearch(parseCssSelector(css), codeBase)
@@ -35,16 +39,28 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
       }
   }
 
+  fun data(css: String) = find(css).map { it.data }
+
+  fun byType(selector: String) =
+    codeBase
+      .descendants(vid)
+      .map { NodeResult(it, codeBase) }
+      .filter { it.matches(selector) }
+
+  fun printTree() {
+    println(codeBase.subTreeFrom(vid).asString())
+  }
+
   override fun toString() = data.toString()
 
   fun matches(css: String) = matches(tree.v(vid).data, parseCssSelector(css).selectors.first())
 }
 
-class EmptyResult : NodeResult("", CodeTree()) {
+class EmptyResult : NodeResult("--Empty--", CodeTree()) {
   override val code = ""
   override val data: NodeData = NodeData()
   override val children = emptyList<NodeResult>()
-  override fun first(css: String) = this
+  override fun firstChildren(css: String) = this
   override fun find(css: String) = emptyList<NodeResult>()
 }
 

@@ -28,8 +28,22 @@ abstract class LanguageCodeEntity(
   name: String? = null,
   val startOffset: Int,
   val endOffset: Int,
-  val code: String
+  val codeFile: CodeFile? = null
 ) : CodeEntity(name, type) {
+
+
+  open val code: String
+    get() =
+      if (codeFile!!.isNotEmpty()
+        && startOffset < endOffset
+        && startOffset < codeFile.code.length
+        && endOffset <= codeFile.code.length)
+
+        codeFile.code.substring(startOffset, endOffset)
+      else {
+        System.err.println("Problem with node $data")
+        ""
+      }
 
   init {
     data.addAll(
@@ -58,6 +72,12 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
     }
   }
 
+  init {
+    data.addAll(
+      "fileName" to dir.name
+    )
+  }
+
   override fun expand() =
     dir.listFiles()
       .map {
@@ -65,12 +85,11 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
           CodeFolder(it, basePath)
         else
           loadFile(it)
-      }
+      }.filterNotNull()
 
-  fun loadFile(file: File): CodeEntity {
+  fun loadFile(file: File): CodeEntity? {
     val buildAstFile = LanguageSupportRegistry[file.extension]
-    return if (buildAstFile != null) buildAstFile(file)
-    else CodeFile(file)
+    return if (buildAstFile != null) buildAstFile(file) else null
   }
 }
 
@@ -79,17 +98,18 @@ typealias buildAstFile = (file: File) -> CodeFile
 open class CodeFile(
   private val file: File,
   type: String = "file",
-  astType: String = type
+  astType: String = type,
+  val lang: String
 ) : LanguageCodeEntity(
   type = type,
   astType = astType,
   name = file.nameWithoutExtension,
   startOffset = 0,
-  endOffset = file.length().toInt(),
-  code = file.readText()
+  endOffset = file.length().toInt()
 ) {
 
-  open val lang = "rawText"
+  override val code: String by lazy { contents() }
+
   val fileName: String = file.name
 
   var error: String = ""
@@ -98,8 +118,11 @@ open class CodeFile(
 
   fun contents() = error + file.readText(Charsets.UTF_8)
 
+  fun isNotEmpty() = contents().isNotEmpty()
+
   init {
     data.addAll(
+      "language" to lang,
       "startOffset" to startOffset,
       "fileName" to fileName,
       "endOffset" to endOffset,

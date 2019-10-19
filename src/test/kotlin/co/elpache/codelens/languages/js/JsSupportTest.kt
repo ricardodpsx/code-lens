@@ -3,26 +3,23 @@ package codelens
 import co.elpache.codelens.codetree.CodeFolder
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.codetree.NodeData
-import co.elpachecode.codelens.cssSelector.CssSearch
-import co.elpachecode.codelens.cssSelector.parseCssSelector
+import co.elpachecode.codelens.cssSelector.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
 
+private val n = CodeFolder(
+  File("../code-examples/js/fixtures/")
+)
+private val tree = CodeTree().expandFullCodeTree(n).applyAnalytics()
+
 //Todo: Change tests to be more independent using utils graph
 class JsSupportTest {
-
-
-
-  private val n = CodeFolder(
-    File("../code-examples/js/fixtures/")
-  )
-  private val tree = CodeTree().expandFullCodeTree(n).applyAnalytics()
   val ext = "js"
 
   @Test
   fun `print tree`() {
-    println(tree.printTree())
+    println(tree.asString())
   }
 
 
@@ -34,11 +31,12 @@ class JsSupportTest {
       .contains("functionWith2NestingLevels", "functionWith2Lines", "functionWith3Params")
 
     funs.forEach {
+      assertThat(it["startOffset"]).isNotNull
+      assertThat(it["endOffset"]).isNotNull
       assertThat(it["lines"]).isNotNull
       assertThat(it["params"]).isNotNull
       assertThat(it["type"]).isNotNull
       assertThat(it["depth"]).isNotNull
-      assertThat(it["childrenCount"]).isNotNull
     }
 
     assertThat(search("#functionWith3Params>params>param")).hasSize(3)
@@ -53,6 +51,8 @@ class JsSupportTest {
   @Test
   fun `Test Calls`() {
     assertThat(search("call")).extracting("firstLine").contains("functionWith3Params(1, 2, 3)")
+
+
     assertThat(search("call[firstLine^='functionWith3Params']>args>arg")).hasSize(3)
     assertThat(getValue("call[firstLine^='functionWith3Params']", "args")).isEqualTo(3)
   }
@@ -72,6 +72,9 @@ class JsSupportTest {
     assertThat(search("class")).extracting("name").contains("Animal")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
+
+    tree.finder().first("#Rectangle4").printTree()
+
     assertThat(getValue("#Rectangle4", "methods")).isEqualTo(3)
     assertThat(getValue("#Rectangle4", "constructors")).isEqualTo(1)
   }
@@ -80,8 +83,8 @@ class JsSupportTest {
 
 
   private fun search(css: String): List<NodeData> {
-    val res = CssSearch(parseCssSelector(css), tree).search()
-    return res.map { tree.tree.v(it).data }
+    val res = tree.finder().find(css)
+    return res.map { it.data }
   }
 
 }

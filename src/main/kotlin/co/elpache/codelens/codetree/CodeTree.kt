@@ -1,13 +1,12 @@
 package co.elpache.codelens.codetree
 
+import co.elpache.codelens.languages.js.applyJsMetrics
+import co.elpache.codelens.languages.kotlin.applyKotlinMetrics
 import co.elpache.codelens.tree.Tree
 import co.elpache.codelens.tree.Vid
 import co.elpache.codelens.tree.buildTreeFromChildren
 import co.elpache.codelens.tree.subTree
-import co.elpachecode.codelens.cssSelector.EmptyResult
-import co.elpachecode.codelens.cssSelector.NodeResult
-import java.lang.StringBuilder
-import kotlin.math.max
+import co.elpachecode.codelens.cssSelector.finder
 
 class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   fun children(vid: String) = tree.children(vid).map {
@@ -37,59 +36,25 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
   fun subTreeFrom(vid: Vid) = CodeTree(subTree(tree, vid))
 
-  fun byType(type: String) =
-    tree.vertices
-      .filter { it.value.node is LanguageCodeEntity }
-      .map { it.key to it.value.node as LanguageCodeEntity }
-      .filter { it.second.type == type }
-      .map { NodeResult(it.first, this) }
-
-  fun find(css: String) = NodeResult(tree.rootVid(), this).find(css)
-
+  fun descendants(vid: Vid, descendantList: ArrayList<Vid> = arrayListOf()): List<Vid> {
+    for (cVid in tree.children(vid)) {
+      descendantList.add(cVid)
+      descendants(cVid, descendantList)
+    }
+    return descendantList
+  }
 
   //Todo: Test tree expansion
   fun expandFullCodeTree(node: CodeTreeNode): CodeTree =
     _expandTreeNode(node)
 
-
-  fun depth(vid: Vid): Int {
-    var maxDepth = 0
-    for (cVid in tree.children(vid))
-      maxDepth = max(depth(cVid), maxDepth)
-
-    return (if (increasesNesting((tree.v(vid) as CodeEntity).type)) 1 else 0) + maxDepth
-  }
-
   fun applyAnalytics(): CodeTree {
-
-    byType("call").forEach {
-      it.data["args"] = it.first("args").children("arg").size
-    }
-
-    byType("fun").forEach {
-      it.data["textLines"] = it.code.split("\n").size
-      it.data["lines"] = it.code.relevantCodeLines() - 1
-      it.data["depth"] = depth(it.vid) - 1
-      it.data["params"] = it.first("params").children("param").size
-    }
-
-    byType("file").forEach {
-      it.data["lines"] = it.code.relevantCodeLines()
-      it.data["textLines"] = it.code.split("\n").size
-      it.data["functions"] = it.children("fun").size
-      it.data["classes"] = it.children("class").size
-      it.data["bindings"] = it.children("binding").size
-    }
-
-    byType("class").forEach {
-      it.data["lines"] = it.code.relevantCodeLines()
-
-      var body = it.first("ClassBody").first("body")
-      it.data["constructors"] = body.children("fun[kind='constructor']").size
-      it.data["methods"] = body.children("fun").size
-      it.data["properties"] = body.children("binding").size
-      it.data["members"] = it.code.relevantCodeLines()
-    }
+    finder().byType("file")
+      .filter { it.codeNode() is CodeFile }
+      .map { it to it.codeNode() as CodeFile }.forEach {
+        if (it.second.lang == "js") applyJsMetrics(it.first)
+        else if (it.second.lang == "kotlin") applyKotlinMetrics(it.first)
+      }
 
     return this
   }
@@ -106,7 +71,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
     ids.add(vid)
 
-    //val vid = UUID.randomUUID().toString()
+    //val vid = UUID.randomUUID().asString()
     tree.addIfAbsent(vid, node)
 
     if (parent != null)
@@ -120,7 +85,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
     return this
   }
 
-  fun printTree(): String {
+  fun asString(): String {
     val out = StringBuilder()
     val root = tree.v(tree.rootVid())
     out.append("${tree.rootVid}: ${root.data}\n")
@@ -137,14 +102,3 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   }
 
 }
-
-
-fun increasesNesting(type: String) = listOf("fun", "if", "loop").contains(type)
-
-
-fun String.relevantCodeLines() =
-  split("\n")
-    .map { it.trim() }
-    .filter { !it.isBlank() }
-    .filter { it.length > 1 }
-    .size

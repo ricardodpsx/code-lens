@@ -54,7 +54,7 @@ function expand(g, v) {
   if(g[v].data.type == "file") return
 
   return g[v].children.map(c =>
-    <TreeNode title={g[c].data.name} key={c} >
+    <TreeNode title={g[c].data.fileName} key={c} >
       {g[c].children.length && expand(g, c)}
     </TreeNode>
   )

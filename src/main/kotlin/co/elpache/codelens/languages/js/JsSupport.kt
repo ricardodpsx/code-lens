@@ -3,10 +3,8 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
 import co.elpache.codelens.codetree.LanguageCodeEntity
-import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.codetree.addAll
 import co.elpache.codelens.codetree.buildAstFile
-import co.elpache.codelens.codetree.nodeDataOf
 import co.elpache.codelens.firstLine
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
@@ -58,7 +56,8 @@ fun JsNode.jsonValues() =
   this.entries
     .filter { it.value?.asNode(it.key) == null }.map {
       it.key to it.value
-    }.filterNot {
+    }
+    .filterNot {
       listOf("type", "name").contains(it.first)
     }
     .toMap()
@@ -79,17 +78,15 @@ fun Any.asNode(key: String? = null): JsNode? {
 }
 
 
-class JsFile(val file: File) : CodeFile(file) {
-  override val lang = "js"
+class JsFile(val file: File) : CodeFile(file = file, lang = "js") {
   override fun expand(): List<CodeEntity> {
-    val code = contents()
 
     try {
       return toJson(parseFile(file))
         .child("program")!!
         .getList("body")
         .map {
-          toJsCodeEntity(it.asNode()!!, code, this)
+          toJsCodeEntity(it.asNode()!!, this, this)
         }
     } catch (e: Exception) {
 
@@ -101,14 +98,14 @@ class JsFile(val file: File) : CodeFile(file) {
             "type" to "error",
             "start" to 0,
             "end" to error.length
-          ), code, this
+          ), this, this
         ),
         toJsCodeEntity(
           mapOf(
             "type" to "code",
             "start" to error.length,
             "end" to error.length + file.length()
-          ), code, this
+          ), this, this
         )
       )
     }
@@ -122,28 +119,17 @@ class JsCodeEntity(
   astType: String,
   startOffset: Int,
   endOffset: Int,
-  code: String,
-  val node: JsNode,
-  val extra: NodeData
+  codeFile: CodeFile,
+  val node: JsNode
 ) : LanguageCodeEntity(
-  name = name, type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, code = code
+  name = name, type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
 ) {
-
 
   override fun expand() =
     node.children()
       .map {
-        toJsCodeEntity(it, code = code, parent = this)
+        toJsCodeEntity(it, codeFile = codeFile!!, parent = this)
       }
-
-  init {
-    data.addAll(
-
-    )
-    node.jsonValues().forEach {
-      data.addAll(it.key to it.value)
-    }
-  }
 
 }
 
@@ -185,8 +171,8 @@ fun simplifyType(astType: String, parent: CodeEntity) = when (astType) {
   "NewExpression" -> "call" //todo: Multitype's object contruction
   "AssignmentExpression" -> "binding"
   "VariableDeclaration" -> "binding"
-  else -> if (astType == "Identifier" && parent.type == "params") "param"
-  else if (astType == "Identifier" && parent.type == "args") "arg"
+  else -> if (parent.type == "params") "param"
+  else if (parent.type == "args") "arg"
   else astType
 }
 
@@ -201,23 +187,31 @@ fun getName(c: JsNode, type: String): String? {
   return name
 }
 
-private fun toJsCodeEntity(c: JsNode, code: String, parent: CodeEntity): CodeEntity {
+private fun toJsCodeEntity(c: JsNode, codeFile: CodeFile, parent: CodeEntity): CodeEntity {
 
   val astType = c.getString("type")!!
-  var type = simplifyType(astType, parent)
+  val type = simplifyType(astType, parent)
 
-
-  return JsCodeEntity(
+  val e = JsCodeEntity(
     name = getName(c, astType),
     astType = astType,
     type = type,
     node = c,
-    code = code,
+    codeFile = codeFile,
     startOffset = c.getInt("start")!!,
-    endOffset = c.getInt("end")!!,
-    extra = nodeDataOf(
-      "keys" to c.keys,
-      "firstLine" to code.firstLine()
-    )
+    endOffset = c.getInt("end")!!
   )
+
+
+  e.data.addAll(
+    "keys" to c.keys,
+    "firstLine" to e.code.firstLine(),
+    "lines" to e.code.relevantCodeLines()
+  )
+  c.jsonValues().forEach {
+    if (it.value != null)
+      e.data.put(it.key, it.value!!)
+  }
+
+  return e
 }

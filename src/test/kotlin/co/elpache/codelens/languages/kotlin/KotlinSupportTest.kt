@@ -3,19 +3,21 @@ package codelens
 import co.elpache.codelens.codetree.CodeFolder
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.selectCode
+import co.elpachecode.codelens.cssSelector.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+
+private val codeBase =
+  CodeTree().expandFullCodeTree(CodeFolder.load("../code-examples/kotlin/subpackage")).applyAnalytics()
+
 
 //Todo: Change tests to be more independent using utils graph
 class KotlinSupportTest {
 
-  private val codeBase =
-    CodeTree().expandFullCodeTree(CodeFolder.load("tmp/kotlin/subpackage/"))
 
   @Test
   fun `can print tree`() {
-
-    println(codeBase.printTree())
+    println(codeBase.asString())
   }
 
   @Test
@@ -27,10 +29,9 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select by name`() {
-    println(selectCode(codeBase, "#ExampleClassB"))
     assertThat(selectCode(codeBase, "#ExampleClassB"))
       .extracting("name")
-      .containsExactlyInAnyOrder("ExampleClassB")
+      .containsExactlyInAnyOrder("ExampleClassB", "ExampleClassB")
   }
 
 
@@ -42,8 +43,8 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select Functions by line`() {
-    val list = selectCode(codeBase, "fun[textLines=6]")
-    assertThat(list).extracting("name").contains("methodWithSixLines")
+    val list = codeBase.finder().find("fun[lines=4]").map { it.data }
+    assertThat(list).extracting("name").contains("methodWithFourLines")
   }
 
   @Test

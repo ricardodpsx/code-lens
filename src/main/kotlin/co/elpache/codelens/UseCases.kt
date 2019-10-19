@@ -118,9 +118,6 @@ class UseCases(private val factory: Factory = Factory()) {
       codeBase = factory.createBaseCode(it)
       history.add(statistics(paramValues(param, selectBy(query), codeBase), codeBase))
     }
-
-    codeBase = factory.createBaseCode()
-    history.add(statistics(paramValues(param, selectBy(query), codeBase), codeBase))
     return history
   }
 

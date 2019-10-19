@@ -3,9 +3,7 @@ package co.elpache.codelens.languages.kotlin
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
 import co.elpache.codelens.codetree.LanguageCodeEntity
-import co.elpache.codelens.codetree.addAll
 import co.elpache.codelens.codetree.buildAstFile
-import co.elpache.codelens.codetree.relevantCodeLines
 import co.elpache.codelens.firstLine
 import co.elpache.codelens.underscoreToCamel
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -21,10 +19,10 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
@@ -34,13 +32,14 @@ import java.io.File
 
 val buildKotlinFile: buildAstFile = { file: File -> KotlinFile(file) }
 
-class KotlinFile(val file: File) : CodeFile(file) {
-  override val lang: String = "kotlin"
+class KotlinFile(val file: File) : CodeFile(file, lang = "kotlin") {
 
-  override fun expand() =
-    parseFile(file.readText()).children.map {
-      toCodeEntity(it)
+  override fun expand() = run {
+    val text = file.readText()
+    parseFile(text).children.map {
+      toCodeEntity(it, this)
     }
+  }
 }
 
 class KotlinCodeEntity(
@@ -50,15 +49,15 @@ class KotlinCodeEntity(
   val line: Int,
   startOffset: Int,
   endOffset: Int,
-  code: String
+  codeFile: CodeFile
 ) : LanguageCodeEntity(
   name = name,
-  type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, code = code
+  type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
 ) {
 
   override fun expand() =
     node.children.map {
-      toCodeEntity(it)
+      toCodeEntity(it, codeFile!!)
     }
 }
 
@@ -87,17 +86,16 @@ fun simplifyType(type: String) = when (type) {
   "valueParameterList" -> "params"
   "valueArgumentList" -> "args"
   "valueArgument" -> "arg"
-  "classInitializer" -> "fun"
+  "classInitializer", "lambdaExpression", "constructor", "secondaryConstructor" -> "fun"
   "callExpression" -> "call" ////todo: Multitype's object contruction, how to differenciate?
   "importDirective" -> "import"
   "property" -> "binding"
-  "lambdaExpression" -> "fun"
   "BinaryExpression" -> "expression"
   "while", "doWhile", "for" -> "loop"
   else -> type
 }
 
-private fun toCodeEntity(c: PsiElement): CodeEntity {
+private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): CodeEntity {
 
   val name = when (c) {
     is KtClass -> c.name ?: "Anonymous"
@@ -109,16 +107,19 @@ private fun toCodeEntity(c: PsiElement): CodeEntity {
     else -> null
   }
 
-  return KotlinCodeEntity(
+  val k = KotlinCodeEntity(
     name = name,
     astType = c.node.elementType.toString().underscoreToCamel(),
     type = simplifyType(c.node.elementType.toString().underscoreToCamel()),
     line = c.node.startOffset,
     node = c,
-    code = c.text,
+    codeFile = codeFile,
     startOffset = c.startOffset,
     endOffset = c.endOffset
   )
 
+  k.data["firstLine"] = k.code.firstLine()
+
+  return k
 }
 

@@ -4,9 +4,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class AnalyticsIntegrationTest {
+  val factory = Factory("tmp", "tmp/kotlin/subpackage/")
+
   @Test
   fun `Can get Int Params`() {
-    val uc = UseCases()
+
+    val uc = UseCases(factory)
 
     val results = uc.getPossibleIntParams("fun")
 
@@ -15,9 +18,9 @@ class AnalyticsIntegrationTest {
 
   @Test
   fun `Can see change in a function`() {
-    val uc = UseCases()
+    val uc = UseCases(factory)
     val statistics = uc.collectHistory(
-      "#functionWithParams", "params",
+      "#ExampleClass #functionWithParams", "params",
       listOf("d37fb4b", "a1e3958"))
 
     assertThat(statistics[0].max).isEqualTo(2.0)

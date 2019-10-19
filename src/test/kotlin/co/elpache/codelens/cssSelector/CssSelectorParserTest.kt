@@ -36,23 +36,23 @@ class CssSelectorParserTest {
 
   @Test
   fun cssSelectWithExtendedAttributeOperations() {
-    val attr = parseCssSelector("class annotationEntry[first-name$='hello']").selectors[1].attributes[0]
-    assertThat(attr.name).isEqualTo("first-name")
+    val attr = parseCssSelector("class annotationEntry[firstChildren-name$='hello']").selectors[1].attributes[0]
+    assertThat(attr.name).isEqualTo("firstChildren-name")
     assertThat(attr.op).isEqualTo("$=")
     assertThat(attr.value).isEqualTo("hello")
   }
 
   @Test
   fun cssSelectWithMultipleAttributeSelectors() {
-    val attrs = parseCssSelector("annotationEntry[first-name$='ricardo'][last-name='pacheco']").selectors[0].attributes
+    val attrs = parseCssSelector("annotationEntry[firstChildren-name$='ricardo'][last-name='pacheco']").selectors[0].attributes
     assertThat(attrs[0].value).isEqualTo("ricardo")
     assertThat(attrs[1].value).isEqualTo("pacheco")
   }
 
   @Test
   fun cssSupportEscape() {
-    val attr = parseCssSelector("class annotationEntry[first-name$='hello \\'world\\'']").selectors[1].attributes[0]
-    assertThat(attr.name).isEqualTo("first-name")
+    val attr = parseCssSelector("class annotationEntry[firstChildren-name$='hello \\'world\\'']").selectors[1].attributes[0]
+    assertThat(attr.name).isEqualTo("firstChildren-name")
     assertThat(attr.op).isEqualTo("$=")
     assertThat(attr.value).isEqualTo("hello \\'world\\'")
   }

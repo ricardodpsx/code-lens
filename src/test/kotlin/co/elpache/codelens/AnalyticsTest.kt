@@ -143,7 +143,7 @@ class AnalyticsTest {
 
     assertThat(
       results
-    ).extracting("max").containsExactly(10.0, 7.0, 4.0)
+    ).extracting("max").containsExactly(10.0, 7.0)
 
   }
 

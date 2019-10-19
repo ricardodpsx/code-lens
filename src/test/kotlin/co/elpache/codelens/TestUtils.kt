@@ -11,7 +11,7 @@ fun readTestFile(file: String) = X::class.java.classLoader.getResource(file).rea
 
 
 fun compareTreeOutputs(a: CodeTree, b: String) =
-  assertThat(a.printTree().normalize()).isEqualTo(b.normalize())
+  assertThat(a.asString().normalize()).isEqualTo(b.normalize())
 
 fun String.normalize () = this.replace(Regex("\t+"), " ").replace(Regex(" +")," ").trim();
 
