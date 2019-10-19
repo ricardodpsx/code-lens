@@ -2,7 +2,6 @@ package co.elpache.codelens.tree
 
 import co.elpache.codelens.tree
 import co.elpache.codelens.inorder
-import co.elpache.codelens.printTree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -16,9 +15,23 @@ class TreeTest {
       tree("a.2")
     )
 
+
+
     assertThat(ct.children(ct.rootVid()).map { ct.v(it) }).contains("a.1", "a.2")
   }
 
+
+
+  @Test
+  fun testCodeTreeAsGraph() {
+    val ct = Tree<String>()
+
+    ct.addIfAbsent("a", "Giovanny")
+    ct.addIfAbsent("b", "Candela")
+
+    ct.addChild("a", "b")
+
+  }
 
   @Test
   fun `can get parent`() {

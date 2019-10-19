@@ -5,29 +5,30 @@ import co.elpache.codelens.QUOTED_STRING
 import co.elpache.codelens.defaultParser
 import co.elpache.codelens.rootParser
 import co.elpache.codelens.unwrap
-import java.util.LinkedList
 
 fun parseCssSelector(selector: String) = selectorParser()
-  .atLeastOne(typeSelectorParser()) {
-    many(attributeSelectorParser()) {
-      one(openBraket())
-      one(attributeNameParser())
-      zeroOrOne(attributeOperationParser())
-      zeroOrOne(attributeValueParser())
-      one(closeBraket())
-    }
-  }.take(selector) as CssSelectors
+  .atLeastOne(
+    typeSelectorParser()
+      .many(
+        attributeSelectorParser()
+          .one(openBraket())
+          .one(attributeNameParser())
+          .zeroOrOne(attributeOperationParser())
+          .zeroOrOne(
+            attributeParser()
+              .oneOf(attributeStringParser(), attributeIntegerParser()))
+          .one(closeBraket()))
+      .zeroOrOne(relationParser())
+  ).take(selector) as CssSelectors
 
-class CssSelectors(val selectors: List<CssSelector>) : CssSelector()
+class CssSelectors(val selectors: List<TypeSelector>) : CssSelector()
 open class CssSelector : Node()
 
 class TypeSelector(
   val name: String,
-  val attributes: List<AttributeSelector>
-) : CssSelector()
-
-class DescendantSelector(
-  val descendants: ArrayList<TypeSelector> = arrayListOf()
+  val attributes: List<AttributeSelector>,
+  val relationType: RelationType,
+  val attributeToMatch: String = "type"
 ) : CssSelector()
 
 class AttributeSelector(
@@ -36,43 +37,50 @@ class AttributeSelector(
   val value: String? = null
 ) : Node()
 
-val selectorParser = rootParser { node ->
-  CssSelectors(selectors = groupDescendantSelectors(node.children).map {
-    if (it.size == 1) it[0]
-    else DescendantSelector(it)
-  })
+val selectorParser = rootParser {
+  CssSelectors(selectors = it.children.map { it as TypeSelector })
 }
 
-private fun groupDescendantSelectors(children: List<Node>): ArrayList<ArrayList<TypeSelector>> {
+val typeSelectorParser = defaultParser("^(#?[A-Za-z0-9_\\-]+)") {
 
-  val flatSelectorList = LinkedList(children.map { it as TypeSelector })
-  val grouped = ArrayList<ArrayList<TypeSelector>>()
+  val name = if (it.text.first() == '#') it.text.drop(1) else it.text
 
-  while (flatSelectorList.isNotEmpty()) {
-    val current = flatSelectorList.pollFirst()
-    if (current.name == ">")
-      grouped.last().add(flatSelectorList.pollFirst())
-    else
-      grouped.add(arrayListOf(current))
-  }
+  val attributeToMatch = if (it.text.first() == '#') "name" else "type"
 
-  return grouped
+  TypeSelector(
+    name,
+    it.children.dropLast(1).map { it as AttributeSelector },
+    it.children.last() as RelationType,
+    attributeToMatch
+  )
 }
 
-val typeSelectorParser = defaultParser("^([A-Za-z0-9_]+|>)") {
-  when (it.text) {
-    ">" -> TypeSelector(it.text, it.children.map { it as AttributeSelector })
-    else -> TypeSelector(it.text, it.children.map { it as AttributeSelector })
-  }
+enum class RelationTypes {
+  DIRECT_DESCENDANT, CHILDREN
 }
+
+class RelationType(val type: RelationTypes) : Node()
+
+val relationParser = defaultParser("^>?") {
+  if (it.text == ">") RelationType(RelationTypes.DIRECT_DESCENDANT)
+  else RelationType(RelationTypes.CHILDREN)
+}
+
 val openBraket = defaultParser("^\\[")
 val closeBraket = defaultParser("^\\]")
 val attributeSelectorParser = defaultParser("^", "^\\[") {
   AttributeSelector(it[1]!!.text, it[2]?.text, it[3]?.text)
 }
 
+
+val attributeParser = defaultParser("^", "^['\"0-9]", converter = { Node(it[0]!!.text) })
+
 val attributeNameParser = defaultParser("^[A-Za-z0-9_\\-]+")
 val attributeOperationParser = defaultParser("^[\\^\\|\\~\\$\\*]?=")
-val attributeValueParser = defaultParser(QUOTED_STRING, "^['\"]") {
+
+val attributeStringParser = defaultParser(QUOTED_STRING, "^['\"]") {
   Node(it.text.unwrap())
+}
+val attributeIntegerParser = defaultParser("^[+-]?[0-9]+") {
+  Node(it.text)
 }

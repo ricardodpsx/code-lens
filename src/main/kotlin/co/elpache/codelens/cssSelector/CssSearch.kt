@@ -1,90 +1,127 @@
 package co.elpachecode.codelens.cssSelector
 
-import co.elpache.codelens.CodeTree
+import co.elpache.codelens.codetree.CodeEntity
+import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.tree.Vid
+import co.elpache.codelens.tree.ancestors
+import org.jetbrains.kotlin.utils.addIfNotNull
+import java.util.LinkedList
 
-data class CssSearch(val selectors: CssSelectors, val tree: CodeTree) {
+
+
+
+open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
+  val tree = codeBase.tree
+
+  fun codeNode() = tree.v(vid) as CodeEntity
+
+  open val type: String get() = codeNode().type
+  open val code: String get() = (codeNode() as LanguageCodeEntity).code
+  open val data: NodeData get() = tree.v(vid).data
+  open val children: List<NodeResult> get() = tree.children(vid).map { NodeResult(it, codeBase) }
+
+  fun children(selector: String? = null) =
+    children.filter { selector == null || it.matches(selector) }
+
+  open fun first(type: String) =
+    children.firstOrNull { it.type == type } ?: EmptyResult()
+
+  open fun find(css: String): List<NodeResult> {
+    return CssSearch(parseCssSelector(css), codeBase)
+      .search(vid).map {
+        NodeResult(it, codeBase)
+      }
+  }
+
+  override fun toString() = data.toString()
+
+  fun matches(css: String) = matches(tree.v(vid).data, parseCssSelector(css).selectors.first())
+}
+
+class EmptyResult : NodeResult("", CodeTree()) {
+  override val code = ""
+  override val data: NodeData = NodeData()
+  override val children = emptyList<NodeResult>()
+  override fun first(css: String) = this
+  override fun find(css: String) = emptyList<NodeResult>()
+}
+
+data class CssSearch(val selectors: CssSelectors, val code: CodeTree) {
+  val found = arrayListOf<Vid>()
+  val tree = code.tree
 
   fun search(fromVertice: Vid = tree.rootVid()): List<Vid> {
-    val found = arrayListOf<Vid>()
-    dfs(fromVertice, buildSearchStateMachine(selectors.selectors, found))
+    dfs(fromVertice)
     return found
   }
 
-  private fun dfs(vid: Vid, currentState: SearchState) {
-    val nextState = currentState.next(vid)
+  fun find(fromVertice: Vid = tree.rootVid()): List<NodeResult> {
+    dfs(fromVertice)
+    return found.map { NodeResult(it, code) }
+  }
+
+
+  private fun dfs(vid: Vid) {
+    if (matches(code.data(vid), selectors.selectors.last()))
+      found.addIfNotNull(TypeSelectorSearch(vid, selectors.selectors, code).find())
+
     for (cVid in tree.children(vid))
-      dfs(cVid, nextState.copy())
+      dfs(cVid)
   }
 
-  private fun buildSearchStateMachine(selectors: List<CssSelector>, found: ArrayList<Vid>) = selectors
-    .dropLast(1)
-    .foldRight(buildChildState(selectors.last()) { found.add(it) })
-    { t, next -> buildParentState(t, next) }
-
-
-  private fun buildChildState(type: CssSelector, onMatch: (e: Vid) -> Unit) =
-    when (type) {
-      is TypeSelector -> TypeSelectorSearchState(tree, type) { onMatch(it) }
-      is DescendantSelector -> DescendantSelectorSearchState(tree, type) { onMatch(it) }
-      else -> error("Unsupported type ${type}")
-    }
-
-  private fun buildParentState(type: CssSelector, next: SearchState) =
-    when (type) {
-      is TypeSelector -> TypeSelectorSearchState(tree, type, next)
-      is DescendantSelector -> DescendantSelectorSearchState(tree, type, next)
-      else -> error("Unsupported type ${type}")
-    }
 }
 
-interface SearchState {
-  val tree: CodeTree
-  val selector: CssSelector
-  fun next(vid: Vid): SearchState
-  fun copy(): SearchState
-}
+private typealias Match = Pair<TypeSelector, Vid>
 
-private class TypeSelectorSearchState(
-  override val tree: CodeTree,
-  override val selector: TypeSelector,
-  val nextState: SearchState? = null,
-  val onMatch: (vid: Vid) -> Unit = {}
-) : SearchState {
-  override fun copy() = this
+class TypeSelectorSearch(val from: Vid, selectors: List<TypeSelector>, val code: CodeTree) {
+  val tree = code.tree
+  private val nodes = LinkedList<Vid>()
+  private val parentSelectors = LinkedList(selectors)
+  private var current: TypeSelector? = null
 
-  override fun next(vid: Vid): SearchState {
-    if (matches(tree.v(vid).data(), selector)) {
-      onMatch(vid)
-      return nextState ?: this
-    }
-    return this
-  }
-}
 
-private class DescendantSelectorSearchState(
-  override val tree: CodeTree,
-  override val selector: DescendantSelector,
-  var nextState: SearchState? = null,
-  val slidingWindow: SlidingWindow<Vid> = SlidingWindow(selector.descendants.size),
-  val onMatch: (vid: Vid) -> Unit = {}
-) : SearchState {
+  fun find(): Vid? {
+    nodes.addAll(ancestors(tree, from).reversed())
+    parentSelectors.pollLast()
+    nodes.pollLast()
 
-  fun nextState() = nextState ?: this
-
-  override fun next(vid: Vid): SearchState {
-    slidingWindow.addUntilFull(vid) { items ->
-      if (matchAllDescendants(items)) {
-        onMatch(slidingWindow.last())
-        return nextState()
-      }
-    }
-    return this
+    while (nextMatch() != null);
+    return if (parentSelectors.isEmpty()) from else null
   }
 
-  private fun matchAllDescendants(items: List<Vid>) =
-    items.withIndex().all { matches(tree.v(it.value).data(), selector.descendants[it.index]) }
+  private fun nextMatch(): Match? {
+    if (parentSelectors.isEmpty()) return null
 
-  override fun copy() = DescendantSelectorSearchState(tree, selector, nextState, slidingWindow.copy(), onMatch)
+    return when (parentSelectors.peekLast().relationType.type) {
+      RelationTypes.CHILDREN -> takeChildren()
+      RelationTypes.DIRECT_DESCENDANT -> takeDescendants()
+    }
+  }
+
+  private fun takeDescendants(): Match? {
+    return if (nodeMatchesSelector()) takeSelectorAndNode()
+    else null
+  }
+
+  private fun takeChildren(): Match? {
+    while (hasMore())
+      if (nodeMatchesSelector()) return takeSelectorAndNode()
+      else discardNode()
+
+    return null
+  }
+
+  private fun hasMore() = nodes.isNotEmpty() && parentSelectors.isNotEmpty()
+
+  private fun discardNode() = nodes.pollLast()
+
+  private fun nodeMatchesSelector() =
+    matches(
+      tree.v(nodes.peekLast()).data,
+      parentSelectors.peekLast()
+    )
+
+  private fun takeSelectorAndNode() = parentSelectors.pollLast() to nodes.pollLast()
 }
-

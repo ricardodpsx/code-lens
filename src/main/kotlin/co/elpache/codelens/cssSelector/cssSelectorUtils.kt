@@ -1,9 +1,10 @@
 package co.elpachecode.codelens.cssSelector
 
-import co.elpache.codelens.NodeData
+import co.elpache.codelens.codetree.NodeData
 
 fun matches(ce: NodeData, typeSelector: TypeSelector): Boolean {
-  if (ce["type"].toString().toLowerCase() != typeSelector.name.toLowerCase())
+
+  if (ce[typeSelector.attributeToMatch].toString().toLowerCase() != typeSelector.name.toLowerCase())
     return false
 
   return typeSelector.attributes.all { matchesAttribute(it, ce) }

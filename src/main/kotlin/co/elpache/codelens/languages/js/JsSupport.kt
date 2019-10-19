@@ -1,128 +1,223 @@
 package co.elpache.codelens.languages.js
 
-import co.elpache.codelens.CodeEntity
-import co.elpache.codelens.CodeFile
-import co.elpache.codelens.CodeTree
-import co.elpache.codelens.LanguageCodeEntity
-import co.elpache.codelens.and
-import co.elpache.codelens.buildAstFile
-import co.elpache.codelens.depth
-import co.elpache.codelens.relevantCodeLines
-import co.elpache.codelens.search
+import co.elpache.codelens.codetree.CodeEntity
+import co.elpache.codelens.codetree.CodeFile
+import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.NodeData
+import co.elpache.codelens.codetree.addAll
+import co.elpache.codelens.codetree.buildAstFile
+import co.elpache.codelens.codetree.nodeDataOf
+import co.elpache.codelens.firstLine
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 
 
 val buildJsFile: buildAstFile = { file: File -> JsFile(file) }
 
-typealias JsNode = Map<String, Any>
+typealias JsNode = Map<String, Any?>
 
-fun JsNode.child(key: String): JsNode {
-  return this[key] as JsNode
+fun JsNode.child(key: String) = (this as Map<String, Any>)[key] as? JsNode
+
+fun JsNode.getMap(key: String) = (this as Map<String, Any>)[key] as Map<String, Any>
+
+fun JsNode.getList(key: String) = (this as Map<String, Any>)[key] as List<Any>
+
+fun JsNode.getString(key: String): String? {
+  val map = (this as? Map<String, Any>)
+
+  if (map != null)
+    return map.get(key) as? String
+
+  return null
 }
 
-fun JsNode.list(key: String): ArrayList<Any> {
-  return this[key] as ArrayList<Any>
+fun JsNode.getInt(key: String): Int? {
+  val map = (this as? Map<String, Any>)
+
+  if (map != null)
+    return map.get(key) as? Int
+
+  return null
 }
 
-fun <T> JsNode.value(key: String): T = this[key] as T
+
+fun JsNode.children() =
+  this.entries
+    .map { it.value?.asNode(it.key) }.filterNotNull()
+
+fun JsNode.childrenMap(): Map<String, Any?> {
+  val res = HashMap<String, Any?>()
+  this.keys
+    .forEach {
+      res.put(it, this.entries.asNode(it))
+    }
+  return res
+}
+
+fun JsNode.jsonValues() =
+  this.entries
+    .filter { it.value?.asNode(it.key) == null }.map {
+      it.key to it.value
+    }.filterNot {
+      listOf("type", "name").contains(it.first)
+    }
+    .toMap()
+
+fun Any.asNode(key: String? = null): JsNode? {
+  val map = this as? Map<String, Any>
+  val li = this as? List<Map<String, Any>>
+
+  return if (map != null && map.containsKey("type"))
+    map
+  else if (li != null && li.isNotEmpty() && li.first().containsKey("type"))
+    mapOf(
+      "type" to key!!,
+      "start" to li.first()["start"],
+      "end" to li.last()["end"]
+    ).plus(li.mapIndexed { index, it -> index.toString() to it }).toMap()
+  else null
+}
 
 
 class JsFile(val file: File) : CodeFile(file) {
   override val lang = "js"
   override fun expand(): List<CodeEntity> {
     val code = contents()
-    return parseFile(file).child("program").list("body")
-      .map { toJsCodeEntity(it as JsNode, code) }
+
+    try {
+      return toJson(parseFile(file))
+        .child("program")!!
+        .getList("body")
+        .map {
+          toJsCodeEntity(it.asNode()!!, code, this)
+        }
+    } catch (e: Exception) {
+
+      super.error = e.message ?: e.stackTrace.contentToString()
+
+      return listOf(
+        toJsCodeEntity(
+          mapOf(
+            "type" to "error",
+            "start" to 0,
+            "end" to error.length
+          ), code, this
+        ),
+        toJsCodeEntity(
+          mapOf(
+            "type" to "code",
+            "start" to error.length,
+            "end" to error.length + file.length()
+          ), code, this
+        )
+      )
+    }
   }
 }
 
 
-data class JsCodeEntity(
-  override val name: String?,
-  override val type: String,
-  val fileCode: String,
-  val node: JsNode
-) : LanguageCodeEntity {
-  override val startOffset: Int = node.value("start")
-  override val endOffset: Int = node.value("end")
+class JsCodeEntity(
+  name: String? = null,
+  type: String,
+  astType: String,
+  startOffset: Int,
+  endOffset: Int,
+  code: String,
+  val node: JsNode,
+  val extra: NodeData
+) : LanguageCodeEntity(
+  name = name, type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, code = code
+) {
 
-  override val code by lazy {
-    if(!( startOffset >= 0 && startOffset <= fileCode.length && endOffset >= 0 && endOffset <= fileCode.length)) {
-      println("Code offsets mistmatch i")
-    }
-    fileCode.substring(startOffset, endIndex = Math.min(endOffset, fileCode.length))
-  }
 
   override fun expand() =
-    node.values
-      .filter { it is Map<*, *> }
-      .filter { (it as Map<String, Any>).containsKey("type") }
+    node.children()
       .map {
-        toJsCodeEntity(it as JsNode, fileCode = fileCode)
-      }.plus(
-        node.values.filter {
-          it is List<*>
-        }.map {
-          (it as List<Any>)
-            .filter { it is Map<*, *> }
-            .filter { (it as Map<String, Any>).containsKey("type") }
-            .map { toJsCodeEntity(it as JsNode, fileCode = fileCode) }
-        }.flatten()
-      )
+        toJsCodeEntity(it, code = code, parent = this)
+      }
 
-  val data = super.data().and(
-    "startOffset" to startOffset,
-    "endOffset" to endOffset
-  )
+  init {
+    data.addAll(
 
-  override fun data() = data
+    )
+    node.jsonValues().forEach {
+      data.addAll(it.key to it.value)
+    }
+  }
+
+}
+
+fun toJson(js: String): Map<String, Any> {
+  return ObjectMapper().readValue(js, Map::class.java) as Map<String, Any>
 }
 
 
-private fun parseFile(file: File): Map<String, Any> {
-  val programOutput = Runtime.getRuntime().exec(
+fun parseFile(file: File): String {
+  val e = Runtime.getRuntime().exec(
     "node JavaScriptSupport.js ${file.absolutePath}", null,
     File("/Users/ricardodps/PROJECTS/CodeLens/frontend")
-  ).inputStream
-  //Todo: Process error output to ease troubleshooting
-  return ObjectMapper().readValue(programOutput, Map::class.java) as Map<String, Any>
-}
-
-
-private fun toJsCodeEntity(c: JsNode, fileCode: String): CodeEntity {
-  return JsCodeEntity(
-    name = c["name"] as? String,
-    type = c["type"] as String,
-    node = c,
-    fileCode = fileCode
   );
+
+  val programOutput = e.inputStream.bufferedReader().readText()
+  val programError = e.errorStream.bufferedReader().readText()
+
+  //Todo: Process error output to ease troubleshooting
+  if (programError.isNotEmpty())
+    throw RuntimeException("Error Parsing File:\n $programError")
+
+  return programOutput
 }
 
 
+//block, fun, class, if
+fun simplifyType(astType: String, parent: CodeEntity) = when (astType) {
+  "arguments" -> "args"
+  "ClassDeclaration" -> "class"
+  "ClassMethod" -> "fun"
+  "FunctionDeclaration" -> "fun"
+  "BlockStatement" -> "block"
+  "CallExpression" -> "call"
+  "ImportDeclaration" -> "import"
+  "BinaryExpression" -> "expression"
+  "ArrowFunctionExpression" -> "fun"
+  "IfStatement" -> "if"
+  "ObjectExpression" -> "object"
+  "NewExpression" -> "call" //todo: Multitype's object contruction
+  "AssignmentExpression" -> "binding"
+  "VariableDeclaration" -> "binding"
+  else -> if (astType == "Identifier" && parent.type == "params") "param"
+  else if (astType == "Identifier" && parent.type == "args") "arg"
+  else astType
+}
 
-//Todo: Analytics must happen on Demand?
-fun jsApplyAnalytics(tree: CodeTree): CodeTree {
+fun getName(c: JsNode, type: String): String? {
+  var name = c.getString("name")
+  val id = c.child("id")
 
-  search(tree, "fun").forEach {
-    //Lines
-    val function = tree.v(it) as LanguageCodeEntity
+  if (id != null) return id.getString("name")
 
-    //For one line functions
-    function.data()["lines"] = relevantCodeLines(function.code)
-    //Depth
-    function.data()["depth"] = depth(tree, it)
+  if (type == "ClassMethod") return c.child("key")?.get("name") as? String
 
-    search(tree, "block", it).getOrNull(0)?.let {
-      val block = tree.v(it) as LanguageCodeEntity
-      function.data()["lines"] = relevantCodeLines(block.code)
-    }
+  return name
+}
 
-    //Arguments
-    search(tree, "valueParameterList", it).getOrNull(0)?.let {
-      function.data()["argumentCount"] = (tree.v(it) as LanguageCodeEntity).data()["childrenCount"]!!
-    }
+private fun toJsCodeEntity(c: JsNode, code: String, parent: CodeEntity): CodeEntity {
 
-  }
-  return tree
+  val astType = c.getString("type")!!
+  var type = simplifyType(astType, parent)
+
+
+  return JsCodeEntity(
+    name = getName(c, astType),
+    astType = astType,
+    type = type,
+    node = c,
+    code = code,
+    startOffset = c.getInt("start")!!,
+    endOffset = c.getInt("end")!!,
+    extra = nodeDataOf(
+      "keys" to c.keys,
+      "firstLine" to code.firstLine()
+    )
+  )
 }

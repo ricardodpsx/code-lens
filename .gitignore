@@ -4,3 +4,5 @@ build
 out
 node_modules
 .DS_STORE
+code-examples
+tmp

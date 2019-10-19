@@ -1,7 +1,7 @@
 package co.elpache.codelens.app
 
+import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.UseCases
-import co.elpache.codelens.toMap
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -20,17 +20,19 @@ class AppController {
 //
 
   data class SearchResult(
-    val resulTree: Map<String, Any>,
-    val results: List<String> = listOf()
+    val codeTree: Map<String, Any>,
+    val results: List<String> = listOf(),
+    val analyticsParams: List<String>
   )
 
   @GetMapping("/")
   @ResponseBody
-  fun cssQuery(@RequestParam cssQuery: String) =
-    with(useCases.selectCodeWithParents(cssQuery)) {
+  fun cssQuery(@RequestParam query: String) =
+    with(useCases.selectCodeWithParents(query)) {
       SearchResult(
-        toMap(treeWithDescendants),
-        results
+        treeWithDescendants.toMap(),
+        results,
+        useCases.getPossibleIntParams(query)
       )
     }
 
@@ -38,5 +40,11 @@ class AppController {
   @GetMapping("/node/{vid}")
   @ResponseBody
   fun openFile(@PathVariable vid: String) = useCases.loadNodeContents(vid)
+
+
+  @GetMapping("/analytics/{param}")
+  @ResponseBody
+  fun analytics(@PathVariable param: String, @RequestParam query: String) =
+    useCases.getFrequencyByParam(query, param).rows
 
 }

@@ -7,7 +7,7 @@ import java.util.TreeSet
 typealias Vid = String
 
 
-class Tree<T> {
+open class Tree<T> {
 
   val vertices: TreeMap<Vid, Vertice<T>>
 
@@ -43,7 +43,6 @@ class Tree<T> {
   }
 
   fun addChild(from: Vid, to: Vid, node: T): Tree<T> {
-
     addIfAbsent(to, node)
     vertices[to]!!.parentVid = from
     vertices[from]!!.children.add(to)

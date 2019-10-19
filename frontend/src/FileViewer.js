@@ -2,7 +2,7 @@ import React, {Component} from "react";
 //import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
 import "./FileViewer.css"
 import CodeEntity from "./CodeEntity";
-import {slice} from "./treeUtils";
+import {slice2} from "./treeUtils";
 
 
 class FileViewer extends Component {
@@ -29,7 +29,7 @@ class FileViewer extends Component {
 
   render() {
     if(!this.props.ast) return null
-    let slicedText = slice(this.props.text, this.props.ast, this.props.ast.rootVid, this.props.results);
+    let slicedText = slice2(this.props.text, this.props.ast, this.props.ast.rootVid, this.props.results);
 
     return (<div>
       <pre className="code">

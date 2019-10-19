@@ -1,7 +1,7 @@
 package codelens.cssSelector
 
-import co.elpache.codelens.NodeData
-import co.elpache.codelens.nodeDataOf
+import co.elpache.codelens.codetree.NodeData
+import co.elpache.codelens.codetree.nodeDataOf
 import co.elpachecode.codelens.cssSelector.AttributeSelector
 import co.elpachecode.codelens.cssSelector.matchesAttribute
 import org.assertj.core.api.Assertions.*

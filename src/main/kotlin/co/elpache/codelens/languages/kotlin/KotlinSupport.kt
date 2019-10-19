@@ -1,14 +1,12 @@
 package co.elpache.codelens.languages.kotlin
 
-import co.elpache.codelens.CodeEntity
-import co.elpache.codelens.CodeFile
-import co.elpache.codelens.CodeTree
-import co.elpache.codelens.LanguageCodeEntity
-import co.elpache.codelens.and
-import co.elpache.codelens.buildAstFile
-import co.elpache.codelens.depth
-import co.elpache.codelens.relevantCodeLines
-import co.elpache.codelens.search
+import co.elpache.codelens.codetree.CodeEntity
+import co.elpache.codelens.codetree.CodeFile
+import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.addAll
+import co.elpache.codelens.codetree.buildAstFile
+import co.elpache.codelens.codetree.relevantCodeLines
+import co.elpache.codelens.firstLine
 import co.elpache.codelens.underscoreToCamel
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -23,6 +21,7 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.KtReferenceExpression
@@ -44,30 +43,23 @@ class KotlinFile(val file: File) : CodeFile(file) {
     }
 }
 
-data class KotlinCodeEntity(
-  override val name: String,
-  override val type: String,
+class KotlinCodeEntity(
+  name: String?,
+  type: String, astType: String,
   val node: PsiElement,
-  val line: Int
-) : LanguageCodeEntity {
-  override val startOffset: Int = node.startOffset
-  override val endOffset: Int = node.endOffset
-
-  override val code by lazy { node.text }
+  val line: Int,
+  startOffset: Int,
+  endOffset: Int,
+  code: String
+) : LanguageCodeEntity(
+  name = name,
+  type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, code = code
+) {
 
   override fun expand() =
     node.children.map {
       toCodeEntity(it)
     }
-
-  val data = super.data().and(
-    "startOffset" to node.startOffset,
-    "endOffset" to node.endOffset,
-    "textLines" to node.text.split("\n").size,
-    "childrenCount" to node.children.size
-  )
-
-  override fun data() = data
 }
 
 
@@ -89,46 +81,44 @@ private fun parseFile(code: String): KtFile {
 
 }
 
+//block, fun, class, if
+fun simplifyType(type: String) = when (type) {
+  "valueParameter" -> "param"
+  "valueParameterList" -> "params"
+  "valueArgumentList" -> "args"
+  "valueArgument" -> "arg"
+  "classInitializer" -> "fun"
+  "callExpression" -> "call" ////todo: Multitype's object contruction, how to differenciate?
+  "importDirective" -> "import"
+  "property" -> "binding"
+  "lambdaExpression" -> "fun"
+  "BinaryExpression" -> "expression"
+  "while", "doWhile", "for" -> "loop"
+  else -> type
+}
+
 private fun toCodeEntity(c: PsiElement): CodeEntity {
-  val base = KotlinCodeEntity(
-    name = "",
-    type = c.node.elementType.toString().underscoreToCamel(),
-    line = c.node.startOffset,
-    node = c
-  )
-  return when (c) {
-    is KtClass -> base.copy(name = c.name ?: "Anonymous")
-    is KtDeclaration -> base.copy(name = c.name ?: "Anonymous")
-    is KtPackageDirective -> base.copy(name = c.fqName.toString())
-    is KtImportDirective -> base.copy(name = c.importPath.toString())
+
+  val name = when (c) {
+    is KtClass -> c.name ?: "Anonymous"
+    is KtDeclaration -> c.name ?: "Anonymous"
+    is KtPackageDirective -> c.fqName.toString()
+    is KtImportDirective -> c.importPath.toString()
     is KtAnnotationEntry, is KtTypeReference, is KtReferenceExpression,
-    is KtConstantExpression, is KtStringTemplateExpression -> base.copy(name = c.text)
-    else -> base
+    is KtConstantExpression, is KtStringTemplateExpression -> c.text
+    else -> null
   }
+
+  return KotlinCodeEntity(
+    name = name,
+    astType = c.node.elementType.toString().underscoreToCamel(),
+    type = simplifyType(c.node.elementType.toString().underscoreToCamel()),
+    line = c.node.startOffset,
+    node = c,
+    code = c.text,
+    startOffset = c.startOffset,
+    endOffset = c.endOffset
+  )
+
 }
 
-//Todo: Analytics must happen on Demand
-fun applyAnalytics(tree: CodeTree): CodeTree {
-
-  search(tree, "fun").forEach {
-    //Lines
-    val function = tree.v(it) as LanguageCodeEntity
-
-    //For one line functions
-    function.data()["lines"] = relevantCodeLines(function.code)
-    //Depth
-    function.data()["depth"] = depth(tree, it)
-
-    search(tree, "block", it).getOrNull(0)?.let {
-      val block = tree.v(it) as LanguageCodeEntity
-      function.data()["lines"] = relevantCodeLines(block.code)
-    }
-
-    //Arguments
-    search(tree, "valueParameterList", it).getOrNull(0)?.let {
-      function.data()["argumentCount"] = (tree.v(it) as LanguageCodeEntity).data()["childrenCount"]!!
-    }
-
-  }
-  return tree
-}

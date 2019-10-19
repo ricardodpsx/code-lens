@@ -22,6 +22,15 @@ abstract class ParserBuilder {
     }.flatten()
   }
 
+  fun oneOf(vararg items: ParserBuilder): ParserBuilder {
+
+    takeChildrenCallBacks.add { code, child ->
+      child(items.first { it.lookAhead(code) }.take(code))
+    }
+
+    return this
+  }
+
   fun one(p: ParserBuilder, childrenParsers: ChildrenParser = {}): ParserBuilder {
     childrenParsers(p)
     takeChildrenCallBacks.add { code, child ->
@@ -80,7 +89,7 @@ open class DefaultParser(
 ) : ParserBuilder() {
 
   override fun take(code: Code): Node {
-    val text = takeRegex(code, exp, "valid type selectors name")
+    val text = takeRegex(code, exp, "valid type selectors $exp")
     val children = takeChildren(code)
     return converter(DefaultNode(text, children))
   }

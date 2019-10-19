@@ -3,32 +3,12 @@ import React, {useState} from "react";
 import Chart from 'react-google-charts';
 
 
-export default function Metrics({codeTree, results}) {
-  const [param, setParam] = useState('lines');
-
-  let data = {}
-  let params = new Set()
-  results.forEach(vid => {
-    let node = codeTree[vid]
-
-    Object.keys(node.data).forEach(p => params.add(p))
-
-    if(node.data.hasOwnProperty(param)) {
-      if(!data[node.data[param]])
-        data[node.data[param]] = 0
-
-      data[node.data[param]]++
-    }
-
-  })
-
-  let rows = Object.entries(data).map(
-     ([k, v]) => [k, v]
-  )
+export default function Metrics({analytics:{ selectedParam = "", params = [], rows = [] } = {}, onParamChange}) {
 
   return <div>
-    <select onChange={e => setParam(e.target.value)}>
-      {Array.from(params).map( p => <option value={p} key={p} >{p}</option>)}
+    <select onChange={e => onParamChange(e.target.value)}>
+      <option>--Select--</option>
+      {params.map( p => <option value={p} key={p} >{p}</option>)}
     </select>
 
     <Chart
@@ -36,14 +16,8 @@ export default function Metrics({codeTree, results}) {
      height={'300px'}
      chartType="Bar"
      loader={<div>Loading Chart</div>}
-     columns={['Size', 'Functions']}
+     columns={[selectedParam, "Frequency"]}
      rows={rows}
-     options={{
-       // Material design options
-       chart: {
-         title: 'Function size',
-       },
-     }}
      // For tests
      rootProps={{ 'data-testid': '2' }}
   /></div>

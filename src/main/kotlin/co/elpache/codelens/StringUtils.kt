@@ -1,5 +1,9 @@
 package co.elpache.codelens
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
+
 fun StringBuilder.trimStart() {
   while (isNotEmpty() && first() == ' ')
     delete(0, 1)
@@ -42,7 +46,12 @@ fun matches(text: String, wildCardPattern: String): Boolean {
   return text.toLowerCase().contains(Regex("^$pattern$"))
 }
 
-fun relevantCodeLines(code: String) =
-  code.split("\n")
-    .map{ it.replace("{", "").replace("}", "").replace(Regex("\\s+"), "") }
-    .filter { !it.trim().isBlank() }.size
+
+
+
+fun String.firstLine() =
+  trim().split("\n").first()
+
+
+fun parseDate(date: String): Date =
+  SimpleDateFormat("yyyy-MM-dd").parse(date)

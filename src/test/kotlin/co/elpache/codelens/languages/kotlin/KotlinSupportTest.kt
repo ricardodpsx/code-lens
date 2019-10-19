@@ -1,8 +1,7 @@
 package codelens
 
-import co.elpache.codelens.CodeBase
-import co.elpache.codelens.expandFullCodeTree
-import co.elpache.codelens.printTree
+import co.elpache.codelens.codetree.CodeFolder
+import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.selectCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -11,20 +10,29 @@ import org.junit.Test
 class KotlinSupportTest {
 
   private val codeBase =
-    expandFullCodeTree(CodeBase.load("src/test/kotlin/co/elpache/codelens/subpackage/"))
+    CodeTree().expandFullCodeTree(CodeFolder.load("tmp/kotlin/subpackage/"))
 
   @Test
   fun `can print tree`() {
 
-    println(printTree(codeBase))
+    println(codeBase.printTree())
   }
 
   @Test
   fun `Can select files`() {
     assertThat(selectCode(codeBase, "file[name*='Example']"))
       .extracting("name")
-      .containsExactlyInAnyOrder("ExampleClass.kt", "ExampleClassB.kt")
+      .containsExactlyInAnyOrder("ExampleClass", "ExampleClassB")
   }
+
+  @Test
+  fun `Can select by name`() {
+    println(selectCode(codeBase, "#ExampleClassB"))
+    assertThat(selectCode(codeBase, "#ExampleClassB"))
+      .extracting("name")
+      .containsExactlyInAnyOrder("ExampleClassB")
+  }
+
 
   @Test
   fun `Can select Functions whitin files`() {
@@ -34,7 +42,7 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select Functions by line`() {
-    val list = selectCode(codeBase, "fun[textLines='6']")
+    val list = selectCode(codeBase, "fun[textLines=6]")
     assertThat(list).extracting("name").contains("methodWithSixLines")
   }
 
@@ -65,7 +73,7 @@ class KotlinSupportTest {
   @Test
   fun `Can search code inside subfolders`() {
     val res = selectCode(codeBase, "dir file")
-    assertThat(res).extracting("name").contains("AClass.kt")
+    assertThat(res).extracting("name").contains("AClass")
   }
 
 }

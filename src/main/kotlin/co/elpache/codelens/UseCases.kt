@@ -1,11 +1,12 @@
 package co.elpache.codelens
 
+import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpache.codelens.tree.buildTreeFromChildren
-import co.elpache.codelens.tree.subTree
 import co.elpachecode.codelens.cssSelector.CssSearch
 import co.elpachecode.codelens.cssSelector.parseCssSelector
-import kotlin.math.max
+import org.nield.kotlinstatistics.countBy
+import org.nield.kotlinstatistics.descriptiveStatistics
+import org.nield.kotlinstatistics.median
 
 data class SearchResults(
   val treeWithDescendants: CodeTree,
@@ -19,14 +20,58 @@ data class NodeContentsResults(
 
 data class AnalyticsResults(val rows: List<List<Int>>)
 
-class UseCases(val codeBase: CodeTree = expandFullCodeTree(CodeBase.load("src/test/kotlin/co/elpache/codelens/subpackage/"))) {
+interface Analytic
 
+val frequency = { values: List<Pair<Vid, Int>>, _: CodeTree ->
+  values
+    .countBy { it.second }
+    .map { listOf(it.key, it.value) }
+    .sortedBy { it[0] }
+}
+
+data class DescriptiveStatistics(
+  val mean: Double,
+  val median: Double,
+  val std: Double,
+  val min: Double,
+  val max: Double,
+  val quartiles: List<Double>
+)
+
+val statistics = { values: List<Pair<Vid, Int>>, _: CodeTree ->
+  with(values.map { it.second }) {
+    val ds = descriptiveStatistics
+    DescriptiveStatistics(
+      mean = ds.mean,
+      median = median(),
+      std = ds.standardDeviation,
+      min = ds.min,
+      max = ds.max,
+      quartiles = listOf(
+        ds.percentile(25.0),
+        ds.percentile(50.0),
+        ds.percentile(75.0)
+      )
+    )
+  }
+}
+
+class UseCases(private val factory: Factory = Factory()) {
+
+  private var codeBase = factory.createBaseCode()
+
+  //Todo: Optimize with memoization
+  private fun selectBy(
+    query: String
+  ) = CssSearch(parseCssSelector(query), codeBase).search()
+
+  //Todo: Separate into two use cases
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {
       val res = selectBy(query)
       SearchResults(
-        buildTreeFromChildren(codeBase, res),
+        codeBase.treeFromChildren(res),
         res
       )
     } catch (e: Exception) {
@@ -34,44 +79,49 @@ class UseCases(val codeBase: CodeTree = expandFullCodeTree(CodeBase.load("src/te
     }
   }
 
-  fun getFrequencyByParam(query: Vid, param: String): AnalyticsResults {
+  //Todo: Move to CodeBase itself or some extension, this is error prone
+  private fun paramValues(param: String, vids: List<Vid>, code: CodeTree = codeBase) =
+    vids.filter { code.node(it).contains(param) }
+      .map { Pair(it, code.node(it).value<Int>(param)) }
 
-    val m = selectBy(query)
-      .filter { codeBase.v(it).contains(param) }
-      .map { codeBase.v(it).value<Int>(param) }
-      .groupBy { it }
-      .map { listOf(it.key, it.value.size) }
-      .sortedBy { it[0] }
+  fun getFrequencyByParam(query: Vid, param: String) =
+    AnalyticsResults(
+      frequency(paramValues(param, selectBy(query)), codeBase)
+    )
 
-    return AnalyticsResults(m)
+
+  fun getStatistics(query: String, param: String): DescriptiveStatistics {
+    return statistics(paramValues(param, selectBy(query), codeBase), codeBase)
   }
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      (codeBase.v(vid) as CodeFile).contents(),
-      toMap(subTree(codeBase, vid))
+      codeBase.file(vid).contents(),
+      codeBase.toMap().plus("rootVid" to vid)
     )
 
   fun getPossibleIntParams(query: String) =
-    selectBy(query)
-      .map { codeBase.v(it).data().keys }
-      .flatten()
-      .filter{ !listOf("name", "type").contains(it) }
-      .distinct()
+    try {
+      selectBy(query)
+        .map { codeBase.data(it).keys }
+        .flatten()
+        .filter { !listOf("name", "type").contains(it) }
+        .distinct()
+    } catch (e: Exception) {
+      arrayListOf<String>()
+    }
 
-  private fun selectBy(
-    query: Vid
-  ) = CssSearch(parseCssSelector(query), codeBase).search()
-}
+  fun collectHistory(query: String, param: String, commits: List<String>): List<DescriptiveStatistics> {
+    //Todo: make sure this happens in an own directory
+    val history = ArrayList<DescriptiveStatistics>()
+    commits.forEach {
+      codeBase = factory.createBaseCode(it)
+      history.add(statistics(paramValues(param, selectBy(query), codeBase), codeBase))
+    }
 
-//Todo: Move
-fun search(tree: CodeTree, css: String, vid: Vid = tree.rootVid()) =
-  CssSearch(parseCssSelector(css), tree).search(vid)
+    codeBase = factory.createBaseCode()
+    history.add(statistics(paramValues(param, selectBy(query), codeBase), codeBase))
+    return history
+  }
 
-fun depth(tree: CodeTree, vid: Vid): Int {
-  var maxDepth = 0
-  for (cVid in tree.children(vid))
-    maxDepth = max(depth(tree, cVid), maxDepth)
-
-  return (if ((tree.v(vid) as CodeEntity).type == "block") 1 else 0) + maxDepth
 }

@@ -28,12 +28,16 @@ class App extends Component {
 
   updateGraph(query) {
     const that = this;
-    fetch('http://localhost:8080/?cssQuery=file%20' + encodeURIComponent(query))
+    fetch('http://localhost:8080/?query=file%20' + encodeURIComponent(query))
        .then(function(response) {
          return response.json();
        })
        .then(function(data) {
-         that.setState({codeTree: data.resulTree, results: data.results})
+         that.setState({
+           codeTree: data.codeTree,
+           results: data.results,
+           analytics: {params: data.analyticsParams}
+         })
        })
   }
 
@@ -53,6 +57,19 @@ class App extends Component {
 
   handleCodeEntitySelect(vid) {
     this.setState({selectedCodeEntity: vid})
+  }
+
+  handleAnalyticsParamSelect(param) {
+    let that = this;
+    fetch(`http://localhost:8080/analytics/${param}?query=file%20${encodeURIComponent(this.state.query)}`)
+       .then(function(response) {
+         return response.json();
+       })
+       .then(function(data) {
+         that.setState( prev => (
+            {...prev, analytics:{ ...prev.analytics, selectedParam: param, rows: data}}
+            ))
+       })
   }
 
   componentDidMount() {
@@ -83,12 +100,7 @@ class App extends Component {
 
                 onFileSelect={this.handleFileSelect.bind(this)}
              />
-             <CodeEntityData
-                onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
-                className="CodeEntityData" vid={selectedCodeEntity}
-                ast={this.state.ast}
-                text={this.state.text}
-             />
+
 
            </Paper>
          </Grid>
@@ -107,7 +119,17 @@ class App extends Component {
          </Grid>
 
          <Grid item xs={4}>
-           <Metrics codeTree={this.state.codeTree} results={this.state.results}/>
+           <CodeEntityData
+              onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
+              className="CodeEntityData" vid={selectedCodeEntity}
+              ast={this.state.ast}
+              text={this.state.text}
+           />
+
+           <Metrics
+              onParamChange={this.handleAnalyticsParamSelect.bind(this)}
+              analytics={this.state.analytics}
+           />
          </Grid>
 
       </Grid>

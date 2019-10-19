@@ -1,5 +1,6 @@
 package co.elpache.codelens
 
+import co.elpache.codelens.codetree.CodeTree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Test
@@ -9,12 +10,12 @@ class CodeTreeTest {
   @Test
   @Ignore
   fun testTreeExpansion() {
-    expandFullCodeTree(codeTreeNode())
+    CodeTree().expandFullCodeTree(codeTreeNode())
   }
 
   @Test
-  fun `Can Select items by type`() {
-    val uc = UseCases(
+  fun `Can Select items by type (Regression)`() {
+    val uc = createUseCases(
       codeTree(
         "1",
         codeTreeNode("type" to "file"),
@@ -42,11 +43,11 @@ class CodeTreeTest {
     compareTreeOutputs(
       treeWithDescendants,
       """
-       {type=file}
-         - {type=fun}
-         -- {type=X}
-         - {type=fun}
-         -- {type=X}"""
+       1: {type=file}
+         - 2: {type=fun}
+         -- 6: {type=X}
+         - 7: {type=fun}
+         -- 8: {type=X}"""
     )
 
   }
