@@ -1,5 +1,11 @@
 /* eslint-disable react/jsx-no-undef */
 import React, { Component } from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Link
+} from "react-router-dom";
 import './App.css';
 import DirectoryTree from "./DirectoryTree";
 import FileViewer from "./FileViewer";
@@ -81,62 +87,93 @@ class App extends Component {
   }
 
   render() {
-    let {selectedCodeEntity} = this.state;
-
     return (
-       <Grid container spacing={3}>
+           <Router>
+             <div>
+               <nav>
+                 <ul>
+                   <li>
+                     <Link to="/">Home</Link>
+                   </li>
+                   <li>
+                     <Link to="/history">History</Link>
+                   </li>
+                 </ul>
+               </nav>
 
-         <Grid item xs={2}>
-           <Paper >
-             <TextField  value={this.state.query}
-                         onChange={e=> this.handleQuerySearch(e.target.value)}
-                         label="search"
-                         margin="normal"
-                         variant="outlined"
-             />
-             <DirectoryTree
-                results={this.state.results}
-                graph={this.state.codeTree}
-
-                onFileSelect={this.handleFileSelect.bind(this)}
-             />
-
-
-           </Paper>
-         </Grid>
-
-
-         <Grid item xs={6}>
-           <Paper >
-             <FileViewer
-                text={this.state.text}
-                ast={this.state.ast}
-                results={this.state.results}  
-                selectedNode={this.state.selectedNode}
-                onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
-             />
-           </Paper>
-         </Grid>
-
-         <Grid item xs={4}>
-           <CodeEntityData
-              onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
-              className="CodeEntityData" vid={selectedCodeEntity}
-              ast={this.state.ast}
-              text={this.state.text}
-           />
-
-           <Metrics
-              onParamChange={this.handleAnalyticsParamSelect.bind(this)}
-              analytics={this.state.analytics}
-           />
-         </Grid>
-
-      </Grid>
-    )
+               <Switch>
+                 <Route path="/history">
+                   <History />
+                 </Route>
+                 <Route path="/">
+                   {this.renderHome()}
+                 </Route>
+               </Switch>
+             </div>
+           </Router>
+         );
   }
+
+  renderHome() {
+      let {selectedCodeEntity} = this.state;
+
+      return (
+         <Grid container spacing={3}>
+
+           <Grid item xs={2}>
+             <Paper >
+               <TextField  value={this.state.query}
+                           onChange={e=> this.handleQuerySearch(e.target.value)}
+                           label="search"
+                           margin="normal"
+                           variant="outlined"
+               />
+               <DirectoryTree
+                  results={this.state.results}
+                  graph={this.state.codeTree}
+
+                  onFileSelect={this.handleFileSelect.bind(this)}
+               />
+
+
+             </Paper>
+           </Grid>
+
+
+           <Grid item xs={6}>
+             <Paper >
+               <FileViewer
+                  text={this.state.text}
+                  ast={this.state.ast}
+                  results={this.state.results}
+                  selectedNode={this.state.selectedNode}
+                  onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
+               />
+             </Paper>
+           </Grid>
+
+           <Grid item xs={4}>
+             <CodeEntityData
+                onCodeEntitySelected={this.onCodeEntitySelected.bind(this)}
+                className="CodeEntityData" vid={selectedCodeEntity}
+                ast={this.state.ast}
+                text={this.state.text}
+             />
+
+             <Metrics
+                onParamChange={this.handleAnalyticsParamSelect.bind(this)}
+                analytics={this.state.analytics}
+             />
+           </Grid>
+
+        </Grid>
+      );
+  }
+
 }
 
-
+function History() {
+    return <h2>History!</h2>;
+}
 
 export default App;
