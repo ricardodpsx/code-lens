@@ -4,7 +4,7 @@ import co.elpache.codelens.codetree.NodeData
 
 fun matches(ce: NodeData, typeSelector: TypeSelector): Boolean {
 
-  if (ce[typeSelector.attributeToMatch].toString().toLowerCase() != typeSelector.name.toLowerCase())
+  if (typeSelector.name != "*" && ce[typeSelector.attributeToMatch].toString().toLowerCase() != typeSelector.name.toLowerCase())
     return false
 
   return typeSelector.attributes.all { matchesAttribute(it, ce) }
@@ -12,6 +12,7 @@ fun matches(ce: NodeData, typeSelector: TypeSelector): Boolean {
 
 fun matchesAttribute(sel: AttributeSelector, obj: NodeData): Boolean {
   if (!propertyExists(obj, sel.name)) return false
+  if (sel.value == null) return true
 
   val value = getPropertyValue(obj, sel.name)
   val search = sel.value ?: ""

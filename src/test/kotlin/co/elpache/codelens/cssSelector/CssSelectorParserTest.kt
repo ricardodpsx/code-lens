@@ -79,5 +79,12 @@ class CssSelectorParserTest {
   }
 
 
+  @Test
+  fun `Select by any node`() {
+    val type = parseCssSelector("*[lines=1]").selectors[0]
+    assertThat(type.name).isEqualTo("*")
+    assertThat(type.attributes[0].name).isEqualTo("lines")
+  }
+
 }
 

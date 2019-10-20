@@ -1,10 +1,8 @@
 package co.elpache.codelens.codetree
 
-import co.elpache.codelens.firstLine
 import co.elpache.codelens.languages.js.buildJsFile
 import co.elpache.codelens.languages.kotlin.buildKotlinFile
 import java.io.File
-import java.lang.RuntimeException
 
 
 val LanguageSupportRegistry = hashMapOf(

@@ -26,14 +26,13 @@
      We want to see if the code got better or worst in between commits
      -[x] Core support
      -[ ] UI
- 
+-[x] Code "Starting with" search #search 
 -[ ] Basic sintax highlighting
--[ ] Code "Starting with" search #search
 -[ ] Integrate analytics with search Results 
      When you select a frequency box it should show the selected functions
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Add Rules/Threshold #evolution
--[ ] Add  Root element selector #search
+-[x] Add  Root element selector #search
 -[ ] Add References navigator (How classes, types files relate to each other) #charts
 -[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics

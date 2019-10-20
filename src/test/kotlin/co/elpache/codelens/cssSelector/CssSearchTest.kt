@@ -69,4 +69,14 @@ class CssSearchTest {
     }
   }
 
+  @Test
+  fun `Search by attribute presence`() {
+    assertThat(search("c[lines]")).containsExactlyInAnyOrder("1.1.1")
+  }
+
+  @Test
+  fun `Search wildcard`() {
+    assertThat(search("a *[lines]")).containsExactlyInAnyOrder("1.1.1", "1.1.2")
+  }
+
 }
