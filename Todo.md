@@ -16,13 +16,13 @@
     -[x] file: name, lines, functionsCount, classesCount, bidingsCount
     -[x] fun: paramsCount, lines    
     -[x] call: startsWith, args, arg, argsCount 
-    -[ ] if, loop
+    -[x] if, loop (For blooks)
 -[x] Simplify/unify trees (Kotlin)
-    -[ ] class: members, properties, methods, constructors.
-    -[ ] file: name, fileName, lines, functionsCount, classesCount, bidingsCount
-    -[ ] fun: paramsCount, lines    
-    -[ ] call: startsWith, args, arg, argsCount   
-    -[ ] if, loop 
+    -[x] class: members, properties, methods, constructors.
+    -[x] file: name, fileName, lines, functionsCount, classesCount, bidingsCount
+    -[x] fun: paramsCount, lines    
+    -[x] call: startsWith, args, arg, argsCount   
+    -[x] if, loop 
  
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
@@ -37,6 +37,7 @@
 -[ ] Add Rules/Threshold #evolution
 -[ ] Add  Root element selector #search
 -[ ] Add References navigator #metrics
+-[ ] Slots for charts #metrics
 -[ ] Duplicated code #metrics
 -[ ] Fuzzy/Content Search
 -[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally

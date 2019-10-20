@@ -43,7 +43,7 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
   }
 
   fun logs() = repo!!.log().call().map {
-    Commit(it.id.toString(), it.shortMessage, it.commitTime.toLong())
+    Commit(it.id.name, it.shortMessage, it.commitTime.toLong())
   }
 
 

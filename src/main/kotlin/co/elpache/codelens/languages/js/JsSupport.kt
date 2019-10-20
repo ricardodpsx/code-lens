@@ -201,7 +201,7 @@ private fun toJsCodeEntity(c: JsNode, codeFile: CodeFile, parent: CodeEntity): C
     startOffset = c.getInt("start")!!,
     endOffset = c.getInt("end")!!
   )
-  
+
   e.data.addAll(
     "keys" to c.keys,
     "firstLine" to e.code.firstLine(),

@@ -4,6 +4,7 @@ import co.elpache.codelens.firstLine
 import co.elpache.codelens.languages.js.buildJsFile
 import co.elpache.codelens.languages.kotlin.buildKotlinFile
 import java.io.File
+import java.lang.RuntimeException
 
 
 val LanguageSupportRegistry = hashMapOf(
@@ -35,10 +36,9 @@ abstract class LanguageCodeEntity(
   open val code: String
     get() =
       if (codeFile!!.isNotEmpty()
-        && startOffset < endOffset
+        && startOffset <= endOffset
         && startOffset < codeFile.code.length
         && endOffset <= codeFile.code.length)
-
         codeFile.code.substring(startOffset, endOffset)
       else {
         System.err.println("Problem with node $data")
@@ -79,15 +79,13 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
   }
 
   override fun expand() =
-    dir.listFiles()
-      .map {
-        if (it.isDirectory)
-          CodeFolder(it, basePath)
-        else
-          loadFile(it)
-      }.filterNotNull()
-
-  fun loadFile(file: File): CodeEntity? {
+    try {
+      dir.listFiles()
+        .map { if (it.isDirectory) CodeFolder(it, basePath) else loadFile(it) }.filterNotNull()
+    } catch (e: Exception) {
+      throw RuntimeException("problem opening directory ${dir.absolutePath}", e)
+    }
+  private fun loadFile(file: File): CodeEntity? {
     val buildAstFile = LanguageSupportRegistry[file.extension]
     return if (buildAstFile != null) buildAstFile(file) else null
   }
