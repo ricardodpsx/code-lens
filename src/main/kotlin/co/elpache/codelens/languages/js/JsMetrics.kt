@@ -3,7 +3,7 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.NodeResult
+import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
 
 fun applyJsMetrics(it: NodeResult) {
@@ -29,7 +29,7 @@ fun applyJsMetrics(it: NodeResult) {
     byType("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
-      var body = it.firstChildren("ClassBody").firstChildren("body")
+      var body = it.find("$>ClassBody>body").first()
       it.data["constructors"] = body.children("fun[kind='constructor']").size
       it.data["methods"] = body.children("fun").size
       it.data["properties"] = body.children("binding").size

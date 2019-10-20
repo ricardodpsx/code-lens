@@ -2,7 +2,7 @@ package co.elpache.codelens.cssSelector
 
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.codeTreeNode
-import co.elpachecode.codelens.cssSelector.finder
+import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -33,7 +33,7 @@ class CssSearchTest {
       )
     )
 
-  fun search(query: String) = tree.finder().find(query).map { it.vid }
+  private fun search(query: String) = tree.finder().find(query).map { it.vid }
 
   @Test
   fun `Test Single child`() {
@@ -59,7 +59,14 @@ class CssSearchTest {
   @Test
   fun `Mixing selectors`() {
     assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")
+  }
 
+  @Test
+  fun `Search from current item`() {
+    assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")
+    tree.finder().find("b").first().let {
+      assertThat(it.find("$>c>e")).hasSize(1)
+    }
   }
 
 }

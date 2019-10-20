@@ -1,17 +1,17 @@
-package co.elpachecode.codelens.cssSelector
+package co.elpachecode.codelens.cssSelector.search
 
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.codetree.LanguageCodeEntity
 import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.tree.Vid
-
+import co.elpachecode.codelens.cssSelector.RelationTypes
+import co.elpachecode.codelens.cssSelector.TypeSelector
+import co.elpachecode.codelens.cssSelector.matches
+import co.elpachecode.codelens.cssSelector.parseCssSelector
+import co.elpachecode.codelens.cssSelector.parseTypeSelector
 
 fun CodeTree.finder() = NodeResult(tree.rootVid(), this)
-
-fun List<NodeResult>.data() = map { it.data }
-fun List<NodeResult>.vids() = map { it.vid }
-
 
 open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   val tree = codeBase.tree
@@ -21,19 +21,35 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   open val type: String get() = codeNode().type
   open val code: String get() = (codeNode() as LanguageCodeEntity).code
   open val data: NodeData get() = tree.v(vid).data
-  open val children: List<NodeResult> get() = tree.children(vid).map { NodeResult(it, codeBase) }
+  open val children: NodeResultSet
+    get() = tree.children(vid).map {
+      NodeResult(
+        it,
+        codeBase
+      )
+    }.toResultSet()
 
-  private fun descendants() = codeBase.descendants(vid).map { NodeResult(it, codeBase) }
+  private fun descendants() = codeBase.descendants(vid).map {
+    NodeResult(
+      it,
+      codeBase
+    )
+  }.toResultSet()
 
-  fun byType(selector: String) =
-    descendants().filter { it.matches(parseTypeSelector(selector)) }
+  fun byType(selector: String) = descendants().filter {
+    it.matches(
+      parseTypeSelector(
+        selector
+      )
+    )
+  }
 
   fun printTree() = println(codeBase.subTreeFrom(vid).asString())
 
-
   override fun toString() = data.toString()
 
-  private fun matches(selector: TypeSelector) = matches(codeBase.data(vid), selector)
+  private fun matches(selector: TypeSelector) =
+    matches(codeBase.data(vid), selector)
 
   fun data(css: String) = find(css).map { it.data }
 
@@ -46,7 +62,11 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   open fun first(selector: String) =
     find(selector).firstOrNull() ?: EmptyResult()
 
-  open fun find(css: String) = findMatchingPathsFromSubSet(descendants().plus(this), parseCssSelector(css).selectors)
+  open fun find(css: String) =
+    findMatchingPathsFromSubSet(
+      descendants().plus(this).toResultSet(),
+      parseCssSelector(css).selectors
+    )
 
   private fun find(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(descendants(), selectors)
 
@@ -57,26 +77,27 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
    * selectors: The path defined by the query language. example class fun>if
    */
   private fun findMatchingPathsFromSubSet(
-    subSet: List<NodeResult>,
+    subSet: NodeResultSet,
     path: List<TypeSelector>
-  ): List<NodeResult> {
-    if (path.isEmpty()) return listOf(this)
+  ): NodeResultSet {
+    if (path.isEmpty()) return listOf(this).toResultSet()
 
     return subSet.filter {
-      it.matches(path.first())
+      if (path.first().name == "$") it == this
+      else it.matches(path.first())
     }.map {
       if (path.first().relationType.type == RelationTypes.CHILDREN)
         it.find(path.drop(1))
       else
         it.findNext(path.drop(1))
-    }.flatten().distinctBy { it.vid }
+    }.flatten().distinctBy { it.vid }.toResultSet()
   }
 }
 
 class EmptyResult : NodeResult("--Empty--", CodeTree()) {
   override val code = ""
   override val data: NodeData = NodeData()
-  override val children = emptyList<NodeResult>()
+  override val children = emptyList<NodeResult>().toResultSet()
   override fun firstChildren(css: String) = this
-  override fun find(css: String) = emptyList<NodeResult>()
+  override fun find(css: String) = emptyList<NodeResult>().toResultSet()
 }

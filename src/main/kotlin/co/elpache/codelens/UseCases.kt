@@ -2,8 +2,7 @@ package co.elpache.codelens
 
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.finder
-import co.elpachecode.codelens.cssSelector.vids
+import co.elpachecode.codelens.cssSelector.search.finder
 import org.nield.kotlinstatistics.countBy
 import org.nield.kotlinstatistics.descriptiveStatistics
 import org.nield.kotlinstatistics.median

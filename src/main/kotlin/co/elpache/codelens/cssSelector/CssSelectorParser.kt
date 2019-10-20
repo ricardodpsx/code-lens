@@ -51,7 +51,7 @@ val selectorParser = rootParser {
   CssSelectors(selectors = it.children.map { it as TypeSelector })
 }
 
-val typeSelectorParser = defaultParser("^(#?[A-Za-z0-9_\\-]+)") {
+val typeSelectorParser = defaultParser("^(#?[A-Za-z0-9_\\-]+|\\$)") {
 
   val name = if (it.text.first() == '#') it.text.drop(1) else it.text
 

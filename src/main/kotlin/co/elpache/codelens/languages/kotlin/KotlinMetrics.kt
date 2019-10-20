@@ -3,7 +3,7 @@ package co.elpache.codelens.languages.kotlin
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.NodeResult
+import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
 
 fun applyKotlinMetrics(it: NodeResult) {

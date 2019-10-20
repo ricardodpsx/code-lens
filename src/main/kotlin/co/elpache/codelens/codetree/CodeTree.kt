@@ -6,7 +6,7 @@ import co.elpache.codelens.tree.Tree
 import co.elpache.codelens.tree.Vid
 import co.elpache.codelens.tree.buildTreeFromChildren
 import co.elpache.codelens.tree.subTree
-import co.elpachecode.codelens.cssSelector.finder
+import co.elpachecode.codelens.cssSelector.search.finder
 
 class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   fun children(vid: String) = tree.children(vid).map {

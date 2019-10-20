@@ -72,6 +72,12 @@ class CssSelectorParserTest {
     assertThat(type.name).isEqualTo("myClass")
   }
 
+  @Test
+  fun `Select by current node`() {
+    val type = parseCssSelector("$").selectors[0]
+    assertThat(type.name).isEqualTo("$")
+  }
+
 
 }
 

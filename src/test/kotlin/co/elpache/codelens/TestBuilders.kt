@@ -4,8 +4,7 @@ import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.codetree.CodeTreeNode
 import co.elpache.codelens.tree.Tree
 import co.elpache.codelens.tree.join
-import co.elpachecode.codelens.cssSelector.data
-import co.elpachecode.codelens.cssSelector.finder
+import co.elpachecode.codelens.cssSelector.search.finder
 import io.mockk.every
 import io.mockk.mockk
 
