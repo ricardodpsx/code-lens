@@ -21,18 +21,17 @@
     -[x] file: name, fileName, lines, functionsCount, classesCount, bidingsCount
     -[x] fun: paramsCount, lines    
     -[x] call: startsWith, args, arg, argsCount   
- 
+-[x] Add  Root element selector #search
+-[x] Code "Starting with" search #search 
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
      -[x] Core support
      -[ ] UI
--[x] Code "Starting with" search #search 
 -[ ] Basic sintax highlighting
 -[ ] Integrate analytics with search Results 
      When you select a frequency box it should show the selected functions
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Add Rules/Threshold #evolution
--[x] Add  Root element selector #search
 -[ ] Add References navigator (How classes, types files relate to each other) #charts
 -[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics
@@ -76,4 +75,4 @@ IceBox:
 -[ ] Modularization
 -[ ] IntelliJ plugin
 -[ ] Integration with lint tools and code coverage
-
+-[ ] It should be "easy" for users to add new metrics to nodes

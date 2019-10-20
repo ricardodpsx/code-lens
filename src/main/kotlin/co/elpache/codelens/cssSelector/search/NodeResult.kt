@@ -9,7 +9,6 @@ import co.elpachecode.codelens.cssSelector.RelationTypes
 import co.elpachecode.codelens.cssSelector.TypeSelector
 import co.elpachecode.codelens.cssSelector.matches
 import co.elpachecode.codelens.cssSelector.parseCssSelector
-import co.elpachecode.codelens.cssSelector.parseTypeSelector
 
 fun CodeTree.finder() = NodeResult(tree.rootVid(), this)
 
@@ -35,14 +34,6 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
       codeBase
     )
   }.toResultSet()
-
-  fun byType(selector: String) = descendants().filter {
-    it.matches(
-      parseTypeSelector(
-        selector
-      )
-    )
-  }
 
   fun printTree() = println(codeBase.subTreeFrom(vid).asString())
 
