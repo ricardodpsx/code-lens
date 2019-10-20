@@ -3,7 +3,7 @@
 -[x] Show a File AST View
 -[x] Style improvements, make code entities selectable and navigable with a side panel. #style
 -[x] Functions/methods: num of lines, arguments, depth/nesting #functions
--[x] On Search Code metrics //https://react-google-charts.com/ #charts
+-[x] Code metrics are generated on search //https://react-google-charts.com/ #charts
 -[x] Add support for Javascript #languageSupport
 -[x] Make > to be more consistent with the css gramatic #search
 -[x] Select by name #search
@@ -16,13 +16,11 @@
     -[x] file: name, lines, functionsCount, classesCount, bidingsCount
     -[x] fun: paramsCount, lines    
     -[x] call: startsWith, args, arg, argsCount 
-    -[x] if, loop (For blooks)
 -[x] Simplify/unify trees (Kotlin)
     -[x] class: members, properties, methods, constructors.
     -[x] file: name, fileName, lines, functionsCount, classesCount, bidingsCount
     -[x] fun: paramsCount, lines    
     -[x] call: startsWith, args, arg, argsCount   
-    -[x] if, loop 
  
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
@@ -30,14 +28,14 @@
      -[ ] UI
  
 -[ ] Basic sintax highlighting
--[ ] Code Starting with #Search
+-[ ] Code "Starting with" search #search
 -[ ] Integrate analytics with search Results 
      When you select a frequency box it should show the selected functions
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Add Rules/Threshold #evolution
 -[ ] Add  Root element selector #search
--[ ] Add References navigator #metrics
--[ ] Slots for charts #metrics
+-[ ] Add References navigator (How classes, types files relate to each other) #charts
+-[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics
 -[ ] Fuzzy/Content Search
 -[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally
@@ -51,6 +49,9 @@
 
 
 IceBox:
+-[ ] Simplify/unify tree types (JS/KT) #2 #search
+     -[ ] loops: for, while, common functional loops 
+     -[ ] cond: if, elvis, tri-unary, functional conditions
 -[ ] Select other nodes than the leaf: 
     Example if I do a query "a b c"  I should be able to retrieve the nodes that matched a, b and c #search
 -[ ] Support multiple 'class search' example fun#helloWorld
@@ -63,9 +64,8 @@ IceBox:
      
 -[ ] Command line for Queries and Stats
 -[ ] Query items showin in the Graph #charts
--[ ] Evolution of Metrics
--[ ] Branching #softwareMetrics
--[ ] Cyclomatic Complexity #softwareMetrics
+-[ ] Branching #metrics
+-[ ] Cyclomatic Complexity #metrics
 -[ ] On classes... #cleanCode
 -[ ] Fowler Smells #Smells
 -[ ] Naming and Semantics

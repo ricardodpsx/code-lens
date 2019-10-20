@@ -1,6 +1,4 @@
 package codelens
 
 
-class JsSupportTest : SupportTests("js","../code-examples/js/fixtures/")
-
-
+class JsSupportTest : LanguageSupportTests("js","../code-examples/js/fixtures/")

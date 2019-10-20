@@ -1,6 +1,7 @@
 package co.elpachecode.codelens.cssSelector
 
 import co.elpache.codelens.Node
+import co.elpache.codelens.ParserBuilder
 import co.elpache.codelens.QUOTED_STRING
 import co.elpache.codelens.defaultParser
 import co.elpache.codelens.rootParser
@@ -8,18 +9,27 @@ import co.elpache.codelens.unwrap
 
 fun parseCssSelector(selector: String) = selectorParser()
   .atLeastOne(
-    typeSelectorParser()
-      .many(
-        attributeSelectorParser()
-          .one(openBraket())
-          .one(attributeNameParser())
-          .zeroOrOne(attributeOperationParser())
-          .zeroOrOne(
-            attributeParser()
-              .oneOf(attributeStringParser(), attributeIntegerParser()))
-          .one(closeBraket()))
-      .zeroOrOne(relationParser())
+    typeSelector()
   ).take(selector) as CssSelectors
+
+fun parseTypeSelector(selector: String) = typeSelector().take(selector) as TypeSelector
+
+fun typeSelector(): ParserBuilder {
+  return typeSelectorParser()
+    .many(
+      attributeSelectorParser()
+        .one(openBraket())
+        .one(attributeNameParser())
+        .zeroOrOne(attributeOperationParser())
+        .zeroOrOne(
+          attributeParser()
+            .oneOf(attributeStringParser(), attributeIntegerParser())
+        )
+        .one(closeBraket())
+    )
+    .zeroOrOne(relationParser())
+}
+
 
 class CssSelectors(val selectors: List<TypeSelector>) : CssSelector()
 open class CssSelector : Node()

@@ -17,8 +17,9 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
   fun data(vid: Vid) = tree.v(vid).data
 
-  fun node(vid: Vid) = tree.v(vid)
+  fun <T> node(vid: Vid) = tree.v(vid) as T
 
+  fun node(vid: Vid) = tree.v(vid)
 
   fun treeFromChildren(children: List<Vid>) =
     CodeTree(buildTreeFromChildren(tree, children))
@@ -44,10 +45,10 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
     return descendantList
   }
 
-  //Todo: Test tree expansion
-  fun expandFullCodeTree(node: CodeTreeNode): CodeTree =
-    _expandTreeNode(node)
 
+  fun expandFullCodeTree(node: CodeTreeNode): CodeTree = _expandTreeNode(node)
+
+  //Todo: This should be pluggable
   fun applyAnalytics(): CodeTree {
     finder().byType("file")
       .filter { it.codeNode() is CodeFile }

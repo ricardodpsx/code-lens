@@ -4,6 +4,7 @@ import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.codetree.CodeTreeNode
 import co.elpache.codelens.tree.Tree
 import co.elpache.codelens.tree.join
+import co.elpachecode.codelens.cssSelector.data
 import co.elpachecode.codelens.cssSelector.finder
 import io.mockk.every
 import io.mockk.mockk
@@ -51,5 +52,5 @@ fun selectCode(
   tree: CodeTree,
   cssSelector: String
 ): List<Map<String, Any>> {
-  return tree.finder().data(cssSelector)
+  return tree.finder().find(cssSelector).data()
 }

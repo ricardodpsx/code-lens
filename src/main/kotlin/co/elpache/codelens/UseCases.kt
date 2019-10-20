@@ -2,8 +2,8 @@ package co.elpache.codelens
 
 import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.CssSearch
-import co.elpachecode.codelens.cssSelector.parseCssSelector
+import co.elpachecode.codelens.cssSelector.finder
+import co.elpachecode.codelens.cssSelector.vids
 import org.nield.kotlinstatistics.countBy
 import org.nield.kotlinstatistics.descriptiveStatistics
 import org.nield.kotlinstatistics.median
@@ -63,7 +63,7 @@ class UseCases(private val factory: Factory = Factory()) {
   //Todo: Optimize with memoization
   private fun selectBy(
     query: String
-  ) = CssSearch(parseCssSelector(query), codeBase).search()
+  ) = codeBase.finder().find(query).vids()
 
   //Todo: Separate into two use cases
   fun selectCodeWithParents(query: Vid): SearchResults {

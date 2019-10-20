@@ -6,7 +6,7 @@ import co.elpachecode.codelens.cssSelector.finder
 import org.assertj.core.api.SoftAssertions
 import org.junit.Test
 
-abstract class SupportTests(val ext: String, path: String) : SoftAssertions() {
+abstract class LanguageSupportTests(val ext: String, path: String) : SoftAssertions() {
   val tree = CodeTree()
     .expandFullCodeTree(CodeFolder.load(path)).applyAnalytics()
 
