@@ -10,29 +10,29 @@ fun applyJsMetrics(it: NodeResult) {
 
   it.data["lines"] = it.code.relevantCodeLines()
   it.data["textLines"] = it.code.split("\n").size
-  it.data["functions"] = it.children("fun").size
-  it.data["classes"] = it.children("class").size
-  it.data["bindings"] = it.children("binding").size
+  it.data["functions"] = it.find("$>fun").size
+  it.data["classes"] = it.find("$>class").size
+  it.data["bindings"] = it.find("$>binding").size
 
   with(it) {
     byType("call").forEach {
-      it.data["args"] = it.firstChildren("args").children("arg").size
+      it.data["args"] = it.find("$>args>arg").size
     }
 
     byType("fun").forEach {
       it.data["textLines"] = it.code.split("\n").size
       it.data["lines"] = it.code.relevantCodeLines() - 1
       it.data["depth"] = depth(it.codeBase, it.vid) - 1
-      it.data["params"] = it.firstChildren("params").children("param").size
+      it.data["params"] = it.find("$>params>param").size
     }
 
     byType("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
       var body = it.find("$>ClassBody>body").first()
-      it.data["constructors"] = body.children("fun[kind='constructor']").size
-      it.data["methods"] = body.children("fun").size
-      it.data["properties"] = body.children("binding").size
+      it.data["constructors"] = body.find("$>fun[kind='constructor']").size
+      it.data["methods"] = body.find("$>fun").size
+      it.data["properties"] = body.find("$>binding").size
       it.data["members"] = body.code.relevantCodeLines()
     }
   }

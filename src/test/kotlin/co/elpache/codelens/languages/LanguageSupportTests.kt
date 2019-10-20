@@ -68,7 +68,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
 
-    tree.finder().first("#Rectangle4").printTree()
+    tree.finder().find("#Rectangle4").first().printTree()
 
     assertThat(getValue("#Rectangle4", "methods")).isEqualTo(3)
     assertThat(getValue("#Rectangle4", "constructors")).isEqualTo(1)

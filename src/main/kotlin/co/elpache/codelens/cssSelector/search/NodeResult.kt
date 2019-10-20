@@ -53,18 +53,9 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
 
   fun data(css: String) = find(css).map { it.data }
 
-  fun children(selector: String? = null) =
-    children.filter { selector == null || it.matches(parseTypeSelector(selector)) }
-
-  open fun firstChildren(selector: String) =
-    children(selector).firstOrNull() ?: EmptyResult()
-
-  open fun first(selector: String) =
-    find(selector).firstOrNull() ?: EmptyResult()
-
   open fun find(css: String) =
     findMatchingPathsFromSubSet(
-      descendants().plus(this).toResultSet(),
+      listOf(this).plus(descendants()).toResultSet(),
       parseCssSelector(css).selectors
     )
 
@@ -98,6 +89,5 @@ class EmptyResult : NodeResult("--Empty--", CodeTree()) {
   override val code = ""
   override val data: NodeData = NodeData()
   override val children = emptyList<NodeResult>().toResultSet()
-  override fun firstChildren(css: String) = this
   override fun find(css: String) = emptyList<NodeResult>().toResultSet()
 }
