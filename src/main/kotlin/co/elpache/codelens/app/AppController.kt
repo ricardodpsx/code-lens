@@ -51,6 +51,6 @@ class AppController {
   @GetMapping("/history/{param}")
   @ResponseBody
   fun history(@PathVariable param: String, @RequestParam query: String) =
-    useCases.collectHistory(query, param, listOf("d37fb4b", "a1e3958"))//Todo: remove hardcode
+    useCases.collectHistory(query, param, listOf("e3b714c", "e323c18"))//Todo: remove hardcode
 
 }

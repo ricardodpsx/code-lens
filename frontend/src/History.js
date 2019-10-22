@@ -53,6 +53,7 @@ class History extends Component {
 
   render() {
         let commits = this.state.history != null ? this.state.history.rows: false;
+        console.log(commits)
         return (
             <Grid container spacing={3}>
                <Grid item xs={12}>

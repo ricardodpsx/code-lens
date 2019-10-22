@@ -28,6 +28,17 @@ class AnalyticsIntegrationTest {
     assertThat(statistics[1].max).isEqualTo(3.0)
   }
 
+  @Test
+  fun `Can see change of methods in a class`() {
+    val uc = UseCases(factory)
+    val statistics = uc.collectHistory(
+      "#ExampleClass","methods",
+      listOf("e3b714c", "e323c18"))
+
+    assertThat(statistics[0].max).isEqualTo(1.0)
+    assertThat(statistics[1].max).isEqualTo(2.0)
+  }
+
   @Test(timeout = 15000)
   fun `(Performance) Collecting history of 6 commits shouldn't take more than 15 seconds`() {
     val uc = UseCases(Factory("tmp", "tmp"))
