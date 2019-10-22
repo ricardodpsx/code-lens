@@ -15,18 +15,18 @@ fun applyJsMetrics(it: NodeResult) {
   it.data["bindings"] = it.find("$>binding").size
 
   with(it) {
-    byType("call").forEach {
+    find("call").forEach {
       it.data["args"] = it.find("$>args>arg").size
     }
 
-    byType("fun").forEach {
+    find("fun").forEach {
       it.data["textLines"] = it.code.split("\n").size
       it.data["lines"] = it.code.relevantCodeLines() - 1
       it.data["depth"] = depth(it.codeBase, it.vid) - 1
       it.data["params"] = it.find("$>params>param").size
     }
 
-    byType("class").forEach {
+    find("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
       var body = it.find("$>ClassBody>body").first()

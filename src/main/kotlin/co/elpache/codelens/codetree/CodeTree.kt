@@ -50,7 +50,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
   //Todo: This should be pluggable
   fun applyAnalytics(): CodeTree {
-    finder().byType("file")
+    finder().find("file")
       .filter { it.codeNode() is CodeFile }
       .map { it to it.codeNode() as CodeFile }.forEach {
         if (it.second.lang == "js") applyJsMetrics(it.first)
