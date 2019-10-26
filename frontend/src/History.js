@@ -44,6 +44,7 @@ class History extends Component {
          that.setState( prev => (
             {...prev, analytics:{ ...prev.analytics, selectedParam: param}, history:{...prev.history, rows: data}}
          ))
+         console.log(that.state)
        })
   }
 
@@ -53,7 +54,6 @@ class History extends Component {
 
   render() {
         let commits = this.state.history != null ? this.state.history.rows: false;
-        console.log(commits)
         return (
             <Grid container spacing={3}>
                <Grid item xs={12}>
@@ -68,15 +68,12 @@ class History extends Component {
                       <option>--Select--</option>
                       {this.state.analytics != null && this.state.analytics.params.map( p => <option value={p} key={p} >{p}</option>)}
                     </select>
-                    {commits && commits.map( commit =>
-                        <div>
-                            <h2>commit id:</h2>
-                            <HistoryMetrics
-                                 selectedParam={this.state.analytics.selectedParam}
-                                 analyticsData={commit}
-                            />
-                        </div>
-                    )}
+                    {this.state.analytics && this.state.analytics.selectedParam && commits ?
+                        <HistoryMetrics
+                             analytics={this.state.analytics}
+                             history={this.state.history}
+                        />
+                     : ''}
                </Grid>
             </Grid>
         );

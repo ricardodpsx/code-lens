@@ -120,4 +120,11 @@ class UseCases(private val factory: Factory = Factory()) {
     return history
   }
 
+  fun collectFakeHistory(query: String, param: String, commits: List<String>): Map<String, DescriptiveStatistics> {
+    val commitOneStats = DescriptiveStatistics(1.0, 1.0, 1.0, 1.0, 1.0, listOf(1.0, 1.0, 1.0))
+    val commitTwoStats = DescriptiveStatistics(2.0, 2.0, 2.0, 2.0, 2.0, listOf(2.0, 2.0, 2.0))
+
+    return mapOf("commit1" to commitOneStats, "commit2" to commitTwoStats)
+  }
+
 }
