@@ -44,7 +44,6 @@ class History extends Component {
          that.setState( prev => (
             {...prev, analytics:{ ...prev.analytics, selectedParam: param}, history:{...prev.history, rows: data}}
          ))
-         console.log(that.state)
        })
   }
 
