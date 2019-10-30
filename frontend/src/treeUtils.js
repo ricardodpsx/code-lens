@@ -6,53 +6,58 @@ export function slice(text, graph, v = graph.rootVid) {
 
   //Index starts
   let c = 0
-  let starts = {}
-  let ends = {}
+  let starts = []
+  let ends = []
+  let items = []
   Object.keys(graph).forEach(cVid =>{
     if(graph[cVid].data) {
+      graph[cVid].data.vid = cVid
+      if (graph[cVid].data.startOffset < graph[cVid].data.endOffset) {
+        starts.push(graph[cVid].data)
+        //ends.push(graph[cVid].data)
+      }
 
-      let s = starts[graph[cVid].data.startOffset] || []
-      let e = ends[graph[cVid].data.endOffset] || []
-
-      s.push(cVid)
-      e.push(cVid)
-
-      starts[graph[cVid].data.startOffset] = s
-      ends[graph[cVid].data.endOffset] = e
     }
 
   })
 
+  starts.sort((a, b) => {
+    let x = a.startOffset - b.startOffset
+    return x == 0 ? b.endOffset - a.endOffset : x
+  })
+  //ends.sort((a, b) => a.endOffset - b.endOffset)
 
 
-//Todo: SORT!!!
+//Work in progress
   return sliceRec(text)
 
   function sliceRec(text) {
     let out = ""
-    let last = []
-    let stack = []
+    let stack = [{children: []}]
+
     while(c < text.length) {
 
-      if(ends[c] && ends[c].length > 0) {
-        let e = stack.pop()
-        if(stack.length > 0)
+      if (ends.length > 0 && c == _.last(ends).endOffset) {
+        stack.pop()
+        ends.pop()
+      }
+      else if (starts[0] && c == starts[0].startOffset) {
+        let n = starts.shift()
+        ends.push(n)
+        let e = {vid: n.vid, children: []}
         _.last(stack).children.push(e)
-
-        ends[c].shift()
-      } else
-      if(starts[c] && starts[c].length > 0) {
-        stack.push({vid: starts[c].shift(), children: []})
-      } else {
+        stack.push(e)
+      }
+      else {
         let children = _.last(stack).children
         if(typeof _.last(children) == "string")
           children[children.length - 1] = children[children.length - 1] + text.charAt(c++)
           else
-          _.last(stack).children.push(text.charAt(c++))
+          children.push(text.charAt(c++))
       }
     }
 
-    return stack.pop()
+    return stack[0].children[0]
   }
 }
 
@@ -78,10 +83,9 @@ export function slice2(text, graph, v = graph.rootVid) {
        let endOffsetRel = endOffset - parentStartOffset
 
        if (text.slice(last, startOffsetRel)) {
-         console.info(`(parent) ${graph[v].data.type} Adding text `, (text.slice(last, startOffsetRel)), graph[c].data)
+         //console.info(`(parent) ${graph[v].data.type} Adding text `, (text.slice(last, startOffsetRel)), graph[c].data)
          res = res.concat([text.slice(last, startOffsetRel)])
        }
-       //console.info(`Slicing ${c} ${startOffset} ${endOffset} `, text.slice(startOffsetRel, endOffsetRel))
 
        res.push(slice2(text.slice(startOffsetRel, endOffsetRel), graph, c))
 
@@ -89,7 +93,7 @@ export function slice2(text, graph, v = graph.rootVid) {
      })
 
   if (text.slice(last).length > 0) {
-    console.info("Adding text ", (text.slice(last)), graph[v].data)
+    //console.info("Adding text ", (text.slice(last)), graph[v].data)
     res.push(text.slice(last))
   }
 
@@ -104,5 +108,5 @@ export function parents(parentVid, ast) {
 }
 
 export function vertice(vid, ast) {
-  return ast[vid].data
+  return ast[vid] && ast[vid].data
 }

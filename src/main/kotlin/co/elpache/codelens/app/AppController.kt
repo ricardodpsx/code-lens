@@ -1,6 +1,5 @@
 package co.elpache.codelens.app
 
-import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.UseCases
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,9 +15,6 @@ import kotlin.math.max
 class AppController {
 
   val useCases = UseCases()
-//  private val codeBase =
-//    expandFullCodeTree(CodeBase.load("src/../frontend/src/"))
-//
 
   data class SearchResult(
     val codeTree: Map<String, Any>,
@@ -36,7 +32,6 @@ class AppController {
         useCases.getPossibleIntParams(query)
       )
     }
-
 
   @GetMapping("/node/{vid}")
   @ResponseBody

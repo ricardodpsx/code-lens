@@ -40,8 +40,10 @@ class AnalyticsIntegrationTest {
   }
 
   @Test(timeout = 15000)
-  fun `(Performance) Collecting history of 6 commits shouldn't take more than 15 seconds`() {
+  fun `Performance- Collecting history of 6 commits shouldn't take more than 15 seconds`() {
     val uc = UseCases(Factory("tmp", "tmp"))
+
+    //println(uc.codeBase.asString())
 
     val commits = factory.repo.init().logs().map { it.id }.takeLast(6)
 

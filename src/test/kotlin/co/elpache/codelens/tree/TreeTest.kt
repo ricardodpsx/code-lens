@@ -1,7 +1,7 @@
 package co.elpache.codelens.tree
 
-import co.elpache.codelens.tree
 import co.elpache.codelens.inorder
+import co.elpache.codelens.tree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -19,7 +19,6 @@ class TreeTest {
 
     assertThat(ct.children(ct.rootVid()).map { ct.v(it) }).contains("a.1", "a.2")
   }
-
 
 
   @Test
@@ -41,20 +40,22 @@ class TreeTest {
 
   @Test
   fun `can create subtrees`() {
-    val tree = tree(
-      "a",
+    val tree = subTree(
       tree(
-        "b",
-        tree("b_1"),
+        "a",
         tree(
-          "b_2",
-          tree("c_3")
+          "b",
+          tree("b_1"),
+          tree(
+            "b_2",
+            tree("c_3")
+          )
         )
-      )
+      ), "b"
     )
 
 
-    assertThat(inorder(subTree(tree, "b"))).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
+    assertThat(inorder(tree)).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
   }
 
   @Test

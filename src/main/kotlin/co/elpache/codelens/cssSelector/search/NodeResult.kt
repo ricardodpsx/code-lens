@@ -2,7 +2,7 @@ package co.elpachecode.codelens.cssSelector.search
 
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
-import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.LangEntity
 import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.RelationTypes
@@ -18,7 +18,7 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   fun codeNode() = codeBase.node<CodeEntity>(vid)
 
   open val type: String get() = codeNode().type
-  open val code: String get() = (codeNode() as LanguageCodeEntity).code
+  open val code: String get() = (codeNode() as LangEntity).code
   open val data: NodeData get() = tree.v(vid).data
   open val children: NodeResultSet
     get() = tree.children(vid).map {

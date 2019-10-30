@@ -57,7 +57,7 @@ val statistics = { values: List<Pair<Vid, Int>>, _: CodeTree ->
 
 class UseCases(private val factory: Factory = Factory()) {
 
-  private var codeBase = factory.createBaseCode()
+  var codeBase = factory.createBaseCode()
 
   //Todo: Optimize with memoization
   private fun selectBy(
@@ -96,7 +96,7 @@ class UseCases(private val factory: Factory = Factory()) {
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
       codeBase.file(vid).contents(),
-      codeBase.toMap().plus("rootVid" to vid)
+      codeBase.subTreeFrom(vid).toMap()
     )
 
   fun getPossibleIntParams(query: String) =
@@ -117,6 +117,7 @@ class UseCases(private val factory: Factory = Factory()) {
       codeBase = factory.createBaseCode(it)
       history.add(statistics(paramValues(param, selectBy(query), codeBase), codeBase))
     }
+    codeBase = factory.createBaseCode()
     return history
   }
 

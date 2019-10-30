@@ -30,3 +30,66 @@
     transform: rotate(360deg);
   }
 }
+
+.comment {
+  color: grey;
+}
+
+.code-entity-active {
+  background-color: #feff7f;
+}
+
+/** Kotlin **/
+.class > .text-node:first-child,
+.binding > .text-node:first-child,
+.fun > .text-node:first-child {
+  color: darkblue;
+  font-weight: bold;
+}
+
+.file-kotlin .dotQualifiedExpression > .referenceExpression:first-child > .name {
+  color: #004057;
+}
+
+.file-kotlin .dotQualifiedExpression > .referenceExpression > .name {
+  color: purple;
+}
+
+/** Javascript **/
+
+.class > .name,
+.fun > .name {
+  color: #63472b
+}
+
+.file-js .ReturnStatement > .text-node:first-child,
+.file-js .ThisExpression > .text-node:first-child {
+  color: darkblue;
+  font-weight: bold;
+}
+
+.file-js .block .name {
+  color: darkgreen;
+}
+
+.file-js .MemberExpression > .Identifier > .name {
+  color: purple;
+}
+
+.file-js .MemberExpression > .Identifier:first-child > .name {
+  color: #004057;
+}
+
+.string {
+  color: forestgreen;
+  font-weight: bold;
+}
+
+.number {
+  color: blue;
+}
+
+
+
+
+

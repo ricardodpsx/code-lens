@@ -2,7 +2,7 @@ package co.elpache.codelens.languages.js
 
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
-import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.LangEntity
 import co.elpache.codelens.codetree.addAll
 import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
@@ -78,7 +78,7 @@ fun Any.asNode(key: String? = null): JsNode? {
 }
 
 
-class JsFile(val file: File) : CodeFile(file = file, lang = "js") {
+class JsFile(file: File) : CodeFile(file = file, lang = "js") {
   override fun expand(): List<CodeEntity> {
 
     try {
@@ -121,7 +121,7 @@ class JsCodeEntity(
   endOffset: Int,
   codeFile: CodeFile,
   val node: JsNode
-) : LanguageCodeEntity(
+) : LangEntity(
   name = name, type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
 ) {
 
@@ -157,8 +157,9 @@ fun parseFile(file: File): String {
 
 //block, fun, class, if
 fun simplifyType(astType: String, parent: CodeEntity) = when (astType) {
+  "CommentLine" -> "comment"
   "arguments" -> "args"
-  "ClassDeclaration" -> "class"
+  "ClassDeclaration", "ClassExpression" -> "class"
   "ClassMethod" -> "fun"
   "FunctionDeclaration" -> "fun"
   "BlockStatement" -> "block"
@@ -171,6 +172,8 @@ fun simplifyType(astType: String, parent: CodeEntity) = when (astType) {
   "NewExpression" -> "call" //todo: Multitype's object contruction
   "AssignmentExpression" -> "binding"
   "VariableDeclaration" -> "binding"
+  "NumericLiteral" -> "number"
+  "StringLiteral", "quasis" -> "string"
   else -> if (parent.type == "params") "param"
   else if (parent.type == "args") "arg"
   else astType

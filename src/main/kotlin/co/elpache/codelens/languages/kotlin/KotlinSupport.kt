@@ -2,7 +2,7 @@ package co.elpache.codelens.languages.kotlin
 
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
-import co.elpache.codelens.codetree.LanguageCodeEntity
+import co.elpache.codelens.codetree.LangEntity
 import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
 import co.elpache.codelens.underscoreToCamel
@@ -22,35 +22,36 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPackageDirective
 import org.jetbrains.kotlin.psi.KtReferenceExpression
-import org.jetbrains.kotlin.psi.KtSecondaryConstructor
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi.psiUtil.startOffsetSkippingComments
+import org.jetbrains.kotlin.psi.psiUtil.startsWithComment
 import java.io.File
 
 
 val buildKotlinFile: buildAstFile = { file: File -> KotlinFile(file) }
 
-class KotlinFile(val file: File) : CodeFile(file, lang = "kotlin") {
+class KotlinFile(file: File) : CodeFile(file, lang = "kotlin") {
 
   override fun expand() = run {
     val text = file.readText()
     parseFile(text).children.map {
       toCodeEntity(it, this)
-    }
+    }.flatten()
   }
 }
 
 class KotlinCodeEntity(
-  name: String?,
+  name: String? = null,
   type: String, astType: String,
   val node: PsiElement,
   val line: Int,
   startOffset: Int,
   endOffset: Int,
   codeFile: CodeFile
-) : LanguageCodeEntity(
+) : LangEntity(
   name = name,
   type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
 ) {
@@ -58,7 +59,7 @@ class KotlinCodeEntity(
   override fun expand() =
     node.children.map {
       toCodeEntity(it, codeFile!!)
-    }
+    }.flatten()
 }
 
 
@@ -89,13 +90,15 @@ fun simplifyType(type: String) = when (type) {
   "classInitializer", "lambdaExpression", "constructor", "secondaryConstructor" -> "fun"
   "callExpression" -> "call" ////todo: Multitype's object contruction, how to differenciate?
   "importDirective" -> "import"
+  "stringTemplate" -> "string"
+  "integerConstant", "floatConstant", "doubleConstant" -> "number"
   "property" -> "binding"
   "BinaryExpression" -> "expression"
   "while", "doWhile", "for" -> "loop"
   else -> type
 }
 
-private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): CodeEntity {
+private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): List<CodeEntity> {
 
   val name = when (c) {
     is KtClass -> c.name ?: "Anonymous"
@@ -107,6 +110,7 @@ private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): CodeEntity {
     else -> null
   }
 
+
   val k = KotlinCodeEntity(
     name = name,
     astType = c.node.elementType.toString().underscoreToCamel(),
@@ -114,12 +118,27 @@ private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): CodeEntity {
     line = c.node.startOffset,
     node = c,
     codeFile = codeFile,
-    startOffset = c.startOffset,
+    startOffset = c.startOffsetSkippingComments,
     endOffset = c.endOffset
   )
 
   k.data["firstLine"] = k.code.firstLine()
 
-  return k
+  //Comments don't parse as nodes with this parser
+  if (c.startsWithComment()) {
+    val comm = KotlinCodeEntity(
+      astType = "comment", type = "comment",
+      startOffset = c.startOffset,
+      endOffset = c.startOffsetSkippingComments,
+      codeFile = codeFile,
+      line = c.startOffset,
+      node = c
+    )
+
+    comm.data["firstLine"] = comm.code.firstLine()
+    return listOf(comm).plus(k)
+  }
+
+  return listOf(k)
 }
 

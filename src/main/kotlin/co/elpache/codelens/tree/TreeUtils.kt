@@ -1,5 +1,6 @@
 package co.elpache.codelens.tree
 
+import org.jetbrains.kotlin.backend.common.pop
 import java.util.LinkedList
 
 
@@ -31,8 +32,18 @@ fun <T> buildTreeFromChildren(sourceTree: Tree<T>, children: List<Vid>): Tree<T>
 
 //Todo: Prune subTree
 fun <T> subTree(tree: Tree<T>, vid: Vid): Tree<T> {
-  val ct = Tree(tree.vertices)
+  val ct = Tree<T>()
   ct.rootVid = vid
+  val items = ArrayList<Vid>()
+  items.add(vid)
+  while (items.isNotEmpty()) {
+    val p = items.pop()
+    ct.vertices.put(p, tree.vertices[p]!!)
+    tree.children(p).forEach {
+      items.add(it)
+    }
+  }
+
   return ct
 }
 

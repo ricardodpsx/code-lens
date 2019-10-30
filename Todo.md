@@ -27,26 +27,26 @@
      We want to see if the code got better or worst in between commits
      -[x] Core support
      -[ ] UI
--[ ] Basic sintax highlighting
+-[x] Basic sintax highlighting
+-[ ] On packages, see Dependencies etc #cleanCode
+-[ ] Aggregators on the search language (count, sum)
 -[ ] Integrate analytics with search Results 
      When you select a frequency box it should show the selected functions
--[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Add Rules/Threshold #evolution
+-[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally
+-[ ] Unequality selectors #search
+-[ ] Preset Clean Code queries: File Total Size, Function parameters, function sizes.
+-[ ] JS Parser is too slow, probably because of the process up time for each file, Files can be grouped by folder #optimization
+-[ ] Refresh single node, Instead of reload everything for evolutionary metrics #optimization
+-[ ] Reload button
 -[ ] Add References navigator (How classes, types files relate to each other) #charts
 -[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics
--[ ] Fuzzy/Content Search
--[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally
--[ ] Unequality selectors, search from current node for optimal/correct subQueries, support * (wildcard) #search
--[ ] JS Parser is too slow, probably because of the process up time #optimization
--[ ] Refresh single node, Instead of reload everything #optimization
--[ ] Make analytics (Expensive parameters like depth) to be only available for queries. 
-        That way data don't have to be mutable
--[ ] Make AST More resilient
--[ ] Reload button
-
+-[ ] Javascript comment nodes are not working, because their ast nodes breaking the assuptions of the slicing algorithm #Bug
+-[ ] Kotlin, add name as a node so it's easy to extract
 
 IceBox:
+-[ ] Problems with comments parsing in Kotlin
 -[ ] Simplify/unify tree types (JS/KT) #2 #search
      -[ ] loops: for, while, common functional loops 
      -[ ] cond: if, elvis, tri-unary, functional conditions
@@ -76,3 +76,4 @@ IceBox:
 -[ ] IntelliJ plugin
 -[ ] Integration with lint tools and code coverage
 -[ ] It should be "easy" for users to add new metrics to nodes
+-[ ] Fuzzy/Content Search

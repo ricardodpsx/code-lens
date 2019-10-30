@@ -21,7 +21,7 @@ abstract class CodeEntity(val name: String? = null, val type: String) : CodeTree
 
 }
 
-abstract class LanguageCodeEntity(
+abstract class LangEntity(
   val astType: String,
   type: String,
   name: String? = null,
@@ -79,30 +79,28 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
   override fun expand() =
     try {
       dir.listFiles()
-        .map { if (it.isDirectory) CodeFolder(it, basePath) else loadFile(it) }.filterNotNull()
+        .map { if (it.isDirectory) CodeFolder(it, basePath) else CodeFile.loadFile(it.toString()) }.filterNotNull()
     } catch (e: Exception) {
       throw RuntimeException("problem opening directory ${dir.absolutePath}", e)
     }
-  private fun loadFile(file: File): CodeEntity? {
-    val buildAstFile = LanguageSupportRegistry[file.extension]
-    return if (buildAstFile != null) buildAstFile(file) else null
-  }
+
 }
 
 typealias buildAstFile = (file: File) -> CodeFile
 
 open class CodeFile(
-  private val file: File,
+  val file: File,
   type: String = "file",
   astType: String = type,
   val lang: String
-) : LanguageCodeEntity(
+) : LangEntity(
   type = type,
   astType = astType,
   name = file.nameWithoutExtension,
   startOffset = 0,
   endOffset = file.length().toInt()
 ) {
+
 
   override val code: String by lazy { contents() }
 
@@ -115,6 +113,15 @@ open class CodeFile(
   fun contents() = error + file.readText(Charsets.UTF_8)
 
   fun isNotEmpty() = contents().isNotEmpty()
+
+  companion object {
+    fun loadFile(path: String): CodeEntity? {
+      val file = File(path)
+      val buildAstFile = LanguageSupportRegistry[file.extension]
+      return if (buildAstFile != null) buildAstFile(file) else null
+    }
+  }
+
 
   init {
     data.addAll(

@@ -12,7 +12,7 @@ export default function CodeEntity({
        e.stopPropagation()
      }}
      style={selected ? {fontWeight: 'bold'} : {}}
-     className={`${data.type} code-entity node-${vid}`}>
+     className={`${data.type} code-entity node-${vid} code-entity-${selected ? "active" : "inactive"}`}>
     {children}
     </span>
 }
