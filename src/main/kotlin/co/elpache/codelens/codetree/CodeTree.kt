@@ -87,11 +87,13 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   }
 
   fun generateVid(node: CodeEntity, parent: Vid?): Vid {
-    val vid = when (node) {
-      is CodeFile -> node.file.path
-      is CodeFolder -> node.file.path.toString()
-      else -> ids.size.toString()
-    }
+    val vid = ids.size.toString()
+    //Wip: Find stable Ids
+//    when (node) {
+//      is CodeFile -> node.file.path.replace("/", "-")
+//      is CodeFolder -> node.file.path.toString().replace("/", "-")
+//      else -> ids.size.toString()
+//    }
 
     if (ids.contains(vid)) throw error("Duplicated Id $vid")
     ids.add(vid)
