@@ -2,6 +2,7 @@ package co.elpache.codelens.languages.kotlin
 
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
+import co.elpache.codelens.codetree.CodeTreeNode
 import co.elpache.codelens.codetree.LangEntity
 import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
@@ -56,10 +57,11 @@ class KotlinCodeEntity(
   type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
 ) {
 
-  override fun expand() =
-    node.children.map {
+  override fun expand(): List<CodeTreeNode> {
+    return node.children.map {
       toCodeEntity(it, codeFile!!)
     }.flatten()
+  }
 }
 
 

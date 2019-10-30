@@ -44,6 +44,7 @@
 -[ ] Duplicated code #metrics
 -[ ] Javascript comment nodes are not working, because their ast nodes breaking the assuptions of the slicing algorithm #Bug
 -[ ] Kotlin, add name as a node so it's easy to extract
+-[ ] Good error messages for broken files
 
 IceBox:
 -[ ] Problems with comments parsing in Kotlin

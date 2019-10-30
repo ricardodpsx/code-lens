@@ -1,6 +1,7 @@
 package co.elpache.codelens.codetree
 
 import co.elpache.codelens.languages.js.buildJsFile
+import co.elpache.codelens.languages.js.buildParseCache
 import co.elpache.codelens.languages.kotlin.buildKotlinFile
 import java.io.File
 
@@ -39,7 +40,7 @@ abstract class LangEntity(
         && endOffset <= codeFile.code.length)
         codeFile.code.substring(startOffset, endOffset)
       else {
-        System.err.println("Problem with node $data")
+        //System.err.println("Problem with node $data")
         ""
       }
 
@@ -66,7 +67,13 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
         return CodeFolder(dir, File(src))
 
       val path = System.getProperty("user.dir")
-      return CodeFolder(File("$path/$src"), File(path))
+      val c = CodeFolder(File("$path/$src"), File(path))
+
+
+      //Todo: This doesn't belong here
+      buildParseCache(c.dir)
+
+      return c
     }
   }
 

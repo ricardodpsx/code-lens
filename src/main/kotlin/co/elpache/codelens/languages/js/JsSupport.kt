@@ -8,6 +8,7 @@ import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
+import kotlin.streams.toList
 
 
 val buildJsFile: buildAstFile = { file: File -> JsFile(file) }
@@ -77,12 +78,26 @@ fun Any.asNode(key: String? = null): JsNode? {
   else null
 }
 
+val parsedCache = HashMap<String, JsNode>()
+
+fun buildParseCache(path: File) {
+  val files = path.walkTopDown().filter { it.extension == "js" }.toList()
+
+  if (files.isNotEmpty()) {
+    val parsed = parseFiles(files)
+
+    files.zip(parsed).forEach {
+      parsedCache[it.first!!.path] = toJson(it.second)
+    }
+  }
+
+}
 
 class JsFile(file: File) : CodeFile(file = file, lang = "js") {
   override fun expand(): List<CodeEntity> {
 
     try {
-      return toJson(parseFile(file))
+      return parsedCache[file.path]!!
         .child("program")!!
         .getList("body")
         .map {
@@ -103,8 +118,8 @@ class JsFile(file: File) : CodeFile(file = file, lang = "js") {
         toJsCodeEntity(
           mapOf(
             "type" to "code",
-            "start" to error.length,
-            "end" to error.length + file.length()
+            "start" to error.length.toInt(),
+            "end" to (error.length + file.length()).toInt()
           ), this, this
         )
       )
@@ -138,18 +153,18 @@ fun toJson(js: String): Map<String, Any> {
 }
 
 
-fun parseFile(file: File): String {
-  val e = Runtime.getRuntime().exec(
-    "node JavaScriptSupport.js ${file.absolutePath}", null,
-    File("frontend")
-  );
+fun parseFiles(files: List<File>): List<String> {
+  val fileArgs = files.map { it.absolutePath }.joinToString(" ")
+  val command = "node JavaScriptSupport.js ${fileArgs}"
+  val e = Runtime.getRuntime().exec(command, null, File("frontend"))
 
-  val programOutput = e.inputStream.bufferedReader().readText()
+  val programOutput = e.inputStream.bufferedReader().lines().toList()
   val programError = e.errorStream.bufferedReader().readText()
 
   //Todo: Process error output to ease troubleshooting
-  if (programError.isNotEmpty())
-    throw RuntimeException("Error Parsing File:\n $programError")
+  if (programError.isNotEmpty()) {
+    throw RuntimeException("Error Parsing File: \n $programError")
+  }
 
   return programOutput
 }
@@ -206,9 +221,7 @@ private fun toJsCodeEntity(c: JsNode, codeFile: CodeFile, parent: CodeEntity): C
   )
 
   e.data.addAll(
-    "keys" to c.keys,
-    "firstLine" to e.code.firstLine(),
-    "lines" to e.code.relevantCodeLines()
+    "firstLine" to e.code.firstLine()
   )
 
   return e

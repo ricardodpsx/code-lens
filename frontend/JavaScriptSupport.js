@@ -14,8 +14,12 @@ const getTree = (content) => {
   return rawAst
 };
 
+let i = 0
+while (process.argv[2 + i]) {
+  const content = fs.readFileSync(process.argv[2 + i], 'utf8');
+  const result = getTree(content);
+  console.log(JSON.stringify(result));
+  i++
+}
 
-const content = fs.readFileSync(process.argv[2], 'utf8');
-const result = getTree(content);
-console.log(JSON.stringify(result));
 
