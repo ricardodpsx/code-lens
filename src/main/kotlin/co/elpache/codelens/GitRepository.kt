@@ -59,4 +59,13 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
     return commits
   }
 
+  fun lastCommits(numCommits: Int): List<String> {
+    val masterId = repo!!.repository.exactRef(branch).getObjectId()
+    val commits = ArrayList<String>()
+
+    for (commit in repo!!.log().add(masterId).setMaxCount(numCommits).call())
+      commits.add(commit.name)
+    return commits
+  }
+
 }

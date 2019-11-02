@@ -11,7 +11,7 @@ class History extends Component {
 
   constructor(props) {
       super(props)
-      this.state = {query: '', results: []}
+      this.state = {query: '', maxCommits: 5, results: []}
   }
 
   handleQuerySearch(query) {
@@ -36,7 +36,9 @@ class History extends Component {
 
   handleHistoryParamSelect(param) {
     let that = this;
-    fetch(`http://localhost:8080/history/${param}?query=file%20${encodeURIComponent(this.state.query)}`)
+    fetch('http://localhost:8080/history/${param}?query=file%20$' + encodeURIComponent(this.state.query)
+        + '&maxCommits=' + encodeURIComponent(this.state.maxCommits)
+    )
        .then(function(response) {
          return response.json();
        })

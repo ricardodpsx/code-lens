@@ -3,8 +3,6 @@ package co.elpache.codelens
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
-import java.time.Instant
-import java.time.LocalDate
 
 class GitIntegrationTest {
 
@@ -39,6 +37,16 @@ class GitIntegrationTest {
     initRepository()
 
     initRepository()
+  }
+
+  @Test
+  fun `Should list last N commits`() {
+    val repo = initRepository()
+
+    val commits = repo.lastCommits(2)
+    println(commits)
+
+    assertThat(commits.size).isEqualTo(2)
   }
 
   private fun initRepository(): GitRepository {

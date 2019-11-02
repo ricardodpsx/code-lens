@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
+import kotlin.math.max
 
 
 @CrossOrigin(origins = ["http://localhost:3000"])
@@ -50,7 +51,7 @@ class AppController {
 
   @GetMapping("/history/{param}")
   @ResponseBody
-  fun history(@PathVariable param: String, @RequestParam query: String) =
-    useCases.collectFakeHistory(query, param, listOf("e3b714c", "e323c18"))//Todo: remove hardcode
+  fun history(@PathVariable param: String, @RequestParam query: String, @RequestParam maxCommits: Int) =
+    useCases.collectFakeHistory(query, param, maxCommits)
 
 }
