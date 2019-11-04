@@ -1,5 +1,6 @@
 package co.elpache.codelens;
 
+import co.elpache.codelens.useCases.EvolutionUseCases
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -138,7 +139,7 @@ class AnalyticsTest {
     } returns current
 
 
-    val uc = UseCases(factory)
+    val uc = EvolutionUseCases(factory)
     val results = uc.collectHistory("fun", "lines", listOf("commit1", "commit2"))
 
     assertThat(

@@ -1,5 +1,7 @@
 package co.elpache.codelens;
 
+import co.elpache.codelens.useCases.CodeExplorerUseCases
+import co.elpache.codelens.useCases.EvolutionUseCases
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -9,7 +11,7 @@ class AnalyticsIntegrationTest {
   @Test
   fun `Can get Int Params`() {
 
-    val uc = UseCases(factory)
+    val uc = CodeExplorerUseCases(factory)
 
     val results = uc.getPossibleIntParams("fun")
 
@@ -18,7 +20,7 @@ class AnalyticsIntegrationTest {
 
   @Test
   fun `Can see change in a function`() {
-    val uc = UseCases(factory)
+    val uc = EvolutionUseCases(factory)
     val statistics = uc.collectHistory(
       "#ExampleClass #functionWithParams", "params",
       listOf("d37fb4b", "a1e3958")
@@ -30,7 +32,7 @@ class AnalyticsIntegrationTest {
 
   @Test
   fun `Can see change of methods in a class`() {
-    val uc = UseCases(factory)
+    val uc = EvolutionUseCases(factory)
     val statistics = uc.collectHistory(
       "#ExampleClass","methods",
       listOf("e3b714c", "e323c18"))
@@ -39,9 +41,9 @@ class AnalyticsIntegrationTest {
     assertThat(statistics[1].max).isEqualTo(2.0)
   }
 
-  @Test(timeout = 8000)
+  @Test(timeout = 9000)
   fun `Performance- Collecting history of 6 commits shouldn't take more than 15 seconds`() {
-    val uc = UseCases(Factory("tmp", "tmp"))
+    val uc = EvolutionUseCases(Factory("tmp", "tmp"))
 
     //println(uc.codeBase.asString())
 

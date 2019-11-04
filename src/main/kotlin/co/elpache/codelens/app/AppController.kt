@@ -1,20 +1,21 @@
 package co.elpache.codelens.app
 
-import co.elpache.codelens.UseCases
+import co.elpache.codelens.useCases.CodeExplorerUseCases
+import co.elpache.codelens.useCases.EvolutionUseCases
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
-import kotlin.math.max
 
 
 @CrossOrigin(origins = ["http://localhost:3000"])
 @RestController
 class AppController {
 
-  val useCases = UseCases()
+  val useCases = CodeExplorerUseCases()
+  val evolutionUseCases = EvolutionUseCases()
 
   data class SearchResult(
     val codeTree: Map<String, Any>,
@@ -47,6 +48,6 @@ class AppController {
   @GetMapping("/history/{param}")
   @ResponseBody
   fun history(@PathVariable param: String, @RequestParam query: String, @RequestParam maxCommits: Int) =
-    useCases.collectFakeHistory(query, param, maxCommits)
+    evolutionUseCases.collectFakeHistory(query, param, maxCommits)
 
 }

@@ -121,4 +121,5 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
     }
   }
 
+  fun selectBy(query: String) = finder().find(query)
 }

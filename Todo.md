@@ -28,6 +28,7 @@
      -[x] Core support
      -[ ] UI
 -[x] Basic sintax highlighting
+-[ ] Performance experience for History
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Aggregators on the search language (count, sum)
 -[ ] Integrate analytics with search Results 
