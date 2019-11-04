@@ -16,9 +16,13 @@ const getTree = (content) => {
 
 let i = 0
 while (process.argv[2 + i]) {
-  const content = fs.readFileSync(process.argv[2 + i], 'utf8');
-  const result = getTree(content);
-  console.log(JSON.stringify(result));
+  try {
+    const content = fs.readFileSync(process.argv[2 + i], 'utf8');
+    const result = getTree(content);
+    console.log(JSON.stringify(result));
+  } catch (e) {
+    console.log('{"program": {"body":[ ]} }')
+  }
   i++
 }
 

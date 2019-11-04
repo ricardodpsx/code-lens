@@ -40,6 +40,11 @@ data class DescriptiveStatistics(
 val statistics = { values: List<Pair<Vid, Int>>, _: CodeTree ->
   with(values.map { it.second }) {
     val ds = descriptiveStatistics
+
+    if (ds.mean.isNaN()) {
+      return@with DescriptiveStatistics(0.0, 0.0, 0.0, 0.0, 0.0, listOf(0.0, 0.0, 0.0, 0.0))
+    }
+
     DescriptiveStatistics(
       mean = ds.mean,
       median = median(),
@@ -128,12 +133,15 @@ class UseCases(private val factory: Factory = Factory()) {
       codeBase = factory.createBaseCode(it)
       history[it] = statistics(paramValues(param, selectBy(query), codeBase), codeBase)
     }*/
+      val commitOneStats = DescriptiveStatistics(1.0, 1.0, 1.0, 1.0, 1.0, listOf(1.0, 1.0, 1.0))
+      val commitTwoStats = DescriptiveStatistics(3.0, 3.0, 3.0, 3.0, 3.0, listOf(3.0, 3.0, 3.0))
+      val totalStats = DescriptiveStatistics(2.0, 2.0, 2.0, 1.0, 3.0, listOf(2.0, 2.0, 2.0))
 
-    val commitOneStats = DescriptiveStatistics(1.0, 1.0, 1.0, 1.0, 1.0, listOf(1.0, 1.0, 1.0))
-    val commitTwoStats = DescriptiveStatistics(3.0, 3.0, 3.0, 3.0, 3.0, listOf(3.0, 3.0, 3.0))
-    val totalStats = DescriptiveStatistics(2.0, 2.0, 2.0, 1.0, 3.0, listOf(2.0, 2.0, 2.0))
+      return mapOf("commit1" to commitOneStats, "commit2" to commitTwoStats, "Avg" to totalStats)
+    }
 
-    return mapOf("commit1" to commitOneStats, "commit2" to commitTwoStats, "Avg" to totalStats)
-  }
+  fun historyOfLastCommits(query: String, params: String, n: Int = 20) =
+    collectHistory(query, params, factory.repo.init().logs().map { it.id }.take(n).reversed())
+
 
 }

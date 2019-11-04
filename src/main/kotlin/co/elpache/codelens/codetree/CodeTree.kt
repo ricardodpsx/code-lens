@@ -9,6 +9,7 @@ import co.elpache.codelens.tree.subTree
 import co.elpachecode.codelens.cssSelector.search.finder
 import java.util.LinkedList
 
+
 class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   fun children(vid: String) = tree.children(vid).map {
     tree.v(it) as CodeEntity
@@ -37,15 +38,6 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   }
 
   fun subTreeFrom(vid: Vid) = CodeTree(subTree(tree, vid))
-
-
-  private fun dfs2(vid: Vid, tab: String, out: StringBuilder) {
-    for (cVid in tree.children(vid)) {
-      val child = tree.v(cVid)
-      out.append(" $tab $cVid: ${child.data}\n")
-      dfs(cVid, "$tab-", out)
-    }
-  }
 
   fun descendants(vid: Vid, descendantList: ArrayList<Vid> = arrayListOf()): List<Vid> {
     for (cVid in tree.children(vid)) {

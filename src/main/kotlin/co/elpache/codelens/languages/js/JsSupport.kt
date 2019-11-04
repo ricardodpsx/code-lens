@@ -80,6 +80,7 @@ fun Any.asNode(key: String? = null): JsNode? {
 
 val parsedCache = HashMap<String, JsNode>()
 
+
 fun buildParseCache(path: File) {
   val files = path.walkTopDown().filter { it.extension == "js" }.toList()
 
@@ -89,6 +90,8 @@ fun buildParseCache(path: File) {
     files.zip(parsed).forEach {
       parsedCache[it.first!!.path] = toJson(it.second)
     }
+  } else {
+    println("Not parsing $files")
   }
 
 }
@@ -163,7 +166,8 @@ fun parseFiles(files: List<File>): List<String> {
 
   //Todo: Process error output to ease troubleshooting
   if (programError.isNotEmpty()) {
-    throw RuntimeException("Error Parsing File: \n $programError")
+    //throw RuntimeException("Error Parsing File: \n $programError")
+
   }
 
   return programOutput

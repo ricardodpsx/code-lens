@@ -39,7 +39,7 @@ class AnalyticsIntegrationTest {
     assertThat(statistics[1].max).isEqualTo(2.0)
   }
 
-  @Test(timeout = 10000)
+  @Test(timeout = 8000)
   fun `Performance- Collecting history of 6 commits shouldn't take more than 15 seconds`() {
     val uc = UseCases(Factory("tmp", "tmp"))
 

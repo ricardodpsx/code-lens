@@ -31,6 +31,12 @@ class GitIntegrationTest {
     assertThat(commits.size).isEqualTo(3)
   }
 
+  @Test
+  fun `See commit id of file`() {
+    val repo = initRepository()
+    assertThat(repo.log("README.md").first()).isEqualTo("123aeca976c663f9f5359aad5f17d6eefd20d434")
+  }
+
 
   @Test
   fun `Should not throw if the repository exists`() {
