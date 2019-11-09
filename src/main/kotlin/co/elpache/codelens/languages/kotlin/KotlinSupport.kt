@@ -125,6 +125,7 @@ private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): List<CodeEntity> {
   )
 
   k.data["firstLine"] = k.code.firstLine()
+  k.data["code"] = k.code
 
   //Comments don't parse as nodes with this parser
   if (c.startsWithComment()) {
@@ -138,6 +139,7 @@ private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): List<CodeEntity> {
     )
 
     comm.data["firstLine"] = comm.code.firstLine()
+    comm.data["code"] = comm.code
     return listOf(comm).plus(k)
   }
 

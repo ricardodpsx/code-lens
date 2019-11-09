@@ -30,7 +30,7 @@ fun codeTreeNode(vararg data: Pair<String, Any>) =
 
 fun codeTree(vid: String, node: CodeTreeNode, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree.tree.addIfAbsent(vid, node)
+  tree.tree.addIfAbsent(vid, node.data)
   tree.tree.rootVid = vid
   expands.forEach {
     join(tree.tree, it.tree)

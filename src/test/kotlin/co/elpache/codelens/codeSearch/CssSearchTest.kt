@@ -1,4 +1,4 @@
-package co.elpache.codelens.cssSelector
+package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.codeTreeNode

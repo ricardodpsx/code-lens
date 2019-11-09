@@ -4,7 +4,7 @@ import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.codetree.nodeDataOf
 import co.elpachecode.codelens.cssSelector.AttributeSelector
 import co.elpachecode.codelens.cssSelector.matchesAttribute
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class CssSelectorUtilsTest {

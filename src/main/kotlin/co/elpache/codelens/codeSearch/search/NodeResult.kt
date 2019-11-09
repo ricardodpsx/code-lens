@@ -1,8 +1,6 @@
 package co.elpachecode.codelens.cssSelector.search
 
-import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
-import co.elpache.codelens.codetree.LangEntity
 import co.elpache.codelens.codetree.NodeData
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.RelationTypes
@@ -15,11 +13,11 @@ fun CodeTree.finder() = NodeResult(tree.rootVid(), this)
 open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   val tree = codeBase.tree
 
-  fun codeNode() = codeBase.node<CodeEntity>(vid)
+  fun codeNode() = codeBase.node(vid)
 
-  open val type: String get() = codeNode().type
-  open val code: String get() = (codeNode() as LangEntity).code
-  open val data: NodeData get() = tree.v(vid).data
+  open val type: String get() = codeNode()["type"] as String
+  open val code: String get() = codeBase.code(vid)
+  open val data: NodeData get() = tree.v(vid)
   open val children: NodeResultSet
     get() = tree.children(vid).map {
       NodeResult(

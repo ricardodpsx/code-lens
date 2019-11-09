@@ -15,8 +15,9 @@ open class CodeFile(
   endOffset = file.length().toInt()
 ) {
 
-
-  override val code: String by lazy { contents() }
+  override val code: String by lazy {
+    contents()
+  }
 
   val fileName: String = file.name
 
@@ -36,6 +37,9 @@ open class CodeFile(
     }
   }
 
+  override fun getCodes(): String {
+    return contents()
+  }
 
   init {
     data.addAll(
@@ -44,7 +48,8 @@ open class CodeFile(
       "fileName" to fileName,
       "endOffset" to endOffset,
       "type" to type,
-      "lang" to lang
+      "lang" to lang,
+      "code" to contents()
     )
   }
 

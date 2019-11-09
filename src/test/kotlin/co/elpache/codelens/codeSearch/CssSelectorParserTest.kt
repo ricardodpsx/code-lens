@@ -1,9 +1,8 @@
 package codelens.cssSelector
 
 import co.elpachecode.codelens.cssSelector.RelationTypes
-import co.elpachecode.codelens.cssSelector.TypeSelector
 import co.elpachecode.codelens.cssSelector.parseCssSelector
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 class CssSelectorParserTest {

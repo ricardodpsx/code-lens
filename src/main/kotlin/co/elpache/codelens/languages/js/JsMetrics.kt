@@ -1,7 +1,7 @@
 package co.elpache.codelens.languages.js
 
-import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.codetree.string
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
@@ -43,7 +43,7 @@ private fun depth(tree: CodeTree, vid: Vid): Int {
   for (cVid in tree.tree.children(vid))
     maxDepth = max(depth(tree, cVid), maxDepth)
 
-  return (if (co.elpache.codelens.languages.kotlin.increasesNesting((tree.tree.v(vid) as CodeEntity).type)) 1 else 0) + maxDepth
+  return (if (co.elpache.codelens.languages.kotlin.increasesNesting(tree.data(vid).string("type"))) 1 else 0) + maxDepth
 }
 
 

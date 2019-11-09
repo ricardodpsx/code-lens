@@ -225,7 +225,8 @@ private fun toJsCodeEntity(c: JsNode, codeFile: CodeFile, parent: CodeEntity): C
   )
 
   e.data.addAll(
-    "firstLine" to e.code.firstLine()
+    "firstLine" to e.code.firstLine(),
+    "code" to e.code
   )
 
   return e

@@ -12,7 +12,7 @@ abstract class LangEntity(
 
   open val code: String
     get() =
-      if (codeFile!!.isNotEmpty()
+      if (codeFile != null && codeFile.isNotEmpty()
         && startOffset <= endOffset
         && startOffset < codeFile.code.length
         && endOffset <= codeFile.code.length
@@ -22,6 +22,8 @@ abstract class LangEntity(
         //System.err.println("Problem with node $data")
         ""
       }
+
+  open fun getCodes(): String = code
 
   init {
     data.addAll(

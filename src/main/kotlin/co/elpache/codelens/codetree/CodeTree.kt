@@ -9,15 +9,18 @@ import co.elpache.codelens.tree.subTree
 import co.elpachecode.codelens.cssSelector.search.finder
 import java.util.LinkedList
 
+fun HashMap<String, Any>.string(key: String) = getOrDefault(key, "") as String
+fun HashMap<String, Any>.int(key: String) = getOrDefault(key, "") as Int
 
-class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
+
+class CodeTree(val tree: Tree<HashMap<String, Any>> = Tree()) {
   fun children(vid: String) = tree.children(vid).map {
     tree.v(it) as CodeEntity
   }
 
-  fun file(vid: Vid) = tree.v(vid) as CodeFile
+  fun file(vid: Vid) = tree.v(vid)
 
-  fun data(vid: Vid) = tree.v(vid).data
+  fun data(vid: Vid) = tree.v(vid)
 
   fun <T> node(vid: Vid) = tree.v(vid) as T
 
@@ -30,7 +33,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   fun toMap(): Map<String, Any> {
     return tree.vertices.map {
       it.key to mapOf(
-        "data" to it.value.node.data,
+        "data" to it.value.node,
         "parent" to it.value.parentVid,
         "children" to it.value.children.toList()
       )
@@ -54,7 +57,6 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
   private fun _expandTreeNode(node: CodeEntity): CodeTree {
 
-
     val queue = LinkedList<Pair<CodeEntity, Vid?>>()
 
     queue.add(node to null)
@@ -62,7 +64,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
     while (queue.isNotEmpty()) {
       val cur = queue.removeFirst()
       val vid = generateVid(cur.first, cur.second)
-      tree.addIfAbsent(vid, cur.first)
+      tree.addIfAbsent(vid, cur.first.data)
 
       cur.second?.let {
         tree.addChild(it, vid)
@@ -77,6 +79,8 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
 
     return this
   }
+
+  fun code(vid: Vid) = (tree.v(vid)["code"] as String?) ?: ""
 
   fun generateVid(node: CodeEntity, parent: Vid?): Vid {
     val vid = ids.size.toString()
@@ -95,20 +99,18 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   //Todo: This should be pluggable
   fun applyAnalytics(): CodeTree {
     finder().find("file")
-      .filter { it.codeNode() is CodeFile }
-      .map { it to it.codeNode() as CodeFile }.forEach {
-        if (it.second.lang == "js") applyJsMetrics(it.first)
-        else if (it.second.lang == "kotlin") applyKotlinMetrics(it.first)
+      .map { it to it.codeNode() }
+      .forEach {
+        if (it.second["lang"] == "js") applyJsMetrics(it.first)
+        else if (it.second["lang"] == "kotlin") applyKotlinMetrics(it.first)
       }
-
     return this
   }
-
 
   fun asString(): String {
     val out = StringBuilder()
     val root = tree.v(tree.rootVid())
-    out.append("${tree.rootVid}: ${root.data}\n")
+    out.append("${tree.rootVid}: ${root}\n")
     dfs(tree.rootVid(), "-", out)
     return out.toString()
   }
@@ -116,7 +118,7 @@ class CodeTree(val tree: Tree<CodeTreeNode> = Tree()) {
   private fun dfs(vid: Vid, tab: String, out: StringBuilder) {
     for (cVid in tree.children(vid)) {
       val child = tree.v(cVid)
-      out.append(" $tab ${cVid}: ${child.data}\n")
+      out.append(" $tab ${cVid}: ${child}\n")
       dfs(cVid, "$tab-", out)
     }
   }
