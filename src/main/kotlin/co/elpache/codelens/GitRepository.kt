@@ -3,6 +3,7 @@ package co.elpache.codelens
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter
 import java.io.File
 import java.time.LocalDate
@@ -74,16 +75,21 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
     return commits
   }
 
-  fun log(path: String): List<String> {
-    init()
-    return repo!!.log().add(masterId).addPath(path).call().map { it.id.name }
-  }
 
-  private val masterId: ObjectId? get() = repo!!.repository.exactRef(branch).getObjectId()
+  private val masterId: ObjectId? get() = repo!!.repository.exactRef(branch).objectId
 
   fun lastCommits(numCommits: Int): List<String> {
+    return logs(numCommits).map { it.name }.reversed()
+  }
+
+  fun logOf(filePath: String): List<String> {
     init()
-    return repo!!.log().add(masterId).setMaxCount(numCommits).call().map { it.name }
+    return repo!!.log().add(masterId).addPath(filePath).call().map { it.id.name }
+  }
+
+  private fun logs(numCommits: Int): List<RevCommit> {
+    init()
+    return repo!!.log().add(masterId).setMaxCount(numCommits).call().toList()
   }
 
 }
