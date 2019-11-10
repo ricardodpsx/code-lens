@@ -152,7 +152,7 @@ class AnalyticsTest {
     val results = uc.collectHistory("fun", "lines", listOf("commit1", "commit2"))
 
     assertThat(
-      results
+      results.values
     ).extracting("max").containsExactly(10.0, 7.0)
 
   }

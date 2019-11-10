@@ -56,8 +56,8 @@ class AnalyticsIntegrationTest {
       listOf("d37fb4b", "a1e3958")
     )
 
-    assertThat(statistics[0].max).isEqualTo(2.0)
-    assertThat(statistics[1].max).isEqualTo(3.0)
+    assertThat(statistics["d37fb4b"]?.max).isEqualTo(2.0)
+    assertThat(statistics["a1e3958"]?.max).isEqualTo(3.0)
   }
 
   @Test
@@ -68,8 +68,8 @@ class AnalyticsIntegrationTest {
       listOf("e3b714c", "e323c18")
     )
 
-    assertThat(statistics[0].max).isEqualTo(1.0)
-    assertThat(statistics[1].max).isEqualTo(2.0)
+    assertThat(statistics["e3b714c"]?.max).isEqualTo(1.0)
+    assertThat(statistics["e323c18"]?.max).isEqualTo(2.0)
   }
 
 }
