@@ -1,7 +1,7 @@
 package co.elpachecode.codelens.cssSelector.search
 
 import co.elpache.codelens.codetree.CodeTree
-import co.elpache.codelens.codetree.NodeData
+import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.RelationTypes
 import co.elpachecode.codelens.cssSelector.TypeSelector
@@ -17,7 +17,7 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
 
   open val type: String get() = codeNode()["type"] as String
   open val code: String get() = codeBase.code(vid)
-  open val data: NodeData get() = tree.v(vid)
+  open val data: VData get() = tree.v(vid)
   open val children: NodeResultSet
     get() = tree.children(vid).map {
       NodeResult(
@@ -38,7 +38,7 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
   override fun toString() = data.toString()
 
   private fun matches(selector: TypeSelector) =
-    matches(codeBase.data(vid), selector)
+    matches(codeBase.node(vid), selector)
 
   fun data(css: String) = find(css).map { it.data }
 
@@ -76,7 +76,7 @@ open class NodeResult(val vid: Vid, val codeBase: CodeTree) {
 
 class EmptyResult : NodeResult("--Empty--", CodeTree()) {
   override val code = ""
-  override val data: NodeData = NodeData()
+  override val data: VData = VData()
   override val children = emptyList<NodeResult>().toResultSet()
   override fun find(css: String) = emptyList<NodeResult>().toResultSet()
 }

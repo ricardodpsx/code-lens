@@ -1,8 +1,8 @@
 package co.elpachecode.codelens.cssSelector
 
-import co.elpache.codelens.codetree.NodeData
+import co.elpache.codelens.tree.VData
 
-fun matches(ce: NodeData, typeSelector: TypeSelector): Boolean {
+fun matches(ce: VData, typeSelector: TypeSelector): Boolean {
 
   if (typeSelector.name != "*" && ce[typeSelector.attributeToMatch].toString().toLowerCase() != typeSelector.name.toLowerCase())
     return false
@@ -10,7 +10,7 @@ fun matches(ce: NodeData, typeSelector: TypeSelector): Boolean {
   return typeSelector.attributes.all { matchesAttribute(it, ce) }
 }
 
-fun matchesAttribute(sel: AttributeSelector, obj: NodeData): Boolean {
+fun matchesAttribute(sel: AttributeSelector, obj: VData): Boolean {
   if (!propertyExists(obj, sel.name)) return false
   if (sel.value == null) return true
 
@@ -27,6 +27,6 @@ fun matchesAttribute(sel: AttributeSelector, obj: NodeData): Boolean {
 }
 
 
-fun getPropertyValue(ce: NodeData, name: String) = ce[name]!!.toString()
+fun getPropertyValue(ce: VData, name: String) = ce[name]!!.toString()
 
-fun propertyExists(ce: NodeData, name: String) = ce.containsKey(name)
+fun propertyExists(ce: VData, name: String) = ce.containsKey(name)

@@ -1,17 +1,14 @@
 /* eslint-disable react/jsx-no-undef */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import HistoryMetrics from "./HistoryMetrics"
 import TextField from '@material-ui/core/TextField'
-
-
-import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 
 class History extends Component {
 
   constructor(props) {
       super(props)
-      this.state = {query: '', maxCommits: 5, results: []}
+    this.state = {query: '', maxCommits: 15, results: []}
   }
 
   handleQuerySearch(query) {
@@ -21,7 +18,7 @@ class History extends Component {
 
   updateGraph(query) {
       const that = this;
-      fetch('http://localhost:8080/?query=file%20' + encodeURIComponent(query))
+    fetch('http://localhost:8080/?query=' + encodeURIComponent(query))
          .then(function(response) {
            return response.json();
          })
@@ -36,7 +33,7 @@ class History extends Component {
 
   handleHistoryParamSelect(param) {
     let that = this;
-    fetch('http://localhost:8080/history/${param}?query=file%20$' + encodeURIComponent(this.state.query)
+    fetch(`http://localhost:8080/history/${param}?query=` + encodeURIComponent(this.state.query)
         + '&maxCommits=' + encodeURIComponent(this.state.maxCommits)
     )
        .then(function(response) {

@@ -1,18 +1,31 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.app.database.AstRecord
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import mu.KotlinLogging
 
 class EvolutionUseCases(private val factory: Factory = Factory()) {
-  var code = factory.createBaseCode()
+  val mapper = ObjectMapper().registerModule(KotlinModule())
+
+  private val logger = KotlinLogging.logger {}
+
+
+  fun collectHistory(query: String, param: String, maxCommits: Int) =
+    collectHistory(query, param, factory.repo.lastCommits(maxCommits))
 
   fun collectHistory(query: String, param: String, commits: List<String>): List<DescriptiveStatistics> {
-    //Todo: make sure this happens in an own directory
+
+    logger.info { "Starting collecting history of $commits" }
     val history = ArrayList<DescriptiveStatistics>()
     commits.forEach {
-      code = factory.createBaseCode(it)
+      val code = factory.createBaseCode(it)
       history.add(statistics(code.selectBy(query).paramsValues(param)))
     }
-    code = factory.createBaseCode()
+    logger.info { "Finished collecting history of $commits" }
+
+
     return history
   }
 
@@ -32,7 +45,18 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
     return mapOf("commit1" to commitOneStats, "commit2" to commitTwoStats, "Avg" to totalStats)
   }
 
-  fun historyOfLastCommits(query: String, params: String, n: Int = 20) =
-    collectHistory(query, params, factory.repo.init().logs().map { it.id }.take(n).reversed())
+  fun preloadCommits(maxCommits: Int) {
+    preloadCommits(factory.repo.lastCommits(maxCommits))
+  }
+
+  fun preloadCommits(commits: List<String>) {
+    logger.info { "Preloading ${commits}" }
+    commits
+      .filter { factory.getAstDatabase().findByCommit(it) == null }
+      .forEach {
+        val code = factory.createBaseCode(it)
+        factory.getAstDatabase().save(AstRecord(it, mapper.writeValueAsString(code.tree)))
+      }
+  }
 
 }

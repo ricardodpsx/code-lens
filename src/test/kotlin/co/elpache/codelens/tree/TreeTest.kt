@@ -17,16 +17,16 @@ class TreeTest {
 
 
 
-    assertThat(ct.children(ct.rootVid()).map { ct.v(it) }).contains("a.1", "a.2")
+    assertThat(ct.children(ct.rootVid()).map { ct.v(it)["value"] }).contains("a.1", "a.2")
   }
 
 
   @Test
   fun testCodeTreeAsGraph() {
-    val ct = Tree<String>()
+    val ct = Tree()
 
-    ct.addIfAbsent("a", "Giovanny")
-    ct.addIfAbsent("b", "Candela")
+    ct.addIfAbsent("a", vDataOf("value" to "Giovanny"))
+    ct.addIfAbsent("b", vDataOf("value" to "Candela"))
 
     ct.addChild("a", "b")
 

@@ -2,6 +2,7 @@ package co.elpache.codelens.app
 
 import co.elpache.codelens.useCases.CodeExplorerUseCases
 import co.elpache.codelens.useCases.EvolutionUseCases
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class AppController {
 
-  val useCases = CodeExplorerUseCases()
-  val evolutionUseCases = EvolutionUseCases()
+  @Autowired
+  lateinit var useCases: CodeExplorerUseCases
+
+  @Autowired
+  lateinit var evolutionUseCases: EvolutionUseCases
 
   data class SearchResult(
     val codeTree: Map<String, Any>,
@@ -48,6 +52,6 @@ class AppController {
   @GetMapping("/history/{param}")
   @ResponseBody
   fun history(@PathVariable param: String, @RequestParam query: String, @RequestParam maxCommits: Int) =
-    evolutionUseCases.collectFakeHistory(query, param, maxCommits)
+    evolutionUseCases.collectHistory(query, param, maxCommits)
 
 }

@@ -1,6 +1,7 @@
 package co.elpache.codelens.codetree
 
 import co.elpache.codelens.languages.js.buildParseCache
+import co.elpache.codelens.languages.js.parsedCache
 import java.io.File
 
 open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.name, "dir") {
@@ -17,8 +18,8 @@ open class CodeFolder(val dir: File, val basePath: File = dir) : CodeEntity(dir.
 
 
       //Todo: This doesn't belong here
+      parsedCache.clear()
       buildParseCache(c.dir)
-
 
       return c
     }

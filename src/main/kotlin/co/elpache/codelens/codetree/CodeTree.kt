@@ -6,14 +6,11 @@ import co.elpache.codelens.tree.Tree
 import co.elpache.codelens.tree.Vid
 import co.elpache.codelens.tree.buildTreeFromChildren
 import co.elpache.codelens.tree.subTree
+import co.elpache.codelens.tree.toVData
 import co.elpachecode.codelens.cssSelector.search.finder
 import java.util.LinkedList
 
-fun HashMap<String, Any>.string(key: String) = getOrDefault(key, "") as String
-fun HashMap<String, Any>.int(key: String) = getOrDefault(key, "") as Int
-
-
-class CodeTree(val tree: Tree<HashMap<String, Any>> = Tree()) {
+class CodeTree(val tree: Tree = Tree()) {
   fun children(vid: String) = tree.children(vid).map {
     tree.v(it) as CodeEntity
   }
@@ -22,19 +19,18 @@ class CodeTree(val tree: Tree<HashMap<String, Any>> = Tree()) {
 
   fun data(vid: Vid) = tree.v(vid)
 
-  fun <T> node(vid: Vid) = tree.v(vid) as T
-
   fun node(vid: Vid) = tree.v(vid)
 
   fun treeFromChildren(children: List<Vid>) =
     CodeTree(buildTreeFromChildren(tree, children))
 
 
+  //Todo: This can be removed to avoid mapping, but needs mapping in the FE.
   fun toMap(): Map<String, Any> {
     return tree.vertices.map {
       it.key to mapOf(
-        "data" to it.value.node,
-        "parent" to it.value.parentVid,
+        "data" to it.value.data,
+        "parent" to it.value.parent,
         "children" to it.value.children.toList()
       )
     }.toMap().plus("rootVid" to tree.rootVid!!).toMap()
@@ -51,7 +47,7 @@ class CodeTree(val tree: Tree<HashMap<String, Any>> = Tree()) {
   }
 
 
-  fun expandFullCodeTree(node: CodeTreeNode): CodeTree = _expandTreeNode(node as CodeEntity)
+  fun expandFullCodeTree(node: CodeEntity): CodeTree = _expandTreeNode(node as CodeEntity)
 
   val ids: HashSet<Vid> = HashSet()
 
@@ -64,7 +60,7 @@ class CodeTree(val tree: Tree<HashMap<String, Any>> = Tree()) {
     while (queue.isNotEmpty()) {
       val cur = queue.removeFirst()
       val vid = generateVid(cur.first, cur.second)
-      tree.addIfAbsent(vid, cur.first.data)
+      tree.addIfAbsent(vid, cur.first.data.toVData())
 
       cur.second?.let {
         tree.addChild(it, vid)

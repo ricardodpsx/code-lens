@@ -2,6 +2,7 @@ package co.elpache.codelens.codetree
 
 import co.elpache.codelens.languages.js.buildJsFile
 import co.elpache.codelens.languages.kotlin.buildKotlinFile
+import co.elpache.codelens.tree.VData
 import java.io.File
 
 
@@ -10,7 +11,9 @@ val LanguageSupportRegistry = hashMapOf(
   "js" to buildJsFile
 )
 
-abstract class CodeEntity(val name: String? = null, val type: String) : CodeTreeNode() {
+abstract class CodeEntity(val name: String? = null, val type: String) {
+
+  val data = VData()
 
   init {
     data.addAll(
@@ -19,6 +22,7 @@ abstract class CodeEntity(val name: String? = null, val type: String) : CodeTree
     )
   }
 
+  abstract fun expand(): List<CodeEntity>
 }
 
 

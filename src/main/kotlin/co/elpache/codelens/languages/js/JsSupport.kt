@@ -3,7 +3,6 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codetree.CodeEntity
 import co.elpache.codelens.codetree.CodeFile
 import co.elpache.codelens.codetree.LangEntity
-import co.elpache.codelens.codetree.addAll
 import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
 import com.fasterxml.jackson.databind.ObjectMapper

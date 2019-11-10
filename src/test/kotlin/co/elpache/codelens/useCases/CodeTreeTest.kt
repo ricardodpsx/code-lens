@@ -1,6 +1,10 @@
-package co.elpache.codelens
+package co.elpache.codelens.useCases
 
+import co.elpache.codelens.codeTree
+import co.elpache.codelens.codeTreeNode
 import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.compareTreeOutputs
+import co.elpache.codelens.createUseCases
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Test
@@ -43,11 +47,11 @@ class CodeTreeTest {
     compareTreeOutputs(
       treeWithDescendants,
       """
-       1: {type=file}
-         - 2: {type=fun}
-         -- 6: {type=X}
-         - 7: {type=fun}
-         -- 8: {type=X}"""
+      1: {name=, type=file}
+      - 2: {name=, type=fun}
+      -- 6: {name=, type=X}
+      - 7: {name=, type=fun}
+      -- 8: {name=, type=X}"""
     )
 
   }

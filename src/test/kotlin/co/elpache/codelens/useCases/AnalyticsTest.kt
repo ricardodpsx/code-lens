@@ -1,6 +1,9 @@
-package co.elpache.codelens;
+package co.elpache.codelens.useCases;
 
-import co.elpache.codelens.useCases.EvolutionUseCases
+import co.elpache.codelens.Factory
+import co.elpache.codelens.codeTree
+import co.elpache.codelens.codeTreeNode
+import co.elpache.codelens.createUseCases
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -17,9 +20,15 @@ class AnalyticsTest {
         codeTree(
           "2",
           codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 6, "depth" to 5)),
+          codeTree(
+            "3",
+            codeTreeNode("type" to "fun", "lines" to 6, "depth" to 5)
+          ),
           codeTree("4", codeTreeNode("type" to "fun", "lines" to 6)),
-          codeTree("5", codeTreeNode("type" to "fun", "lines" to 4, "complexity" to 9))
+          codeTree(
+            "5",
+            codeTreeNode("type" to "fun", "lines" to 4, "complexity" to 9)
+          )
         ),
         codeTree("6", codeTreeNode("type" to "fun", "lines" to 4)),
         codeTree("7", codeTreeNode("type" to "fun"))

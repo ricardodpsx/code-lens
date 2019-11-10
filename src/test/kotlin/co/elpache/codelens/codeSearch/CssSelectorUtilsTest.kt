@@ -1,7 +1,7 @@
 package codelens.cssSelector
 
-import co.elpache.codelens.codetree.NodeData
-import co.elpache.codelens.codetree.nodeDataOf
+import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.vDataOf
 import co.elpachecode.codelens.cssSelector.AttributeSelector
 import co.elpachecode.codelens.cssSelector.matchesAttribute
 import org.assertj.core.api.Assertions.assertThat
@@ -11,14 +11,14 @@ class CssSelectorUtilsTest {
 
   @Test
   fun `Select attributes by name only`() {
-    val myObj = nodeDataOf("firstName" to "hello")
+    val myObj = vDataOf("firstName" to "hello")
     assertThat(matchesAttribute(AttributeSelector("firstName"), myObj)).isTrue()
     assertThat(matchesAttribute(AttributeSelector("lastName"), myObj)).isFalse()
   }
 
   @Test
   fun `Select attributes by query`() {
-    val myObj = nodeDataOf(
+    val myObj = vDataOf(
       "firstName" to "hello world"
     )
 
@@ -36,6 +36,6 @@ class CssSelectorUtilsTest {
   }
 
 
-  private fun evaluate(obj: NodeData, name: String, op: String? = null, search: String? = null) =
+  private fun evaluate(obj: VData, name: String, op: String? = null, search: String? = null) =
     matchesAttribute(AttributeSelector(name, op, search), obj)
 }

@@ -59,7 +59,7 @@ class GitIntegrationTest {
     return GitRepository(
       "tmp",
       "https://github.com/ricardodpsx/test-repo.git"
-    ).init()
+    )
   }
 
 

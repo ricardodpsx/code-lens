@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.backend.common.pop
 import java.util.LinkedList
 
 
-fun <T> ancestors(tree: Tree<T>, vid: String): List<Vid> {
+fun ancestors(tree: Tree, vid: String): List<Vid> {
   val list = LinkedList<Vid>()
   var p: Vid? = vid
   while (p != null) {
@@ -15,8 +15,8 @@ fun <T> ancestors(tree: Tree<T>, vid: String): List<Vid> {
 }
 
 
-fun <T> buildTreeFromChildren(sourceTree: Tree<T>, children: List<Vid>): Tree<T> {
-  var resTree = Tree<T>()
+fun buildTreeFromChildren(sourceTree: Tree, children: List<Vid>): Tree {
+  var resTree = Tree()
 
   children.forEach { vid ->
     ancestors(sourceTree, vid).reversed()
@@ -31,8 +31,8 @@ fun <T> buildTreeFromChildren(sourceTree: Tree<T>, children: List<Vid>): Tree<T>
 
 
 //Todo: Prune subTree
-fun <T> subTree(tree: Tree<T>, vid: Vid): Tree<T> {
-  val ct = Tree<T>()
+fun subTree(tree: Tree, vid: Vid): Tree {
+  val ct = Tree()
   ct.rootVid = vid
   val items = ArrayList<Vid>()
   items.add(vid)
@@ -47,7 +47,7 @@ fun <T> subTree(tree: Tree<T>, vid: Vid): Tree<T> {
   return ct
 }
 
-fun <T> join(parent: Tree<T>, child: Tree<T>) {
+fun join(parent: Tree, child: Tree) {
   assert(parent.vertices.keys.intersect(child.vertices.keys).isEmpty()) { "Trees should be disjoint" }
 
   parent.vertices.putAll(child.vertices)

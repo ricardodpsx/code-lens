@@ -74,8 +74,6 @@ export function slice2(text, graph, v = graph.rootVid) {
        let {startOffset, endOffset} = graph[c].data
 
        if(startOffset < parentStartOffset ) {
-         //Todo: Create more general (less assusmption) algorithm to wrap text
-        // console.info("Ignoring node " + graph[c].data.type)
          return;
        }
 

@@ -2,6 +2,7 @@ package co.elpache.codelens
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.errors.RepositoryNotFoundException
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter
 import java.io.File
 import java.time.LocalDate
@@ -30,24 +31,38 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
         .call()
     }
 
+    repo!!
+      .checkout()
+      .setName("refs/heads/master")
+      .call()
+
     repo!!.pull()
 
     return this
   }
 
+  fun goToCurrent() {
+    goTo(branch)
+  }
+
   fun goTo(commit: String) {
+    init()
     repo!!
       .checkout()
       .setName(commit)
       .call()
   }
 
-  fun logs() = repo!!.log().call().map {
-    Commit(it.id.name, it.shortMessage, it.commitTime.toLong())
+  fun logs(): List<Commit> {
+    init()
+    return repo!!.log().call().map {
+      Commit(it.id.name, it.shortMessage, it.commitTime.toLong())
+    }
   }
 
 
   fun commitsBetween(from: Date, to: Date): List<String> {
+    init()
     val masterId = repo!!.repository.exactRef(branch).getObjectId()
     val since = from
     val until = to
@@ -59,17 +74,16 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
     return commits
   }
 
-  fun log(path: String) =
-    repo!!.log().addPath(path).call().map { it.id.name }
+  fun log(path: String): List<String> {
+    init()
+    return repo!!.log().add(masterId).addPath(path).call().map { it.id.name }
+  }
 
+  private val masterId: ObjectId? get() = repo!!.repository.exactRef(branch).getObjectId()
 
   fun lastCommits(numCommits: Int): List<String> {
-    val masterId = repo!!.repository.exactRef(branch).getObjectId()
-    val commits = ArrayList<String>()
-
-    for (commit in repo!!.log().add(masterId).setMaxCount(numCommits).call())
-      commits.add(commit.name)
-    return commits
+    init()
+    return repo!!.log().add(masterId).setMaxCount(numCommits).call().map { it.name }
   }
 
 }

@@ -22,6 +22,7 @@
     -[x] fun: paramsCount, lines    
     -[x] call: startsWith, args, arg, argsCount   
 -[x] Add  Root element selector #search
+-[x] JS Parser is too slow, probably because of the process up time for each file, Files can be grouped by folder #optimization
 -[x] Code "Starting with" search #search 
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
@@ -29,25 +30,25 @@
      -[ ] UI
 -[x] Basic sintax highlighting
 -[ ] Performance experience for History
--[ ] On packages, see Dependencies etc #cleanCode
--[ ] Aggregators on the search language (count, sum)
--[ ] Integrate analytics with search Results 
-     When you select a frequency box it should show the selected functions
+-[ ] Evolution Metrics, see detals of the commits and code that are affecting the metrics
+-[ ] Integrate code charts with search Results: Right now when you select boxes in the chart nothing happens, 
+       Instead the relevant code entities should be listed
+-[ ] When you select a frequency box it should show the selected functions
 -[ ] Add Rules/Threshold #evolution
--[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally
--[ ] Unequality selectors #search
+-[ ] Unequality selectors #search fun
 -[ ] Preset Clean Code queries: File Total Size, Function parameters, function sizes.
--[ ] JS Parser is too slow, probably because of the process up time for each file, Files can be grouped by folder #optimization
--[ ] Refresh single node, Instead of reload everything for evolutionary metrics #optimization
+-[ ] Fowler Smells #Smells
 -[ ] Reload button
--[ ] Add References navigator (How classes, types files relate to each other) #charts
 -[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics
--[ ] Javascript comment nodes are not working, because their ast nodes breaking the assuptions of the slicing algorithm #Bug
--[ ] Kotlin, add name as a node so it's easy to extract
--[ ] Good error messages for broken files
+-[ ] Error Handling: Good error messages for broken files
+-[ ] On packages, see Dependencies etc #cleanCode
+-[ ] Aggregators on the search language (count, sum)
+-[ ] Spin loaders for > 1s operations
+
 
 IceBox:
+
 -[ ] Problems with comments parsing in Kotlin
 -[ ] Simplify/unify tree types (JS/KT) #2 #search
      -[ ] loops: for, while, common functional loops 
@@ -58,16 +59,13 @@ IceBox:
 -[ ] Support 'kind' search, example: .fun.inline (A function that has class inline)  #search 
 -[ ] File search should not expand when is not neccesary. (Optimize searcher) #search    
 -[ ] Simplify parser into execution mode instead of data structure mode?
--[ ] Support Big Directories (Avoid code searching etc in non code files, optimize memory use)
--[ ] Make searchs like constructor fun[name=']
 -[ ] Make searchs like fun#myFunction possible (Multi Kinds) #search
-     
+-[ ] Stable ID's for functions and classes so that trees can be reconstructed more optimally
 -[ ] Command line for Queries and Stats
 -[ ] Query items showin in the Graph #charts
 -[ ] Branching #metrics
 -[ ] Cyclomatic Complexity #metrics
 -[ ] On classes... #cleanCode
--[ ] Fowler Smells #Smells
 -[ ] Naming and Semantics
 -[ ] Linguistic Similarity
 -[ ] Improve AST View (Side pannel with more info)
@@ -79,3 +77,6 @@ IceBox:
 -[ ] Integration with lint tools and code coverage
 -[ ] It should be "easy" for users to add new metrics to nodes
 -[ ] Fuzzy/Content Search
+-[ ] Refresh single node, Instead of reload everything for evolutionary metrics #optimization
+-[ ] Kotlin, add name as a node so it's easy to extract
+-[ ] Add References navigator (How classes, types files relate to each other) #charts
