@@ -2,20 +2,13 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.codeTreeNode
-import co.elpache.codelens.codetree.CodeTree
 import co.elpache.codelens.compareTreeOutputs
 import co.elpache.codelens.createCodeExplorerUseCases
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.Test
 
 
-class CodeTreeTest {
-  @Test
-  @Ignore
-  fun testTreeExpansion() {
-    CodeTree().expandFullCodeTree(codeTreeNode())
-  }
+class CodeLoaderTest {
 
   @Test
   fun `Can Select items by type (Regression)`() {

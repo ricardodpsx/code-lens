@@ -5,7 +5,7 @@ import co.elpache.codelens.tree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class TreeTest {
+class CodeTreeTest {
 
   @Test
   fun testCodeTree() {
@@ -15,15 +15,13 @@ class TreeTest {
       tree("a.2")
     )
 
-
-
     assertThat(ct.children(ct.rootVid()).map { ct.v(it)["value"] }).contains("a.1", "a.2")
   }
 
 
   @Test
   fun testCodeTreeAsGraph() {
-    val ct = Tree()
+    val ct = CodeTree()
 
     ct.addIfAbsent("a", vDataOf("value" to "Giovanny"))
     ct.addIfAbsent("b", vDataOf("value" to "Candela"))
@@ -40,22 +38,21 @@ class TreeTest {
 
   @Test
   fun `can create subtrees`() {
-    val tree = subTree(
+    val tree = tree(
+      "a",
       tree(
-        "a",
+        "b",
+        tree("b_1"),
         tree(
-          "b",
-          tree("b_1"),
-          tree(
-            "b_2",
-            tree("c_3")
-          )
+          "b_2",
+          tree("c_3")
         )
-      ), "b"
+      )
     )
 
+    val res = tree.subTree("b")
 
-    assertThat(inorder(tree)).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
+    assertThat(inorder(res)).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
   }
 
   @Test
@@ -82,7 +79,7 @@ class TreeTest {
     )
 
 
-    val res = buildTreeFromChildren(tree, listOf("b_1", "b_3"))
+    val res = tree.treeFromChildren(listOf("b_1", "b_3"))
     assertThat(inorder(res)).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
   }
 

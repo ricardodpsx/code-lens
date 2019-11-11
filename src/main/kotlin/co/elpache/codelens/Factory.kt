@@ -2,8 +2,8 @@ package co.elpache.codelens
 
 import co.elpache.codelens.app.database.AstRepository
 import co.elpache.codelens.codetree.CodeFolder
-import co.elpache.codelens.codetree.CodeTree
-import co.elpache.codelens.tree.Tree
+import co.elpache.codelens.codetree.CodeLoader
+import co.elpache.codelens.tree.CodeTree
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
@@ -22,9 +22,8 @@ class Factory(
 
   fun createBaseCode(): CodeTree {
 
-    val codeTree = CodeTree()
-      .expandFullCodeTree(CodeFolder.load(currentCodePath))
-      .applyAnalytics()
+    val codeTree = CodeLoader().expandFullCodeTree(CodeFolder.load(currentCodePath))
+
 
     logger.info { "Done loading code" }
 
@@ -33,9 +32,8 @@ class Factory(
 
   fun getAstDatabase() = context!!.getBean(AstRepository::class.java)
 
-  fun createBaseCode(tree: Tree): CodeTree {
-    val ct = CodeTree(tree)
-    return ct
+  fun createBaseCode(tree: CodeTree): CodeTree {
+    return tree
   }
 
   val mapper = ObjectMapper().registerModule(KotlinModule())
@@ -53,11 +51,11 @@ class Factory(
     val record = getAstDatabase().findByCommit(commit)
 
     val res = if (record != null)
-      createBaseCode(mapper.readValue(record.ast, Tree::class.java))
+      createBaseCode(mapper.readValue(record.ast, CodeTree::class.java))
     else {
       repo.goTo(commit)
-      CodeTree()
-        .expandFullCodeTree(CodeFolder.load(path)).applyAnalytics()
+      CodeLoader()
+        .expandFullCodeTree(CodeFolder.load(path))
     }
     astCache[commit] = res
     return res

@@ -1,11 +1,9 @@
 package co.elpache.codelens
 
 import co.elpache.codelens.codetree.CodeEntity
-import co.elpache.codelens.codetree.CodeTree
-import co.elpache.codelens.tree.Tree
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
-import co.elpache.codelens.tree.join
 import co.elpache.codelens.tree.toVData
 import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.useCases.CodeExplorerUseCases
@@ -42,16 +40,16 @@ fun codeTreeNode(vararg data: Pair<String, Any>) =
 
 fun codeTree(vid: String, node: CodeEntity, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree.tree.addIfAbsent(vid, node.data.toVData())
-  tree.tree.rootVid = vid
+  tree.addIfAbsent(vid, node.data.toVData())
+  tree.rootVid = vid
   expands.forEach {
-    join(tree.tree, it.tree)
+    join(tree, it)
   }
   return tree
 }
 
-fun tree(vid: String, vararg expands: Tree): Tree {
-  var tree = Tree()
+fun tree(vid: String, vararg expands: CodeTree): CodeTree {
+  var tree = CodeTree()
   tree = tree.addIfAbsent(vid, vDataOf("value" to vid))
   tree.rootVid = vid
   expands.forEach {
@@ -61,7 +59,7 @@ fun tree(vid: String, vararg expands: Tree): Tree {
 }
 
 
-fun inorder(codeTree: Tree): List<Vid> {
+fun inorder(codeTree: CodeTree): List<Vid> {
   val out = mutableListOf<VData>()
   out.add(codeTree.root())
   dfs(codeTree.rootVid(), codeTree, out)
@@ -76,3 +74,13 @@ fun selectCode(
 ): List<Map<String, Any>> {
   return tree.finder().find(cssSelector).data()
 }
+
+
+fun join(parent: CodeTree, child: CodeTree) {
+  assert(parent.vertices.keys.intersect(child.vertices.keys).isEmpty()) { "Trees should be disjoint" }
+
+  parent.vertices.putAll(child.vertices)
+  parent.addChild(parent.rootVid(), child.rootVid())
+
+}
+

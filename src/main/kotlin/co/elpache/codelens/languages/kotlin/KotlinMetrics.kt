@@ -1,6 +1,6 @@
 package co.elpache.codelens.languages.kotlin
 
-import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
@@ -21,7 +21,7 @@ fun applyKotlinMetrics(it: NodeResult) {
     find("fun").forEach {
       it.data["textLines"] = it.code.split("\n").size
       it.data["lines"] = it.code.relevantCodeLines() - 1
-      it.data["depth"] = depth(it.codeBase, it.vid) - 1
+      it.data["depth"] = depth(it.tree, it.vid) - 1
       it.data["params"] = it.find("$>params>param").size
     }
 
@@ -39,10 +39,10 @@ fun applyKotlinMetrics(it: NodeResult) {
 
 private fun depth(tree: CodeTree, vid: Vid): Int {
   var maxDepth = 0
-  for (cVid in tree.tree.children(vid))
+  for (cVid in tree.children(vid))
     maxDepth = max(depth(tree, cVid), maxDepth)
 
-  return (if (increasesNesting(tree.data(vid)["type"] as String)) 1 else 0) + maxDepth
+  return (if (increasesNesting(tree.v(vid)["type"] as String)) 1 else 0) + maxDepth
 }
 
 
