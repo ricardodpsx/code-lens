@@ -13,18 +13,21 @@ fun HashMap<String, Any>.toVData(): VData {
   return vData
 }
 
-fun vDataOf(vararg pair: Pair<String, Any>): VData {
+fun vDataOf(vararg pair: Pair<String, Any?>): VData {
   val vData = VData()
   pair.forEach {
-    vData.put(it.first, it.second)
+    if (it.second != null)
+      vData.put(it.first, it.second!!)
   }
   return vData
 }
 
 class VData : HashMap<String, Any>() {
   val code: String get() = this["code"] as String
-
   val type: String get() = this["type"] as String
+
+  val startOffset: Int get() = this["startOfffset"] as Int
+  val endOffset: Int get() = this["startOfffset"] as Int
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
   fun getInt(key: String): Int = (this[key] as? Int) ?: 0

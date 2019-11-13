@@ -1,10 +1,10 @@
 package co.elpache.codelens.languages.kotlin
 
-import co.elpache.codelens.codetree.CodeEntity
-import co.elpache.codelens.codetree.CodeFile
-import co.elpache.codelens.codetree.LangEntity
+import co.elpache.codelens.codetree.FileLoader
 import co.elpache.codelens.codetree.buildAstFile
 import co.elpache.codelens.firstLine
+import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.underscoreToCamel
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -25,41 +25,38 @@ import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.KtTypeReference
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffsetSkippingComments
-import org.jetbrains.kotlin.psi.psiUtil.startsWithComment
 import java.io.File
 
 
-val buildKotlinFile: buildAstFile = { file: File -> KotlinFile(file) }
+val buildKotlinFile: buildAstFile = { file: File, parent: VData? ->
+  KotlinFileLoader(file, parent)
+}
 
-class KotlinFile(file: File) : CodeFile(file, lang = "kotlin") {
 
-  override fun expand() = run {
-    val text = file.readText()
-    parseFile(text).children.map {
-      toCodeEntity(it, this)
-    }.flatten()
+fun traverse(node: PsiElement, fileLoader: FileLoader, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit) {
+  val data = toCodeEntity(node, fileLoader)
+  visitor(data, parent)
+  node.children.forEach {
+    traverse(it, fileLoader, data, visitor)
   }
 }
 
-class KotlinCodeEntity(
-  name: String? = null,
-  type: String, astType: String,
-  val node: PsiElement,
-  val line: Int,
-  startOffset: Int,
-  endOffset: Int,
-  codeFile: CodeFile
-) : LangEntity(
-  name = name,
-  type = type, astType = astType, startOffset = startOffset, endOffset = endOffset, codeFile = codeFile
-) {
+class KotlinFileLoader(file: File, parent: VData?) : FileLoader(file, lang = "kotlin") {
+  override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
+    val data = vDataOf(
+      "language" to lang,
+      "startOffset" to startOffset,
+      "fileName" to fileName,
+      "name" to file.nameWithoutExtension,
+      "endOffset" to endOffset,
+      "type" to type,
+      "lang" to lang,
+      "code" to contents()
+    )
+    visitor(data, parent)
 
-  override fun expand(): List<CodeEntity> {
-    return node.children.map {
-      toCodeEntity(it, codeFile!!)
-    }.flatten()
+    parseFile(file.readText()).children.forEach { traverse(it, this, data, visitor) }
   }
 }
 
@@ -99,7 +96,7 @@ fun simplifyType(type: String) = when (type) {
   else -> type
 }
 
-private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): List<CodeEntity> {
+private fun toCodeEntity(c: PsiElement, fileLoader: FileLoader): VData {
 
   val name = when (c) {
     is KtClass -> c.name ?: "Anonymous"
@@ -111,37 +108,38 @@ private fun toCodeEntity(c: PsiElement, codeFile: CodeFile): List<CodeEntity> {
     else -> null
   }
 
-
-  val k = KotlinCodeEntity(
-    name = name,
-    astType = c.node.elementType.toString().underscoreToCamel(),
-    type = simplifyType(c.node.elementType.toString().underscoreToCamel()),
-    line = c.node.startOffset,
-    node = c,
-    codeFile = codeFile,
-    startOffset = c.startOffsetSkippingComments,
-    endOffset = c.endOffset
+  val data = vDataOf(
+    "name" to name,
+    "astType" to simplifyType(c.node.elementType.toString().underscoreToCamel()),
+    "type" to simplifyType(c.node.elementType.toString().underscoreToCamel()),
+    "line" to c.node.startOffset,
+    "startOffset" to c.startOffsetSkippingComments,
+    "endOffset" to c.endOffset
   )
 
-  k.data["firstLine"] = k.code.firstLine()
-  k.data["code"] = k.code
+  val code = fileLoader.contents().substring(data.getInt("startOffset"), data.getInt("endOffset"))
+  data["firstLine"] = code.firstLine()
+  data["code"] = code
 
+  return data
   //Comments don't parse as nodes with this parser
-  if (c.startsWithComment()) {
-    val comm = KotlinCodeEntity(
-      astType = "comment", type = "comment",
-      startOffset = c.startOffset,
-      endOffset = c.startOffsetSkippingComments,
-      codeFile = codeFile,
-      line = c.startOffset,
-      node = c
-    )
-
-    comm.data["firstLine"] = comm.code.firstLine()
-    comm.data["code"] = comm.code
-    return listOf(comm).plus(k)
-  }
-
-  return listOf(k)
+//  if (c.startsWithComment()) {
+//
+//    val comm = vDataOf(
+//      "astType" to "comment",
+//      "type" to "comment",
+//      "startOffset" to c.startOffset,
+//      "endOffset" to c.startOffsetSkippingComments,
+//      "codeFile" to codeFile,
+//      "line" to c.startOffset,
+//      "node" to c
+//    )
+//    val commCode = codeFile.contents().substring(comm.getInt("startOffset"), comm.getInt("endOffset"))
+//    comm["firstLine"] = commCode.firstLine()
+//    comm["code"] = commCode
+//    return listOf(comm).plus(data)
+//  }
+//
+//  return listOf(data)
 }
 

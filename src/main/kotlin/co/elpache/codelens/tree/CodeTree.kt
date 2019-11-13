@@ -40,6 +40,7 @@ open class CodeTree {
   }
 
   fun addChild(from: Vid, to: Vid, node: VData): CodeTree {
+    assert(from != to)
     addIfAbsent(to, node)
     vertices[to]!!.parent = from
     vertices[from]!!.children.add(to)
@@ -80,7 +81,8 @@ open class CodeTree {
 
   private fun dfs(vid: Vid, tab: String, out: StringBuilder) {
     for (cVid in children(vid)) {
-      val child = v(cVid)
+      val child = v(cVid).minus("code")
+
       out.append(" $tab ${cVid}: ${child}\n")
       dfs(cVid, "$tab-", out)
     }

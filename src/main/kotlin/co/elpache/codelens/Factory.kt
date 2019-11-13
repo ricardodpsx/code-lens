@@ -1,8 +1,8 @@
 package co.elpache.codelens
 
 import co.elpache.codelens.app.database.AstRepository
-import co.elpache.codelens.codetree.CodeFolder
 import co.elpache.codelens.codetree.CodeLoader
+import co.elpache.codelens.codetree.FolderLoader
 import co.elpache.codelens.tree.CodeTree
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -22,7 +22,7 @@ class Factory(
 
   fun createBaseCode(): CodeTree {
 
-    val codeTree = CodeLoader().expandFullCodeTree(CodeFolder.load(currentCodePath))
+    val codeTree = CodeLoader().expandFullCodeTree(FolderLoader.load(currentCodePath))
 
 
     logger.info { "Done loading code" }
@@ -55,7 +55,7 @@ class Factory(
     else {
       repo.goTo(commit)
       CodeLoader()
-        .expandFullCodeTree(CodeFolder.load(path))
+        .expandFullCodeTree(FolderLoader.load(path))
     }
     astCache[commit] = res
     return res

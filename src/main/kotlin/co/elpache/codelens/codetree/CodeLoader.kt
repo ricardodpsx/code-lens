@@ -3,14 +3,17 @@ package co.elpache.codelens.codetree
 import co.elpache.codelens.languages.js.applyJsMetrics
 import co.elpache.codelens.languages.kotlin.applyKotlinMetrics
 import co.elpache.codelens.tree.CodeTree
+import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
-import co.elpache.codelens.tree.toVData
 import co.elpachecode.codelens.cssSelector.search.finder
-import java.util.LinkedList
+
+interface CodeTreeLoader {
+  fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?)
+}
 
 class CodeLoader {
 
-  fun expandFullCodeTree(node: CodeEntity): CodeTree {
+  fun expandFullCodeTree(node: FolderLoader): CodeTree {
     val tree = CodeTree()
     _expandTreeNode(tree, node)
     applyAnalytics(tree)
@@ -19,45 +22,22 @@ class CodeLoader {
 
   val ids: HashSet<Vid> = HashSet()
 
-  private fun _expandTreeNode(tree: CodeTree, node: CodeEntity): CodeLoader {
 
-    val queue = LinkedList<Pair<CodeEntity, Vid?>>()
+  private fun _expandTreeNode(tree: CodeTree, node: FolderLoader): CodeLoader {
 
-    queue.add(node to null)
+    node.traverse({ node, parent ->
+      val vid = ids.size.toString()
+      ids.add(vid)
+      node["vid"] = vid
 
-    while (queue.isNotEmpty()) {
-      val cur = queue.removeFirst()
-      val vid = generateVid(cur.first, cur.second)
+      if (parent != null)
+        tree.addChild(parent["vid"] as Vid, vid, node)
+      else
+        tree.addIfAbsent("0", node)
+    }, null)
 
-      tree.addIfAbsent(vid, cur.first.data.toVData())
-
-      cur.second?.let {
-        tree.addChild(it, vid)
-      }
-
-      if (tree.rootVid == null) tree.rootVid = vid
-
-      cur.first.expand().forEach {
-        queue.addLast(it to vid)
-      }
-    }
-
+    tree.rootVid = "0"
     return this
-  }
-
-
-  fun generateVid(node: CodeEntity, parent: Vid?): Vid {
-    val vid = ids.size.toString()
-    //Wip: Find stable Ids
-//    when (node) {
-//      is CodeFile -> node.file.path.replace("/", "-")
-//      is CodeFolder -> node.file.path.toString().replace("/", "-")
-//      else -> ids.size.toString()
-//    }
-
-    if (ids.contains(vid)) throw error("Duplicated Id $vid")
-    ids.add(vid)
-    return vid
   }
 
   //Todo: This should be pluggable

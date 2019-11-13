@@ -2,7 +2,7 @@ package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeTree
-import co.elpache.codelens.codeTreeNode
+import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.createCodeExplorerUseCases
 import io.mockk.every
 import io.mockk.mockk
@@ -16,22 +16,22 @@ class AnalyticsTest {
     val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
+          vDataOf("type" to "files"),
           codeTree(
             "3",
-            codeTreeNode("type" to "fun", "lines" to 6, "depth" to 5)
+            vDataOf("type" to "fun", "lines" to 6, "depth" to 5)
           ),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 6)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 6)),
           codeTree(
             "5",
-            codeTreeNode("type" to "fun", "lines" to 4, "complexity" to 9)
+            vDataOf("type" to "fun", "lines" to 4, "complexity" to 9)
           )
         ),
-        codeTree("6", codeTreeNode("type" to "fun", "lines" to 4)),
-        codeTree("7", codeTreeNode("type" to "fun"))
+        codeTree("6", vDataOf("type" to "fun", "lines" to 4)),
+        codeTree("7", vDataOf("type" to "fun"))
       )
     )
 
@@ -46,16 +46,16 @@ class AnalyticsTest {
     val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 6)),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 6)),
-          codeTree("5", codeTreeNode("type" to "fun", "lines" to 4))
+          vDataOf("type" to "files"),
+          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 6)),
+          codeTree("5", vDataOf("type" to "fun", "lines" to 4))
         ),
-        codeTree("6", codeTreeNode("type" to "fun", "lines" to 4)),
-        codeTree("7", codeTreeNode("type" to "fun", "lines" to 6))
+        codeTree("6", vDataOf("type" to "fun", "lines" to 4)),
+        codeTree("7", vDataOf("type" to "fun", "lines" to 6))
       )
     )
 
@@ -71,17 +71,17 @@ class AnalyticsTest {
     val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 1)),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 3)),
-          codeTree("5", codeTreeNode("type" to "fun", "lines" to 5))
+          vDataOf("type" to "files"),
+          codeTree("3", vDataOf("type" to "fun", "lines" to 1)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 3)),
+          codeTree("5", vDataOf("type" to "fun", "lines" to 5))
         ),
-        codeTree("6", codeTreeNode("type" to "fun", "lines" to 2)),
-        codeTree("7", codeTreeNode("type" to "fun", "lines" to 4)),
-        codeTree("8", codeTreeNode("type" to "fun", "lines" to 10))
+        codeTree("6", vDataOf("type" to "fun", "lines" to 2)),
+        codeTree("7", vDataOf("type" to "fun", "lines" to 4)),
+        codeTree("8", vDataOf("type" to "fun", "lines" to 10))
       )
     )
 
@@ -101,36 +101,36 @@ class AnalyticsTest {
     val comm1 =
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 6)),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 10))
+          vDataOf("type" to "files"),
+          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 10))
         )
       )
 
     val comm2 =
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 7)),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 7))
+          vDataOf("type" to "files"),
+          codeTree("3", vDataOf("type" to "fun", "lines" to 7)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 7))
         )
       )
 
     val current =
       codeTree(
         "1",
-        codeTreeNode("type" to "file"),
+        vDataOf("type" to "file"),
         codeTree(
           "2",
-          codeTreeNode("type" to "files"),
-          codeTree("3", codeTreeNode("type" to "fun", "lines" to 3)),
-          codeTree("4", codeTreeNode("type" to "fun", "lines" to 4))
+          vDataOf("type" to "files"),
+          codeTree("3", vDataOf("type" to "fun", "lines" to 3)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 4))
         )
       )
     val factory = mockk<Factory>()
