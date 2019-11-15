@@ -41,16 +41,6 @@ class AnalyticsIntegrationTest {
     val uc = EvolutionUseCases(factory!!)
     uc.preloadCommits(listOf("d37fb4b", "a1e3958"))
 
-    uc.collectHistory(
-      "#kotlin #ExampleClass #functionWithParams", "params",
-      listOf("d37fb4b", "a1e3958")
-    )
-
-    uc.collectHistory(
-      "#kotlin #ExampleClass #functionWithParams", "lines",
-      listOf("d37fb4b", "a1e3958")
-    )
-
     val statistics = uc.collectHistory(
       "#kotlin #ExampleClass #functionWithParams", "params",
       listOf("d37fb4b", "a1e3958")

@@ -5,6 +5,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter
+import org.eclipse.jgit.revwalk.filter.RevFilter
 import java.io.File
 import java.time.LocalDate
 import java.util.Date
@@ -61,22 +62,17 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
     }
   }
 
+  private val masterId: ObjectId? get() = repo!!.repository.exactRef(branch).objectId
 
-  fun commitsBetween(from: Date, to: Date): List<String> {
+  fun commitsBetween(since: Date, until: Date): List<String> {
     init()
-    val masterId = repo!!.repository.exactRef(branch).getObjectId()
-    val since = from
-    val until = to
-    val between = CommitTimeRevFilter.between(since, until)
-
-    val commits = ArrayList<String>()
-    for (commit in repo!!.log().add(masterId).setRevFilter(between).call())
-      commits.add(commit.id.toString())
-    return commits
+    return logsBetween(since, until).map { it.name }.reversed()
   }
 
-
-  private val masterId: ObjectId? get() = repo!!.repository.exactRef(branch).objectId
+  private fun logsBetween(since: Date, until: Date):  List<RevCommit> {
+    val between = CommitTimeRevFilter.between(since, until)
+    return repo!!.log().add(masterId).setRevFilter(between).call().toList()
+  }
 
   fun lastCommits(numCommits: Int): List<String> {
     return logs(numCommits).map { it.name }.reversed()
