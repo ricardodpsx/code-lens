@@ -3,7 +3,7 @@ package co.elpache.codelens.useCases;
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.codeTreeNode
-import co.elpache.codelens.createUseCases
+import co.elpache.codelens.createCodeExplorerUseCases
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -13,7 +13,7 @@ import org.junit.Test
 class AnalyticsTest {
   @Test
   fun `Can get Int Params`() {
-    val uc = createUseCases(
+    val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
         codeTreeNode("type" to "file"),
@@ -43,7 +43,7 @@ class AnalyticsTest {
 
   @Test
   fun `Can get Frequencies`() {
-    val uc = createUseCases(
+    val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
         codeTreeNode("type" to "file"),
@@ -68,7 +68,7 @@ class AnalyticsTest {
 
   @Test
   fun `Can get statistics`() {
-    val uc = createUseCases(
+    val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
         codeTreeNode("type" to "file"),

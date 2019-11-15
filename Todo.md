@@ -27,7 +27,7 @@
 -[ ] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
      -[x] Core support
-     -[ ] UI
+     -[x] UI
 -[x] Basic sintax highlighting
 -[ ] Performance experience for History
 -[ ] Evolution Metrics, see detals of the commits and code that are affecting the metrics

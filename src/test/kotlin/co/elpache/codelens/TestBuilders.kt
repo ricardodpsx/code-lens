@@ -9,17 +9,25 @@ import co.elpache.codelens.tree.join
 import co.elpache.codelens.tree.toVData
 import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.useCases.CodeExplorerUseCases
+import co.elpache.codelens.useCases.CodeSmellsUseCases
 import co.elpachecode.codelens.cssSelector.search.finder
 import io.mockk.every
 import io.mockk.mockk
 
-fun createUseCases(codeTree: CodeTree): CodeExplorerUseCases {
+fun createCodeExplorerUseCases(codeTree: CodeTree): CodeExplorerUseCases {
+  return CodeExplorerUseCases(getMockFactory(codeTree))
+}
+
+fun createCodeSmellsUseCases(codeTree: CodeTree): CodeSmellsUseCases {
+  return CodeSmellsUseCases(getMockFactory(codeTree))
+}
+
+private fun getMockFactory(codeTree: CodeTree): Factory {
   val factory = mockk<Factory>()
   every {
     factory.createBaseCode()
   } returns codeTree
-
-  return CodeExplorerUseCases(factory)
+  return factory
 }
 
 fun codeTreeNode(vararg data: Pair<String, Any>) =
