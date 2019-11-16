@@ -9,7 +9,7 @@ data class SmellsResults(
     val analyticsResults: AnalyticsResults
 )
 
-data class SmellsPresets(
+data class SmellsPreset(
     val title: String,
     val query: Vid,
     val param: String
@@ -18,14 +18,25 @@ data class SmellsPresets(
 public class CodeSmellsUseCases(factory: Factory = Factory()) {
 
     private val codeExplorerUseCases = CodeExplorerUseCases(factory)
-    private val smellsPresets = HashMap<String, SmellsPresets>()
 
-    init {
-        smellsPresets["longParameterList"] = SmellsPresets("Long Parameter List", "fun[params=4]", "params")
+    companion object {
+        private val smellsPresets = HashMap<String, SmellsPreset>()
+
+        init {
+            smellsPresets["longParameterList"] = SmellsPreset("Long Parameter List", "fun[params=4]", "params")
+        }
+
+        fun findSmellByName(name: String) : SmellsPreset? {
+            return smellsPresets[name]
+        }
+
+        fun getSmellPresets() : Map<String, SmellsPreset> {
+            return smellsPresets
+        }
     }
 
     fun checkLongParameterList(): SmellsResults {
-        val preset = smellsPresets["longParameterList"]
+        val preset = findSmellByName("longParameterList")
         val smellingResults = codeExplorerUseCases.getFrequencyByParam(preset!!.query, preset.param)
         return SmellsResults(smellingResults.rows.isNotEmpty(), smellingResults);
     }

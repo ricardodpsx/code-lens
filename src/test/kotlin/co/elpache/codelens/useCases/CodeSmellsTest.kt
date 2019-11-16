@@ -9,6 +9,21 @@ import org.junit.Test;
 public class CodeSmellsTest {
 
     @Test
+    fun `can get code smell list`() {
+        val smellPresets = CodeSmellsUseCases.getSmellPresets()
+
+        Assertions.assertThat(smellPresets).isNotNull
+    }
+
+    @Test
+    fun `can get code smell by name`() {
+        val smellPreset = CodeSmellsUseCases.findSmellByName("longParameterList")
+
+        Assertions.assertThat(smellPreset).isNotNull
+        Assertions.assertThat(smellPreset?.param).isEqualTo("params")
+    }
+
+    @Test
     fun `can get long parameter list functions`() {
         val uc = createCodeSmellsUseCases(
             codeTree(
