@@ -3,6 +3,7 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.tree.VData
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 import kotlin.streams.toList
@@ -12,7 +13,7 @@ val jsLanguageIntegration = LanguageIntegration(
   applyMetrics = ::applyJsMetrics,
   onBaseCodeLoad = ::preloadParsedFiles
 )
-val parsedCache = HashMap<String, JsNode>()
+val parsedCache = HashMap<String, JsonNode>()
 
 
 class JsFileLoader(file: File) : FileLoader(file, "js") {
@@ -21,18 +22,18 @@ class JsFileLoader(file: File) : FileLoader(file, "js") {
     visitor(data, parent)
 
     parsedCache[file.path]!!
-      .child("program")!!
-      .getList("body")
+      .at("/program/body")
+      .asIterable()
       .map {
-        traverseChilds(it.asNode()!!, data, visitor)
+        traverseChilds(it, data, visitor)
       }
   }
 
-  private fun traverseChilds(node: JsNode, parent: VData?, visitor: (ce: VData, parent: VData?) -> Unit) {
-    val ce = toJsCodeEntity(node, this, parent)
+  private fun traverseChilds(node: JsonNode, parent: VData?, visitor: (ce: VData, parent: VData?) -> Unit) {
+    val ce = toJsNode(node, this, parent)
     visitor(ce, parent)
-    node.children().forEach {
-      traverseChilds(it.asNode()!!, ce, visitor)
+    node.astChildren().forEach {
+      traverseChilds(it, ce, visitor)
     }
   }
 
@@ -59,8 +60,8 @@ fun preloadParsedFiles(path: File) {
   }
 }
 
-fun toJson(js: String): Map<String, Any> {
-  return ObjectMapper().readValue(js, Map::class.java) as Map<String, Any>
+fun toJson(js: String): JsonNode {
+  return ObjectMapper().readTree(js)
 }
 
 fun parseFiles(files: List<File>): List<String> {

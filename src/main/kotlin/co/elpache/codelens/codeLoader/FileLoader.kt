@@ -1,9 +1,23 @@
 package co.elpache.codelens.codeLoader
 
+import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
 import java.io.File
 
+
+fun codeNodeBase(type: String, start: Int, end: Int, astType: String, file: FileLoader, name: String?): VData {
+  val code = file.contents().substring(start, end)
+  return vDataOf(
+    "type" to type,
+    "startOffset" to start,
+    "endOffset" to end,
+    "code" to code,
+    "astType" to astType,
+    "firstLine" to code.firstLine(),
+    "name" to name
+  )
+}
 
 abstract class FileLoader(val file: File, val lang: String) : NodeLoader {
   val type = "file"

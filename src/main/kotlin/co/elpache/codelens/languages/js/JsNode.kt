@@ -1,62 +1,64 @@
 package co.elpache.codelens.languages.js
 
-typealias JsNode = Map<String, Any?>
+import co.elpache.codelens.codeLoader.codeNodeBase
+import co.elpache.codelens.tree.VData
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 
-fun JsNode.child(key: String) = (this as Map<String, Any>)[key] as? JsNode
-fun JsNode.getMap(key: String) = (this as Map<String, Any>)[key] as Map<String, Any>
-fun JsNode.getList(key: String) = (this as Map<String, Any>)[key] as List<Any>
-fun JsNode.getString(key: String): String? {
-  val map = (this as? Map<String, Any>)
-
-  if (map != null)
-    return map.get(key) as? String
-
-  return null
+fun simplifyType(astType: String, parent: VData?) = when (astType) {
+  "CommentLine" -> "comment"
+  "arguments" -> "args"
+  "ClassDeclaration", "ClassExpression" -> "class"
+  "ClassMethod" -> "fun"
+  "FunctionDeclaration" -> "fun"
+  "BlockStatement" -> "block"
+  "CallExpression" -> "call"
+  "ImportDeclaration" -> "import"
+  "BinaryExpression" -> "expression"
+  "ArrowFunctionExpression" -> "fun"
+  "IfStatement" -> "if"
+  "ObjectExpression" -> "object"
+  "NewExpression" -> "call" //todo: Multitype's object contruction
+  "AssignmentExpression" -> "binding"
+  "VariableDeclaration" -> "binding"
+  "NumericLiteral" -> "number"
+  "StringLiteral", "quasis" -> "string"
+  else -> if (parent?.type == "params") "param"
+  else if (parent?.type == "args") "arg"
+  else astType
 }
 
-fun JsNode.getInt(key: String): Int? {
-  val map = (this as? Map<String, Any>)
+fun getName(c: JsonNode): String? {
+  val type = c.get("type").asText()
+  val name = c.get("name")?.asText()
+  val id = c.at("/id/name")
 
-  if (map != null)
-    return map.get(key) as? Int
+  if (!id.isMissingNode)
+    return id.asText()
 
-  return null
+  if (type == "ClassMethod") return c.get("key.name").asText()
+
+  return name
 }
 
-fun JsNode.children() =
-  this.entries
-    .map { it.value?.asNode(it.key) }.filterNotNull()
-
-fun JsNode.childrenMap(): Map<String, Any?> {
-  val res = HashMap<String, Any?>()
-  this.keys
-    .forEach {
-      res.put(it, this.entries.asNode(it))
-    }
-  return res
+internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VData {
+  val astType = c.get("type").asText()
+  return codeNodeBase(
+    name = getName(c),
+    astType = astType,
+    type = simplifyType(astType, parent),
+    start = c.get("start").asInt(),
+    end = c.get("end").asInt(),
+    file = codeFile
+  )
 }
 
-fun JsNode.jsonValues() =
-  this.entries
-    .filter { it.value?.asNode(it.key) == null }.map {
-      it.key to it.value
-    }
-    .filterNot {
-      listOf("type", "name").contains(it.first)
-    }
-    .toMap()
-
-fun Any.asNode(key: String? = null): JsNode? {
-  val map = this as? Map<String, Any>
-  val li = this as? List<Map<String, Any>>
-
-  return if (map != null && map.containsKey("type"))
-    map
-  else if (li != null && li.isNotEmpty() && li.first().containsKey("type"))
-    mapOf(
-      "type" to key!!,
-      "start" to li.first()["start"],
-      "end" to li.last()["end"]
-    ).plus(li.mapIndexed { index, it -> index.toString() to it }).toMap()
-  else null
-}
+fun JsonNode.astChildren() =
+  this.fields().asSequence()
+    .map {
+      if (!it.value.at("/0/type").isMissingNode) {
+        it.value.asSequence().forEach { node -> (node as ObjectNode).put("type", it.key) }
+        it.value.asSequence().toList()
+      } else if (it.value.get("type") != null) listOf(it.value)
+      else listOf()
+    }.flatten().toList()

@@ -38,7 +38,7 @@ class CodeLoader {
   }
 
   //Todo: This should be pluggable
-  fun applyAnalytics(tree: CodeTree): CodeLoader {
+  private fun applyAnalytics(tree: CodeTree): CodeLoader {
     tree.finder().find("file")
       .map { it to it.codeNode() }
       .forEach {

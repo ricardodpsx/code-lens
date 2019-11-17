@@ -45,9 +45,7 @@ private fun depth(tree: CodeTree, vid: Vid): Int {
   return (if (increasesNesting(tree.v(vid).type)) 1 else 0) + maxDepth
 }
 
-
 fun increasesNesting(type: String) = listOf("fun", "if", "loop").contains(type)
-
 
 fun String.relevantCodeLines() =
   split("\n")
