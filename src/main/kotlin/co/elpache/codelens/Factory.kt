@@ -1,8 +1,11 @@
 package co.elpache.codelens
 
 import co.elpache.codelens.app.database.AstRepository
-import co.elpache.codelens.codetree.CodeLoader
-import co.elpache.codelens.codetree.FolderLoader
+import co.elpache.codelens.codeLoader.CodeLoader
+import co.elpache.codelens.codeLoader.FolderLoader
+import co.elpache.codelens.codeLoader.languageSupportRegistry
+import co.elpache.codelens.languages.js.jsLanguageIntegration
+import co.elpache.codelens.languages.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.tree.CodeTree
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -16,6 +19,13 @@ class Factory(
   val context: ApplicationContext? = null
 ) {
   private val logger = KotlinLogging.logger {}
+
+  companion object {
+    fun initializeLanguageRegistry() {
+      languageSupportRegistry["js"] = jsLanguageIntegration
+      languageSupportRegistry["kt"] = kotlinLanguageIntegration
+    }
+  }
 
   //Todo: Move to property files or command line args
   val repo = GitRepository(path, repoUrl)

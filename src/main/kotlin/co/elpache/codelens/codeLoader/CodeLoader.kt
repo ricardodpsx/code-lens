@@ -1,13 +1,11 @@
-package co.elpache.codelens.codetree
+package co.elpache.codelens.codeLoader
 
-import co.elpache.codelens.languages.js.applyJsMetrics
-import co.elpache.codelens.languages.kotlin.applyKotlinMetrics
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.search.finder
 
-interface CodeTreeLoader {
+interface NodeLoader {
   fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?)
 }
 
@@ -21,7 +19,6 @@ class CodeLoader {
   }
 
   val ids: HashSet<Vid> = HashSet()
-
 
   private fun _expandTreeNode(tree: CodeTree, node: FolderLoader): CodeLoader {
 
@@ -45,8 +42,9 @@ class CodeLoader {
     tree.finder().find("file")
       .map { it to it.codeNode() }
       .forEach {
-        if (it.second["lang"] == "js") applyJsMetrics(it.first)
-        else if (it.second["lang"] == "kotlin") applyKotlinMetrics(it.first)
+        languageSupportRegistry[it.second["extension"]]?.apply {
+          applyMetrics(it.first)
+        }
       }
     return this
   }

@@ -1,7 +1,7 @@
 package co.elpache.codelens.languages.kotlin
 
-import co.elpache.codelens.codetree.FileLoader
-import co.elpache.codelens.codetree.buildAstFile
+import co.elpache.codelens.codeLoader.FileLoader
+import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
@@ -28,13 +28,12 @@ import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffsetSkippingComments
 import java.io.File
 
-
-val buildKotlinFile: buildAstFile = { file: File, parent: VData? ->
-  KotlinFileLoader(file, parent)
-}
-
-
-fun traverse(node: PsiElement, fileLoader: FileLoader, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit) {
+fun traverse(
+  node: PsiElement,
+  fileLoader: KotlinFileLoader,
+  parent: VData?,
+  visitor: (node: VData, parent: VData?) -> Unit
+) {
   val data = toCodeEntity(node, fileLoader)
   visitor(data, parent)
   node.children.forEach {
@@ -42,20 +41,15 @@ fun traverse(node: PsiElement, fileLoader: FileLoader, parent: VData?, visitor: 
   }
 }
 
-class KotlinFileLoader(file: File, parent: VData?) : FileLoader(file, lang = "kotlin") {
-  override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
-    val data = vDataOf(
-      "language" to lang,
-      "startOffset" to startOffset,
-      "fileName" to fileName,
-      "name" to file.nameWithoutExtension,
-      "endOffset" to endOffset,
-      "type" to type,
-      "lang" to lang,
-      "code" to contents()
-    )
-    visitor(data, parent)
+val kotlinLanguageIntegration = LanguageIntegration(
+  fileLoaderBuilder = ::KotlinFileLoader,
+  applyMetrics = ::applyKotlinMetrics
+)
 
+
+class KotlinFileLoader(file: File) : FileLoader(file, "kotlin") {
+  override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
+    visitor(data, parent)
     parseFile(file.readText()).children.forEach { traverse(it, this, data, visitor) }
   }
 }
@@ -96,7 +90,7 @@ fun simplifyType(type: String) = when (type) {
   else -> type
 }
 
-private fun toCodeEntity(c: PsiElement, fileLoader: FileLoader): VData {
+private fun toCodeEntity(c: PsiElement, fileLoader: KotlinFileLoader): VData {
 
   val name = when (c) {
     is KtClass -> c.name ?: "Anonymous"

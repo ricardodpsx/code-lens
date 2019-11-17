@@ -1,16 +1,16 @@
-package co.elpache.codelens.codetree
+package co.elpache.codelens.codeLoader
 
-import co.elpache.codelens.languages.js.buildParseCache
-import co.elpache.codelens.languages.js.parsedCache
+import co.elpache.codelens.Factory
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
 import java.io.File
 
-open class FolderLoader(val dir: File, val basePath: File = dir) : CodeTreeLoader {
+open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
   val file = dir
 
   companion object {
     fun load(src: String): FolderLoader {
+      Factory.initializeLanguageRegistry()
       val dir = File(src)
       if (dir.isAbsolute)
         return FolderLoader(dir, File(src))
@@ -18,10 +18,9 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : CodeTreeLoade
       val path = System.getProperty("user.dir")
       val c = FolderLoader(File("$path/$src"), File(path))
 
-
-      //Todo: This doesn't belong here
-      parsedCache.clear()
-      buildParseCache(c.dir)
+      languageSupportRegistry.values.forEach {
+        it.onBaseCodeLoad(c.dir)
+      }
 
       return c
     }

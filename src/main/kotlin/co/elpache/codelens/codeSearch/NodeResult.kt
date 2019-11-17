@@ -14,7 +14,6 @@ open class NodeResult(val vid: Vid, val tree: CodeTree) {
 
   fun codeNode() = tree.v(vid)
 
-  open val type: String get() = codeNode()["type"] as String
   open val code: String get() = tree.v(vid).code
   open val data: VData get() = tree.v(vid)
   open val children: NodeResultSet

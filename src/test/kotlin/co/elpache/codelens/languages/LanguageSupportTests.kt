@@ -1,7 +1,7 @@
 package codelens
 
-import co.elpache.codelens.codetree.CodeLoader
-import co.elpache.codelens.codetree.FolderLoader
+import co.elpache.codelens.codeLoader.CodeLoader
+import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.SoftAssertions
 import org.junit.Test
@@ -15,7 +15,6 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   }
 
   val getValue = { funName: String, metric: String -> search(funName).first()[metric] as Any }
-
 
   @Test
   fun `Test Functions`() {
