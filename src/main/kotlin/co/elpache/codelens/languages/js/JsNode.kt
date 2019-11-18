@@ -3,6 +3,7 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codeLoader.codeNodeBase
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 
 fun simplifyType(astType: String, parent: VData?) = when (astType) {
@@ -18,7 +19,7 @@ fun simplifyType(astType: String, parent: VData?) = when (astType) {
   "ArrowFunctionExpression" -> "fun"
   "IfStatement" -> "if"
   "ObjectExpression" -> "object"
-  "NewExpression" -> "call" //todo: Multitype's object contruction
+  "NewExpression" -> "call"
   "AssignmentExpression" -> "binding"
   "VariableDeclaration" -> "binding"
   "NumericLiteral" -> "number"
@@ -36,13 +37,15 @@ fun getName(c: JsonNode): String? {
   if (!id.isMissingNode)
     return id.asText()
 
-  if (type == "ClassMethod") return c.get("key.name").asText()
+  if (type == "ClassMethod")
+    return c.at("/key/name").asText()
 
   return name
 }
 
 internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VData {
   val astType = c.get("type").asText()
+
   return codeNodeBase(
     name = getName(c),
     astType = astType,
@@ -50,15 +53,47 @@ internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VDat
     start = c.get("start").asInt(),
     end = c.get("end").asInt(),
     file = codeFile
+  ).addAll(
+    "keys" to c.fieldNames().asSequence().toList(),
+    "kind" to c.get("kind")?.asText(),
+    "async" to c.get("async")?.asText(),
+    "async" to c.get("generator")?.asText()
   )
 }
 
-fun JsonNode.astChildren() =
-  this.fields().asSequence()
-    .map {
+fun JsonNode.astChildren(): List<JsonNode> {
+
+  if (this.get("astChildren") == null)
+    this.fields().asSequence().forEach {
       if (!it.value.at("/0/type").isMissingNode) {
-        it.value.asSequence().forEach { node -> (node as ObjectNode).put("type", it.key) }
-        it.value.asSequence().toList()
-      } else if (it.value.get("type") != null) listOf(it.value)
-      else listOf()
-    }.flatten().toList()
+        val syntheticNode = JsonNodeFactory.instance.objectNode()
+        val children = it.value.asSequence().toList()
+        syntheticNode.put("type", it.key)
+        syntheticNode.put("start", children.first().get("start").asInt())
+        syntheticNode.put("end", children.last().get("end").asInt())
+
+        val wrappedChildren = JsonNodeFactory.instance.arrayNode()
+        children.forEach { c ->
+          val wrap = JsonNodeFactory.instance.objectNode()
+          wrap.put("type", "${it.key}Child")
+          if (c.get("name") != null) wrap.put("name", c.get("name").asText())
+          wrap.put("start", c.get("start").asInt())
+          wrap.put("end", c.get("end").asInt())
+          wrap.put("element", c)
+          wrappedChildren.add(wrap)
+        }
+        syntheticNode.put("astChildren", wrappedChildren)
+
+
+        (this as ObjectNode).replace(it.key, syntheticNode)
+      }
+    }
+
+  if (this.get("astChildren") != null) return this.get("astChildren").asSequence().toList()
+
+  return this.fields()
+    .asSequence()
+    .filter { it.value.get("type") != null }
+    .map { it.value }
+    .toList()
+}

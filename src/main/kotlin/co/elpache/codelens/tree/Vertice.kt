@@ -31,10 +31,11 @@ class VData : HashMap<String, Any>() {
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
   fun getInt(key: String): Int = (this[key] as? Int) ?: 0
-  fun addAll(vararg pairs: Pair<String, Any?>) {
+  fun addAll(vararg pairs: Pair<String, Any?>): VData {
     pairs.filter { it.second != null }.forEach {
       this[it.first] = it.second!!
     }
+    return this
   }
 }
 

@@ -6,7 +6,7 @@ import co.elpache.codelens.tree.vDataOf
 import org.assertj.core.api.Assertions
 import org.junit.Test;
 
-public class CodeSmellsTest {
+class CodeSmellsTest {
 
   @Test
   fun `can get code smell list`() {

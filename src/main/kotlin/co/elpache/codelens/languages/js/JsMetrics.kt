@@ -29,8 +29,9 @@ fun applyJsMetrics(it: NodeResult) {
       it.data["lines"] = it.code.relevantCodeLines()
 
       var body = it.find("$>ClassBody>body").first()
-      it.data["constructors"] = body.find("$>fun[kind='constructor']").size
-      it.data["methods"] = body.find("$>fun").size
+      it.data["constructors"] = body.find("$ fun[kind='constructor']").size
+      it.data["methods"] =
+        body.find("$ fun[kind='method']").size + body.find("$ fun[kind='get']").size + it.data.getInt("constructors")
       it.data["properties"] = body.find("$>binding").size
       it.data["members"] = body.code.relevantCodeLines()
     }
