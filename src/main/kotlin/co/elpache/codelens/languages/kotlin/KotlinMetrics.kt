@@ -5,15 +5,15 @@ import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
 
-fun applyKotlinMetrics(it: NodeResult) {
+fun applyKotlinMetrics(fileNode: NodeResult) {
 
-  it.data["lines"] = it.code.relevantCodeLines()
-  it.data["textLines"] = it.code.split("\n").size
-  it.data["functions"] = it.find("fun").size
-  it.data["classes"] = it.find("class").size
-  it.data["bindings"] = it.find("binding").size
+  fileNode.data["lines"] = fileNode.code.relevantCodeLines()
+  fileNode.data["textLines"] = fileNode.code.split("\n").size
+  fileNode.data["functions"] = fileNode.find("fun").size
+  fileNode.data["classes"] = fileNode.find("class").size
+  fileNode.data["bindings"] = fileNode.find("binding").size
 
-  with(it) {
+  with(fileNode) {
     find("call").forEach {
       it.data["args"] = it.find("$>args>arg").size
     }

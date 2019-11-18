@@ -10,58 +10,42 @@ abstract class ParserBuilder {
   abstract fun take(code: Code): Node
   abstract fun lookAhead(code: Code): Boolean
 
+  var definition: ParserBuilder.(code: Code) -> Map<String, List<Node>> = { mapOf() }
+
   fun take(code: String) = take(Code(code))
 
-  private val takeChildrenCallBacks = ArrayList<(Code, AddChildrenCall) -> Unit>()
-
-  fun takeChildren(code: Code): List<Node> {
-    return takeChildrenCallBacks.map {
-      val children = Children()
-      it(code) { n -> children.add(n) }
-      children
-    }.flatten()
-  }
-
-  fun oneOf(vararg items: ParserBuilder): ParserBuilder {
-
-    takeChildrenCallBacks.add { code, child ->
-      child(items.first { it.lookAhead(code) }.take(code))
-    }
-
+  fun define(def: ParserBuilder.(code: Code) -> Map<String, List<Node>>): ParserBuilder {
+    definition = def
     return this
   }
 
-  fun one(p: ParserBuilder, childrenParsers: ChildrenParser = {}): ParserBuilder {
-    childrenParsers(p)
-    takeChildrenCallBacks.add { code, child ->
-      child(p.take(code))
-    }
-    return this
+  fun oneOf(vararg items: ParserBuilder, code: Code): List<Node> {
+    return listOf(items.first { it.lookAhead(code) }.take(code))
   }
 
-  fun zeroOrOne(p: ParserBuilder, childrenParsers: ChildrenParser = {}): ParserBuilder {
-    childrenParsers(p)
-    takeChildrenCallBacks.add { code, child ->
-      if (p.lookAhead(code))
-        child(p.take(code))
-    }
-    return this
+  fun one(p: ParserBuilder, code: Code): List<Node> {
+    return listOf(p.take(code))
   }
 
-  fun atLeastOne(p: ParserBuilder, childrenParsers: ChildrenParser = {}): ParserBuilder {
-    childrenParsers(p)
-    one(p)
-    many(p)
-    return this;
+  fun zeroOrOne(p: ParserBuilder, code: Code): List<Node> {
+    if (p.lookAhead(code))
+      return listOf(p.take(code))
+    return listOf()
   }
 
-  fun many(p: ParserBuilder, childrenParsers: ChildrenParser = {}): ParserBuilder {
-    childrenParsers(p)
-    takeChildrenCallBacks.add { code, child ->
-      while (p.lookAhead(code))
-        child(p.take(code))
-    }
-    return this
+  fun atLeastOne(p: ParserBuilder, code: Code): List<Node> {
+    val nodes = ArrayList<Node>()
+    nodes.add(one(p, code).first())
+    nodes.addAll(many(p, code))
+    return nodes
+  }
+
+  fun many(p: ParserBuilder, code: Code): List<Node> {
+    val nodes = ArrayList<Node>()
+    while (p.lookAhead(code))
+      nodes.add(p.take(code))
+
+    return nodes
   }
 }
 
@@ -90,8 +74,10 @@ open class DefaultParser(
 
   override fun take(code: Code): Node {
     val text = takeRegex(code, exp, "valid type selectors $exp")
-    val children = takeChildren(code)
-    return converter(DefaultNode(text, children))
+
+    val children = definition(this, code)
+
+    return converter(DefaultNode(text, children.values.flatten()))
   }
 
   override fun lookAhead(code: Code): Boolean = lookAhead.find(code) != null

@@ -3,6 +3,7 @@ package co.elpache.codelens.languages.js
 import co.elpache.codelens.codeLoader.codeNodeBase
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 
@@ -61,39 +62,55 @@ internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VDat
   )
 }
 
+
 fun JsonNode.astChildren(): List<JsonNode> {
 
-  if (this.get("astChildren") == null)
-    this.fields().asSequence().forEach {
-      if (!it.value.at("/0/type").isMissingNode) {
-        val syntheticNode = JsonNodeFactory.instance.objectNode()
-        val children = it.value.asSequence().toList()
-        syntheticNode.put("type", it.key)
-        syntheticNode.put("start", children.first().get("start").asInt())
-        syntheticNode.put("end", children.last().get("end").asInt())
+  if (this.get("isListWrapper") != null) return this.get("children").asSequence().toList()
 
-        val wrappedChildren = JsonNodeFactory.instance.arrayNode()
-        children.forEach { c ->
-          val wrap = JsonNodeFactory.instance.objectNode()
-          wrap.put("type", "${it.key}Child")
-          if (c.get("name") != null) wrap.put("name", c.get("name").asText())
-          wrap.put("start", c.get("start").asInt())
-          wrap.put("end", c.get("end").asInt())
-          wrap.put("element", c)
-          wrappedChildren.add(wrap)
-        }
-        syntheticNode.put("astChildren", wrappedChildren)
-
-
-        (this as ObjectNode).replace(it.key, syntheticNode)
-      }
+  this.fields().asSequence()
+    .filter { it.value.isListOfAstNodes() }
+    .forEach {
+      wrapListNode(it.key, it.value)
     }
-
-  if (this.get("astChildren") != null) return this.get("astChildren").asSequence().toList()
 
   return this.fields()
     .asSequence()
     .filter { it.value.get("type") != null }
     .map { it.value }
     .toList()
+}
+
+private fun JsonNode.isListOfAstNodes() = !at("/0/type").isMissingNode
+
+/**
+ * This transforms a bit the JsonTree, making JsonNodes that look like {type:"function", params: [{type:"integer", ...}], ...}
+ * to look like {type:"function", {type: "params", "children": [{ type: "paramsChild", "element": { type: "integer" } }] }
+ * This makes the AST more manipulable, searchable and compatible with the expected AST for example:
+ * fun > params > param
+ */
+private fun JsonNode.wrapListNode(key: String, value: JsonNode) {
+  val listWrapperNode = JsonNodeFactory.instance.objectNode()
+  val children = value.asSequence().toList()
+  listWrapperNode.put("type", key)
+  listWrapperNode.put("start", children.first().get("start").asInt())
+  listWrapperNode.put("end", children.last().get("end").asInt())
+
+  listWrapperNode.put("children", wrapListItem(key, value))
+  listWrapperNode.put("isListWrapper", true)
+  (this as ObjectNode).replace(key, listWrapperNode)
+}
+
+private fun wrapListItem(key: String, value: JsonNode): ArrayNode? {
+  val children = value.asSequence().toList()
+  val itemsList = JsonNodeFactory.instance.arrayNode()
+  children.forEach { c ->
+    val listItemWrapper = JsonNodeFactory.instance.objectNode()
+    listItemWrapper.put("type", "${key}Child")
+    if (c.get("name") != null) listItemWrapper.put("name", c.get("name").asText())
+    listItemWrapper.put("start", c.get("start").asInt())
+    listItemWrapper.put("end", c.get("end").asInt())
+    listItemWrapper.put("element", c)
+    itemsList.add(listItemWrapper)
+  }
+  return itemsList
 }

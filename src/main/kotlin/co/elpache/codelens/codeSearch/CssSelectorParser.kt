@@ -7,27 +7,34 @@ import co.elpache.codelens.defaultParser
 import co.elpache.codelens.rootParser
 import co.elpache.codelens.unwrap
 
-fun parseCssSelector(selector: String) = selectorParser()
-  .atLeastOne(
-    typeSelector()
-  ).take(selector) as CssSelectors
+fun parseCssSelector(selector: String) = selectorParser().define { code ->
+  mapOf("value" to atLeastOne(typeSelector(), code))
+}.take(selector) as CssSelectors
 
 fun parseTypeSelector(selector: String) = typeSelector().take(selector) as TypeSelector
 
 fun typeSelector(): ParserBuilder {
-  return typeSelectorParser()
-    .many(
-      attributeSelectorParser()
-        .one(openBraket())
-        .one(attributeNameParser())
-        .zeroOrOne(attributeOperationParser())
-        .zeroOrOne(
-          attributeParser()
-            .oneOf(attributeStringParser(), attributeIntegerParser())
-        )
-        .one(closeBraket())
+  return typeSelectorParser().define { code ->
+    mapOf(
+      "attributeSelector" to many(
+        attributeSelectorParser().define {
+          one(openBraket(), code)
+          val attrName = one(attributeNameParser(), code)
+          val attrOperation = zeroOrOne(attributeOperationParser(), code)
+          val attrValue = zeroOrOne(
+            attributeParser().define {
+              mapOf("value" to oneOf(attributeStringParser(), attributeIntegerParser(), code = code))
+            }, code
+          )
+          one(closeBraket(), code)
+
+          mapOf("attrName" to attrName, "attrOperation" to attrOperation, "attrValue" to attrValue)
+        }, code
+      ),
+      "relation" to zeroOrOne(relationParser(), code)
     )
-    .zeroOrOne(relationParser())
+  }
+
 }
 
 
@@ -79,7 +86,7 @@ val relationParser = defaultParser("^>?") {
 val openBraket = defaultParser("^\\[")
 val closeBraket = defaultParser("^\\]")
 val attributeSelectorParser = defaultParser("^", "^\\[") {
-  AttributeSelector(it[1]!!.text, it[2]?.text, it[3]?.text)
+  AttributeSelector(it[0]!!.text, it[1]?.text, it[2]?.text)
 }
 
 
