@@ -29,7 +29,7 @@
      -[x] Core support
      -[x] UI
 -[x] Basic sintax highlighting
--[ ] Performance experience for History
+-[x] Performance experience for History
 -[ ] Evolution Metrics, see detals of the commits and code that are affecting the metrics
 -[ ] Integrate code charts with search Results: Right now when you select boxes in the chart nothing happens, 
        Instead the relevant code entities should be listed
