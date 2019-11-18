@@ -35,6 +35,18 @@ class CssSelectorUtilsTest {
     assertThat(evaluate(myObj, "firstName", "$=", "worl")).isFalse()
   }
 
+  @Test
+  fun `Numeric operators`() {
+    val myObj = vDataOf(
+      "firstName" to "4"
+    )
+
+    assertThat(evaluate(myObj, "firstName", "<", "5")).isTrue()
+    assertThat(evaluate(myObj, "firstName", ">", "5")).isFalse()
+    assertThat(evaluate(myObj, "firstName", "<=", "4")).isTrue()
+    assertThat(evaluate(myObj, "firstName", ">=", "5")).isFalse()
+  }
+
 
   private fun evaluate(obj: VData, name: String, op: String? = null, search: String? = null) =
     matchesAttribute(AttributeSelector(name, op, search), obj)

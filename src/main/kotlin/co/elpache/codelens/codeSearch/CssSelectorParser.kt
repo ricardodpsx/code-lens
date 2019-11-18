@@ -78,7 +78,7 @@ val attributeParser = textParser("^", "^['\"0-9]")
 
 val attributeNameParser = textParser("^[A-Za-z0-9_\\-]+")
 
-val attributeOperationParser = textParser("^[\\^\\|\\~\\$\\*]?=")
+val attributeOperationParser = textParser("^([\\^\\|\\~\\$\\*!<>]?=|<|>)")
 
 val attributeStringParser = textParser(QUOTED_STRING, "^['\"]") { it.unwrap() }
 
