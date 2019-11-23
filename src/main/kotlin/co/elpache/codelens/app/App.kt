@@ -3,6 +3,7 @@ package co.elpache.codelens.app
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.useCases.CodeExplorerUseCases
+import co.elpache.codelens.useCases.CodeSmellsUseCases
 import co.elpache.codelens.useCases.EvolutionUseCases
 import mu.KotlinLogging
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -19,7 +20,7 @@ class CodeLensApp {
   fun factory(context: ApplicationContext) = Factory(context = context)
 
   @Bean
-  fun useCases(factory: Factory) = CodeExplorerUseCases(factory)
+  fun codeExplorerUseCases(factory: Factory) = CodeExplorerUseCases(factory)
 
 
   @Bean
@@ -32,6 +33,10 @@ class CodeLensApp {
 
     return ec
   }
+
+  @Bean
+  fun codeSmellsUseCases(factory: Factory) = CodeSmellsUseCases(factory)
+
 }
 
 fun main(args: Array<String>) {

@@ -10,6 +10,12 @@ data class SearchResults(
   val results: List<Vid> = listOf()
 )
 
+data class SearchResultsWithParams(
+  val codeTree: Map<String, Any>,
+  val results: List<String> = listOf(),
+  val analyticsParams: List<String>
+)
+
 data class NodeContentsResults(
   val text: String,
   val ast: Map<String, Any>
@@ -34,6 +40,16 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
       )
     } catch (e: Exception) {
       SearchResults(code)
+    }
+  }
+
+  fun getSearchResultsWithParams(query: String): SearchResultsWithParams {
+    return with(selectCodeWithParents(query)) {
+      SearchResultsWithParams(
+        treeWithDescendants.toMap(),
+        results,
+        getPossibleIntParams(query)
+      )
     }
   }
 
@@ -64,5 +80,6 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
     } catch (e: Exception) {
       arrayListOf<String>()
     }
+
 }
 

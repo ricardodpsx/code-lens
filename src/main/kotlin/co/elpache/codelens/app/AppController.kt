@@ -1,6 +1,7 @@
 package co.elpache.codelens.app
 
 import co.elpache.codelens.useCases.CodeExplorerUseCases
+import co.elpache.codelens.useCases.CodeSmellsUseCases
 import co.elpache.codelens.useCases.EvolutionUseCases
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -16,42 +17,46 @@ import org.springframework.web.bind.annotation.RestController
 class AppController {
 
   @Autowired
-  lateinit var useCases: CodeExplorerUseCases
+  lateinit var codeExplorerUseCases: CodeExplorerUseCases
 
   @Autowired
   lateinit var evolutionUseCases: EvolutionUseCases
 
-  data class SearchResult(
-    val codeTree: Map<String, Any>,
-    val results: List<String> = listOf(),
-    val analyticsParams: List<String>
-  )
+  @Autowired
+  lateinit var codeSmellsUseCases: CodeSmellsUseCases
+
 
   @GetMapping("/")
   @ResponseBody
-  fun cssQuery(@RequestParam query: String) =
-    with(useCases.selectCodeWithParents(query)) {
-      SearchResult(
-        treeWithDescendants.toMap(),
-        results,
-        useCases.getPossibleIntParams(query)
-      )
-    }
+  fun cssQuery(@RequestParam query: String) = codeExplorerUseCases.getSearchResultsWithParams(query)
+
 
   @GetMapping("/node/{vid}")
   @ResponseBody
-  fun openFile(@PathVariable vid: String) = useCases.loadNodeContents(vid)
+  fun openFile(@PathVariable vid: String) = codeExplorerUseCases.loadNodeContents(vid)
 
 
   @GetMapping("/analytics/{param}")
   @ResponseBody
   fun analytics(@PathVariable param: String, @RequestParam query: String) =
-    useCases.getFrequencyByParam(query, param).rows
+    codeExplorerUseCases.getFrequencyByParam(query, param).rows
 
 
   @GetMapping("/history/{param}")
   @ResponseBody
   fun history(@PathVariable param: String, @RequestParam query: String, @RequestParam maxCommits: Int) =
     evolutionUseCases.collectHistory(query, param, maxCommits)
+
+
+  @GetMapping("/smells")
+  @ResponseBody
+  fun smells() =
+    CodeSmellsUseCases.getSmellPresets()
+
+
+  @GetMapping("/smell/{smellName}")
+  @ResponseBody
+  fun executeSmell(@PathVariable smellName: String) =
+    codeSmellsUseCases.executeCodeSmell(smellName)
 
 }

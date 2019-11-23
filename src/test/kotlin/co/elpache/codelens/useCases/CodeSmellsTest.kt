@@ -16,14 +16,6 @@ class CodeSmellsTest {
   }
 
   @Test
-  fun `can get code smell by name`() {
-    val smellPreset = CodeSmellsUseCases.findSmellByName("longParameterList")
-
-    Assertions.assertThat(smellPreset).isNotNull
-    Assertions.assertThat(smellPreset?.param).isEqualTo("params")
-  }
-
-  @Test
   fun `can get long parameter list functions`() {
     val uc = createCodeSmellsUseCases(
       codeTree(
@@ -42,12 +34,13 @@ class CodeSmellsTest {
       )
     )
 
-    val results = uc.checkLongParameterList()
+    val results = uc.executeCodeSmell("longParameterList")
 
     Assertions.assertThat(results.checkSmell).isTrue()
     Assertions.assertThat(results.analyticsResults.rows).containsExactly(
       listOf(4, 2)
     )
+    Assertions.assertThat(results.searchResults.results).containsExactly("5", "6")
     //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
   }
 }

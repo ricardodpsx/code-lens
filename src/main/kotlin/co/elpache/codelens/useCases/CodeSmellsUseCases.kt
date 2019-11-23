@@ -6,6 +6,7 @@ import co.elpache.codelens.tree.Vid
 data class SmellsResults(
   val checkSmell: Boolean,
   //val smellScore: Double,
+  val searchResults: SearchResultsWithParams,
   val analyticsResults: AnalyticsResults
 )
 
@@ -27,23 +28,28 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
         smellsPresets["longParameterList"] = SmellsPreset(
             "Long parameter list",
             "functions should have max 3 parameters",
-            "fun[params=4]",
+            "fun[params>3]",
             "params"
         )
-    }
-
-    fun findSmellByName(name: String): SmellsPreset? {
-      return smellsPresets[name]
     }
 
     fun getSmellPresets(): Map<String, SmellsPreset> {
       return smellsPresets
     }
+
+    private fun findSmellByName(name: String): SmellsPreset {
+      return smellsPresets[name]!!
+    }
   }
 
-  fun checkLongParameterList(): SmellsResults {
-    val preset = findSmellByName("longParameterList")
-    val smellingResults = codeExplorerUseCases.getFrequencyByParam(preset!!.query, preset.param)
-    return SmellsResults(smellingResults.rows.isNotEmpty(), smellingResults);
+  fun executeCodeSmell(smellName: String): SmellsResults {
+    val preset = findSmellByName(smellName)
+    val smellResults = codeExplorerUseCases.getSearchResultsWithParams(preset.query)
+    val smellAnalytics = codeExplorerUseCases.getFrequencyByParam(preset.query, preset.param)
+    return SmellsResults(
+        smellAnalytics.rows.isNotEmpty(),
+        smellResults,
+        smellAnalytics
+    );
   }
 }
