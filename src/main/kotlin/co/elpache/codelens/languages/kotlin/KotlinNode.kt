@@ -29,6 +29,7 @@ fun simplifyType(type: String) = when (type) {
   "integerConstant", "floatConstant", "doubleConstant" -> "number"
   "property" -> "binding"
   "BinaryExpression" -> "expression"
+  "eolComment" -> "comment"
   "while", "doWhile", "for" -> "loop"
   else -> type
 }

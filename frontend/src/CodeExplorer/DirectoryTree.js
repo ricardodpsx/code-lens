@@ -1,11 +1,8 @@
-
-import React, { Component } from 'react';
-import './App.css';
-
-
+import React, {Component} from 'react';
+import '../App.css';
 /* eslint no-console:0, react/no-danger: 0 */
 import 'rc-tree/assets/index.css';
-import Tree, { TreeNode } from 'rc-tree';
+import Tree, {TreeNode} from 'rc-tree';
 import cssAnimation from 'css-animation';
 
 const STYLE = `
@@ -51,7 +48,7 @@ const animation = {
 
 
 function expand(g, v) {
-  if(g[v].data.type == "file") return
+  if (g[v].data.type === "file") return
 
   return g[v].children.map(c =>
     <TreeNode title={g[c].data.fileName} key={c} >
@@ -81,9 +78,9 @@ class DirectoryTree extends Component {
       <div>
           <style dangerouslySetInnerHTML={{ __html: STYLE }}/>
             <Tree
-              onSelect={this.handleSelect}
-              defaultExpandAll={false}
-              defaultExpandedKeys={[this.props.graph.rootVid]}
+               onSelect={this.handleSelect}
+               defaultExpandAll={false}
+               defaultExpandedKeys={[this.props.graph.rootVid]}
               //openAnimation={animation}
             >
               {expand(this.props.graph, this.props.graph.rootVid)}
