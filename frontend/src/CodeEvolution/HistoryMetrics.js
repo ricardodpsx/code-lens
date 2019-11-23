@@ -50,14 +50,14 @@ export default function HistoryMetrics({analytics:{ selectedParam = "", params =
         />
   )}
     <Chart
-     width={'800px'}
-     height={'300px'}
-     chartType="ColumnChart"
-     loader={<div>Loading Chart</div>}
-     columns={["Commits", activeMetricsTitles(), {role: 'style'}].flat()}
-     rows={Object.keys(rows).map(commitId => [commitId, activeMetricsRows(commitId), commitId == 'Avg' ? 'color: #C62828':''].flat())}
+       width={'800px'}
+       height={'300px'}
+       chartType="ColumnChart"
+       loader={<div>Loading Chart</div>}
+       columns={["Commits", activeMetricsTitles(), {role: 'style'}].flat()}
+       rows={Object.keys(rows).map(commitId => [commitId, activeMetricsRows(commitId), commitId === 'Avg' ? 'color: #C62828' : ''].flat())}
      // For tests
-     rootProps={{ 'data-testid': '2' }}
+       rootProps={{ 'data-testid': '2' }}
   />
   </div>
 }

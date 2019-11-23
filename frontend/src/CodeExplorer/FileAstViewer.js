@@ -1,7 +1,6 @@
-import {Component} from "react";
+import React, {Component} from "react";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
 import {docco} from "react-syntax-highlighter/dist/styles/hljs";
-import React from "react";
 
 
 class FileViewer extends Component {

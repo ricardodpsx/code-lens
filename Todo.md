@@ -45,6 +45,7 @@
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Aggregators on the search language (count, sum)
 -[ ] Spin loaders for > 1s operations
+-[ ] Add commit metrics
 
 
 IceBox:

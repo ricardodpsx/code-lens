@@ -1,14 +1,13 @@
-import React, {useState} from "react";
+import React from "react";
+
 
 export default function CodeEntity({
-                             vid, data, children, selected, onCodeEntitySelected = () => {
+                                     vid, data, children, selected, onNodeSelected = () => {
   }
-                           }) {
-  const [info, seeInfo] = useState(false);
-
+                                   }) {
   return <span
      onClick={(e) => {
-       onCodeEntitySelected(vid, data)
+       onNodeSelected(vid)
        e.stopPropagation()
      }}
      style={selected ? {fontWeight: 'bold'} : {}}

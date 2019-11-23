@@ -1,7 +1,10 @@
 import React from "react";
 import {parents, vertice} from "./treeUtils"
 
-export default function CodeEntityData({vid, ast, onCodeEntitySelected = () => {}}) {
+export default function CodeEntityData({
+                                         vid, ast, onNodeSelected = () => {
+  }
+                                       }) {
 
   if(!ast || !vid ) return null
 
@@ -11,7 +14,8 @@ export default function CodeEntityData({vid, ast, onCodeEntitySelected = () => {
 
   return <div className="codeEntityInfo">
     {parents(ast[vid].parent, ast).map(pVid => [pVid, vertice(pVid, ast)]).map(([pVid, v]) =>
-       <span onClick={() => onCodeEntitySelected(pVid)}> {v.type} &#9658; </span>)}
+       <span onClick={() => onNodeSelected(pVid)}>{v.type} &#9658; </span>
+    )}
     {data.type}
     {Object.entries(data).map(([k, v]) => <div><strong>{k}: </strong>{v}</div>)}
   </div>
