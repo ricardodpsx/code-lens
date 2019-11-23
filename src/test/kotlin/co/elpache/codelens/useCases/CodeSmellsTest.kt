@@ -40,7 +40,7 @@ class CodeSmellsTest {
     Assertions.assertThat(results.analyticsResults.rows).containsExactly(
       listOf(4, 2)
     )
-    Assertions.assertThat(results.searchResults.results).containsExactly("5", "6")
+    Assertions.assertThat(results.smellResults.results).containsExactly("5", "6")
     //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
   }
 }

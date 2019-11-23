@@ -4,10 +4,11 @@ import co.elpache.codelens.Factory
 import co.elpache.codelens.tree.Vid
 
 data class SmellsResults(
-  val checkSmell: Boolean,
+    val smellDetails: SmellsPreset,
+    val smellResults: SearchResultsWithParams,
+    val analyticsResults: AnalyticsResults,
+    val checkSmell: Boolean
   //val smellScore: Double,
-  val searchResults: SearchResultsWithParams,
-  val analyticsResults: AnalyticsResults
 )
 
 data class SmellsPreset(
@@ -43,13 +44,14 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
   }
 
   fun executeCodeSmell(smellName: String): SmellsResults {
-    val preset = findSmellByName(smellName)
-    val smellResults = codeExplorerUseCases.getSearchResultsWithParams(preset.query)
-    val smellAnalytics = codeExplorerUseCases.getFrequencyByParam(preset.query, preset.param)
+    val smellPreset = findSmellByName(smellName)
+    val smellResults = codeExplorerUseCases.getSearchResultsWithParams(smellPreset.query)
+    val smellAnalytics = codeExplorerUseCases.getFrequencyByParam(smellPreset.query, smellPreset.param)
     return SmellsResults(
-        smellAnalytics.rows.isNotEmpty(),
+        smellPreset,
         smellResults,
-        smellAnalytics
+        smellAnalytics,
+        smellAnalytics.rows.isNotEmpty()
     );
   }
 }

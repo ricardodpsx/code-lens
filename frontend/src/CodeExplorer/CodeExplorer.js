@@ -48,6 +48,7 @@ export function CodeExplorer() {
               margin="normal"
               variant="outlined"
            />
+
            <DirectoryTree
               query={query}
               results={results}
