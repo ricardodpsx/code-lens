@@ -53,6 +53,6 @@ class EvolutionUseCasesTest {
           "Load time ${loadTime / 1000.0} Secs"
     )
 
-    assertThat(loadTime).isLessThan(2000)
+    assertThat(loadTime).isLessThan(4000)
   }
 }
