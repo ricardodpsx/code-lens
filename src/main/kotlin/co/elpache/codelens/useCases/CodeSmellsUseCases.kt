@@ -11,11 +11,12 @@ data class SmellsResults(
 
 data class SmellsPreset(
     val title: String,
+    val description: String,
     val query: Vid,
     val param: String
 )
 
-public class CodeSmellsUseCases(factory: Factory = Factory()) {
+class CodeSmellsUseCases(factory: Factory = Factory()) {
 
     private val codeExplorerUseCases = CodeExplorerUseCases(factory)
 
@@ -23,7 +24,12 @@ public class CodeSmellsUseCases(factory: Factory = Factory()) {
         private val smellsPresets = HashMap<String, SmellsPreset>()
 
         init {
-            smellsPresets["longParameterList"] = SmellsPreset("Long Parameter List", "fun[params=4]", "params")
+            smellsPresets["longParameterList"] = SmellsPreset(
+                "Long parameter list",
+                "functions should have max 3 parameters",
+                "fun[params=4]",
+                "params"
+            )
         }
 
         fun findSmellByName(name: String) : SmellsPreset? {

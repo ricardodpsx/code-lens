@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import './App.css';
 import DirectoryTree from "./DirectoryTree";
+import SmellList from "./SmellList";
 import FileViewer from "./FileViewer";
 import FitnessFunction from "./FitnessFunction";
 import Metrics from "./Metrics"
@@ -129,6 +130,11 @@ class App extends Component {
                            margin="normal"
                            variant="outlined"
                />
+
+               <SmellList
+
+               />
+
                <DirectoryTree
                   results={this.state.results}
                   graph={this.state.codeTree}

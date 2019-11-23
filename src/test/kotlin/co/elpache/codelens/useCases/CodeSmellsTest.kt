@@ -6,12 +6,11 @@ import co.elpache.codelens.createCodeSmellsUseCases
 import org.assertj.core.api.Assertions
 import org.junit.Test;
 
-public class CodeSmellsTest {
+class CodeSmellsTest {
 
     @Test
     fun `can get code smell list`() {
         val smellPresets = CodeSmellsUseCases.getSmellPresets()
-
         Assertions.assertThat(smellPresets).isNotNull
     }
 
