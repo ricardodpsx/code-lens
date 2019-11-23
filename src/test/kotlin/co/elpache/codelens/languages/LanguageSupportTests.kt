@@ -1,14 +1,14 @@
 package codelens
 
-import co.elpache.codelens.codetree.CodeFolder
-import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.codeLoader.CodeLoader
+import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.SoftAssertions
+import org.junit.After
 import org.junit.Test
 
 abstract class LanguageSupportTests(val ext: String, path: String) : SoftAssertions() {
-  val tree = CodeTree()
-    .expandFullCodeTree(CodeFolder.load(path)).applyAnalytics()
+  val tree = CodeLoader().expandFullCodeTree(FolderLoader.load(path))
 
   val search = { css: String ->
     val res = tree.finder().find(css)
@@ -17,6 +17,10 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
   val getValue = { funName: String, metric: String -> search(funName).first()[metric] as Any }
 
+  @After
+  fun after() {
+    assertAll()
+  }
 
   @Test
   fun `Test Functions`() {

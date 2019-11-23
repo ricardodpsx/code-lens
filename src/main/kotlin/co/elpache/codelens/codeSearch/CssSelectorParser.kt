@@ -1,96 +1,86 @@
+@file:Suppress("Reformat")
+
 package co.elpachecode.codelens.cssSelector
 
-import co.elpache.codelens.Node
-import co.elpache.codelens.ParserBuilder
 import co.elpache.codelens.QUOTED_STRING
 import co.elpache.codelens.defaultParser
 import co.elpache.codelens.rootParser
+import co.elpache.codelens.textParser
 import co.elpache.codelens.unwrap
 
-fun parseCssSelector(selector: String) = selectorParser()
-  .atLeastOne(
-    typeSelector()
-  ).take(selector) as CssSelectors
+fun parseCssSelector(selector: String) = selectorParser.parse(selector)
 
-fun parseTypeSelector(selector: String) = typeSelector().take(selector) as TypeSelector
+fun parseTypeSelector(selector: String) = typeSelectorParser.parse(selector)
 
-fun typeSelector(): ParserBuilder {
-  return typeSelectorParser()
-    .many(
-      attributeSelectorParser()
-        .one(openBraket())
-        .one(attributeNameParser())
-        .zeroOrOne(attributeOperationParser())
-        .zeroOrOne(
-          attributeParser()
-            .oneOf(attributeStringParser(), attributeIntegerParser())
-        )
-        .one(closeBraket())
-    )
-    .zeroOrOne(relationParser())
-}
+fun typeSelector() = typeSelectorParser
 
-
-class CssSelectors(val selectors: List<TypeSelector>) : CssSelector()
-open class CssSelector : Node()
+data class CssSelectors(val selectors: List<TypeSelector>)
 
 class TypeSelector(
   val name: String,
   val attributes: List<AttributeSelector>,
   val relationType: RelationType,
   val attributeToMatch: String = "type"
-) : CssSelector()
+)
 
 class AttributeSelector(
   val name: String,
   val op: String? = null,
   val value: String? = null
-) : Node()
+)
 
-val selectorParser = rootParser {
-  CssSelectors(selectors = it.children.map { it as TypeSelector })
+val selectorParser =
+  rootParser<CssSelectors>() {
+    CssSelectors(selectors = atLeastOne(typeSelectorParser))
+  }
+
+
+val typeSelectorParser =
+  defaultParser<TypeSelector>("^(#?[A-Za-z0-9_\\-]+|\\$|\\*)") {
+
+    val attrSelector = many(attributeSelectorParser)
+    val relation = zeroOrOne(relationParser) ?: RelationType(RelationTypes.CHILDREN)
+
+    val name = if (it.first() == '#') it.drop(1) else it
+
+    val attributeToMatch = if (it.first() == '#') "name" else "type"
+
+    TypeSelector(name, attrSelector, relation, attributeToMatch)
+  }
+
+
+enum class RelationTypes { DIRECT_DESCENDANT, CHILDREN }
+
+class RelationType(val type: RelationTypes)
+
+val relationParser = defaultParser<RelationType>("^>") {
+  RelationType(RelationTypes.DIRECT_DESCENDANT)
 }
 
-val typeSelectorParser = defaultParser("^(#?[A-Za-z0-9_\\-]+|\\$|\\*)") {
+val openBraket = textParser("^\\[")
+val closeBraket = textParser("^\\]")
 
-  val name = if (it.text.first() == '#') it.text.drop(1) else it.text
+val attributeSelectorParser = defaultParser<AttributeSelector>("^", "^\\[")
+{
+  one(openBraket)
+  val attrName = one(attributeNameParser)
+  val attrOperation = zeroOrOne(attributeOperationParser)
+  val attrValue = zeroOrOne(attributeParser)
+  one(closeBraket)
 
-  val attributeToMatch = if (it.text.first() == '#') "name" else "type"
-
-  TypeSelector(
-    name,
-    it.children.dropLast(1).map { it as AttributeSelector },
-    it.children.last() as RelationType,
-    attributeToMatch
-  )
-}
-
-enum class RelationTypes {
-  DIRECT_DESCENDANT, CHILDREN
-}
-
-class RelationType(val type: RelationTypes) : Node()
-
-val relationParser = defaultParser("^>?") {
-  if (it.text == ">") RelationType(RelationTypes.DIRECT_DESCENDANT)
-  else RelationType(RelationTypes.CHILDREN)
-}
-
-val openBraket = defaultParser("^\\[")
-val closeBraket = defaultParser("^\\]")
-val attributeSelectorParser = defaultParser("^", "^\\[") {
-  AttributeSelector(it[1]!!.text, it[2]?.text, it[3]?.text)
+  AttributeSelector(attrName, attrOperation, attrValue)
 }
 
 
-val attributeParser = defaultParser("^", "^['\"0-9]", converter = { Node(it[0]!!.text) })
+val attributeParser = textParser("^", "^['\"0-9]")
+{ oneOf(attributeStringParser, attributeIntegerParser) }
 
-val attributeNameParser = defaultParser("^[A-Za-z0-9_\\-]+")
-val attributeOperationParser = defaultParser("^[\\^\\|\\~\\$\\*]?=")
 
-val attributeStringParser = defaultParser(QUOTED_STRING, "^['\"]") {
-  Node(it.text.unwrap())
-}
-val attributeIntegerParser = defaultParser("^[+-]?[0-9]+") {
-  Node(it.text)
-}
+val attributeNameParser = textParser("^[A-Za-z0-9_\\-]+")
+
+val attributeOperationParser = textParser("^([\\^\\|\\~\\$\\*!<>]?=|<|>)")
+
+val attributeStringParser = textParser(QUOTED_STRING, "^['\"]") { it.unwrap() }
+
+
+val attributeIntegerParser = textParser("^[+-]?[0-9]+")

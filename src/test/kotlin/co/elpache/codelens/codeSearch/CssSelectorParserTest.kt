@@ -27,6 +27,15 @@ class CssSelectorParserTest {
     assertThat(attrWithFilter.value).isEqualTo("hello")
   }
 
+
+  @Test
+  fun `Support all operators`() {
+    listOf("*=", "=", "^=", "$=", "<", ">", ">=", "<=", "!=").forEach { op ->
+      val type = parseCssSelector("myClass[lines $op 6]").selectors[0]
+      assertThat(type.attributes[0].op).isEqualTo(op)
+    }
+  }
+
   @Test
   fun `Select by numeric attribute`() {
     val type = parseCssSelector("myClass[lines=6]").selectors[0]

@@ -1,19 +1,17 @@
 package codelens
 
-import co.elpache.codelens.codetree.CodeFolder
-import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.codeLoader.CodeLoader
+import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.selectCode
 import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 private val codeBase =
-  CodeTree().expandFullCodeTree(CodeFolder.load("../code-examples/kotlin/subpackage")).applyAnalytics()
+  CodeLoader().expandFullCodeTree(FolderLoader.load("../code-examples/kotlin/subpackage"))
 
 //Todo: Change tests to be more independent using utils graph
 class KotlinSupportTest {
-
-
   @Test
   fun `can print tree`() {
     println(codeBase.asString())

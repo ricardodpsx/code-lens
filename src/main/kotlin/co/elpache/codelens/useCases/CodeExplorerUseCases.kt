@@ -1,8 +1,9 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
-import co.elpache.codelens.codetree.CodeTree
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
+import co.elpachecode.codelens.cssSelector.search.finder
 
 data class SearchResults(
   val treeWithDescendants: CodeTree,
@@ -18,13 +19,15 @@ data class AnalyticsResults(val rows: List<List<Int>>)
 
 class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
-  var code = factory.createBaseCode()
+  val code = factory.createBaseCode()
+
+  fun find(query: String) = code.finder().find(query)
 
   //Todo: Separate into two use cases
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {
-      val res = code.selectBy(query).vids()
+      val res = find(query).vids()
       SearchResults(
         code.treeFromChildren(res),
         res
@@ -37,23 +40,23 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
   fun getFrequencyByParam(query: Vid, param: String) =
     AnalyticsResults(
-      frequency(code.selectBy(query).paramsValues(param))
+      frequency(find(query).paramsValues(param))
     )
 
 
   fun getStatistics(query: String, param: String): DescriptiveStatistics {
-    return statistics(code.selectBy(query).paramsValues(param))
+    return statistics(find(query).paramsValues(param))
   }
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      code.node(vid).code,
-      code.subTreeFrom(vid).toMap()
+      code.v(vid).code,
+      code.subTree(vid).toMap()
     )
 
   fun getPossibleIntParams(query: String) =
     try {
-      code.selectBy(query)
+      find(query)
         .map { it.data.keys }
         .flatten()
         .filter { !listOf("name", "type").contains(it) }

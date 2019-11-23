@@ -1,7 +1,7 @@
 package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeTree
-import co.elpache.codelens.codeTreeNode
+import co.elpache.codelens.tree.vDataOf
 import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -10,26 +10,26 @@ class CssSearchTest {
   val tree =
     codeTree(
       "1",
-      codeTreeNode("type" to "a", "name" to "parent"),
+      vDataOf("type" to "a", "name" to "parent"),
       codeTree(
         "1.1",
-        codeTreeNode("type" to "b"),
+        vDataOf("type" to "b"),
         codeTree(
-          "1.1.1", codeTreeNode("type" to "c", "lines" to 3),
-          codeTree("1.1.1.1", codeTreeNode("type" to "e"))
+          "1.1.1", vDataOf("type" to "c", "lines" to 3),
+          codeTree("1.1.1.1", vDataOf("type" to "e"))
         ),
         codeTree(
           "1.1.2",
-          codeTreeNode("type" to "d", "lines" to 4),
-          codeTree("1.1.2.1", codeTreeNode("type" to "d"))
+          vDataOf("type" to "d", "lines" to 4),
+          codeTree("1.1.2.1", vDataOf("type" to "d"))
         ),
-        codeTree("1.1.3", codeTreeNode("type" to "b"))
+        codeTree("1.1.3", vDataOf("type" to "b"))
       ),
-      codeTree("1.2", codeTreeNode("type" to "b")),
+      codeTree("1.2", vDataOf("type" to "b")),
       codeTree(
         "1.3",
-        codeTreeNode("type" to "a"),
-        codeTree("1.3.1", codeTreeNode("type" to "d"))
+        vDataOf("type" to "a"),
+        codeTree("1.3.1", vDataOf("type" to "d"))
       )
     )
 

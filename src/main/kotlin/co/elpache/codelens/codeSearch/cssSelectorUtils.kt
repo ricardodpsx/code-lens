@@ -22,6 +22,11 @@ fun matchesAttribute(sel: AttributeSelector, obj: VData): Boolean {
     "*=" -> value.contains(search)
     "^=" -> value.startsWith(search)
     "$=" -> value.endsWith(search)
+    ">" -> value.toDouble() > search.toDouble()
+    "<" -> value.toDouble() < search.toDouble()
+    ">=" -> value.toDouble() >= search.toDouble()
+    "<=" -> value.toDouble() <= search.toDouble()
+    "!=" -> value != search
     else -> false
   }
 }
