@@ -48,11 +48,10 @@ class AppController {
     evolutionUseCases.collectHistory(query, param, maxCommits)
 
 
-  @GetMapping("/smells")
+  @GetMapping("/smell")
   @ResponseBody
   fun smells() =
-    CodeSmellsUseCases.getSmellPresets()
-
+    codeSmellsUseCases.list()
 
   @GetMapping("/smell/{smellName}")
   @ResponseBody

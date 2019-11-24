@@ -1,10 +1,11 @@
 import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
-import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import Assessment from '@material-ui/icons/Assessment';
 import Explore from '@material-ui/icons/Explore';
 import {useHistory} from "react-router-dom";
+import Toolbar from "@material-ui/core/Toolbar/Toolbar";
+import IconButton from "@material-ui/core/IconButton/IconButton";
+import Typography from "@material-ui/core/Typography/Typography";
+import AppBar from "@material-ui/core/AppBar/AppBar";
 
 
 const useStyles = makeStyles({
@@ -19,18 +20,15 @@ export default function MainMenu() {
   const [value, setValue] = React.useState(0);
 
   return (
-     <BottomNavigation
-        value={value}
-        onChange={(event, newValue) => {
-          history.push(newValue);
-          setValue(newValue);
-        }}
-        showLabels
-        className={classes.root}
-     >
-       <BottomNavigationAction label="Explore" value="/" icon={<Explore/>}/>
-       <BottomNavigationAction label="Evolution" value="/history" icon={<Assessment/>}/>
-
-     </BottomNavigation>
+     <AppBar position="static">
+       <Toolbar>
+         <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
+           <Explore/>
+         </IconButton>
+         <Typography variant="h6" className={classes.title}>
+           Code Explorer
+         </Typography>
+       </Toolbar>
+     </AppBar>
   );
 }

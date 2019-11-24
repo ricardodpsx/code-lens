@@ -2,7 +2,7 @@ package codelens
 
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
-import co.elpachecode.codelens.cssSelector.search.finder
+import co.elpache.codelens.codeSearch.search.finder
 import org.assertj.core.api.SoftAssertions
 import org.junit.After
 import org.junit.Test

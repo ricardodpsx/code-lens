@@ -8,14 +8,16 @@ import org.junit.Test
 class CodeTreeTest {
 
   @Test
-  fun testCodeTree() {
+  fun `Test that tree children are built correctly`() {
+
     val ct = tree(
       "a",
       tree("a.1"),
       tree("a.2")
     )
 
-    assertThat(ct.children(ct.rootVid()).map { ct.v(it)["value"] }).contains("a.1", "a.2")
+    println(ct.asString())
+    assertThat(ct.children("a").map { ct.v(it)["value"] }).contains("a.1", "a.2")
   }
 
 

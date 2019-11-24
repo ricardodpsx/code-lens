@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 
-export default function HistoryMetrics({analytics:{ selectedParam = "", params = []} = {}, history:{ rows = [] } = {}}) {
+export default function HistoryMetrics({history = {}}) {
 
   const [state, setState] = useState({
     mean: {status: true, title: "Mean"},
@@ -29,7 +29,7 @@ export default function HistoryMetrics({analytics:{ selectedParam = "", params =
   const activeMetricsRows = (commitId) => {
     let row = [];
     Object.entries(state).forEach(([statKey, statData]) => {
-        if(statData.status)row.push(rows[commitId][statKey]);
+      if (statData.status) row.push(history[commitId][statKey]);
     });
     return row;
   }
@@ -55,8 +55,7 @@ export default function HistoryMetrics({analytics:{ selectedParam = "", params =
        chartType="ColumnChart"
        loader={<div>Loading Chart</div>}
        columns={["Commits", activeMetricsTitles(), {role: 'style'}].flat()}
-       rows={Object.keys(rows).map(commitId => [commitId, activeMetricsRows(commitId), commitId === 'Avg' ? 'color: #C62828' : ''].flat())}
-     // For tests
+       rows={Object.keys(history).map(commitId => [commitId, activeMetricsRows(commitId), commitId === 'Avg' ? 'color: #C62828' : ''].flat())}
        rootProps={{ 'data-testid': '2' }}
   />
   </div>

@@ -1,9 +1,9 @@
 package codelens.cssSelector
 
+import co.elpache.codelens.codeSearch.search.matchesAttribute
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
 import co.elpachecode.codelens.cssSelector.AttributeSelector
-import co.elpachecode.codelens.cssSelector.matchesAttribute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

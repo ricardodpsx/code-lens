@@ -22,6 +22,8 @@ class CodeLensApp {
   @Bean
   fun codeExplorerUseCases(factory: Factory) = CodeExplorerUseCases(factory)
 
+  @Bean
+  fun smellUseCases(factory: Factory) = CodeSmellsUseCases(factory)
 
   @Bean
   fun evolutionUseCases(factory: Factory): EvolutionUseCases {

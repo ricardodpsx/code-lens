@@ -3,9 +3,9 @@
 package co.elpachecode.codelens.cssSelector
 
 import co.elpache.codelens.QUOTED_STRING
-import co.elpache.codelens.defaultParser
-import co.elpache.codelens.rootParser
-import co.elpache.codelens.textParser
+import co.elpache.codelens.codeSearch.parser.defaultParser
+import co.elpache.codelens.codeSearch.parser.rootParser
+import co.elpache.codelens.codeSearch.parser.textParser
 import co.elpache.codelens.unwrap
 
 fun parseCssSelector(selector: String) = selectorParser.parse(selector)
@@ -14,23 +14,26 @@ fun parseTypeSelector(selector: String) = typeSelectorParser.parse(selector)
 
 fun typeSelector() = typeSelectorParser
 
+//Query ast
 data class CssSelectors(val selectors: List<TypeSelector>)
 
-class TypeSelector(
+data class TypeSelector(
   val name: String,
   val attributes: List<AttributeSelector>,
   val relationType: RelationType,
   val attributeToMatch: String = "type"
 )
 
-class AttributeSelector(
+data class AttributeSelector(
   val name: String,
   val op: String? = null,
   val value: String? = null
 )
 
+
+//Query Parser
 val selectorParser =
-  rootParser<CssSelectors>() {
+  rootParser<CssSelectors> {
     CssSelectors(selectors = atLeastOne(typeSelectorParser))
   }
 

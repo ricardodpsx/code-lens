@@ -1,12 +1,12 @@
 package co.elpache.codelens
 
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
 import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.useCases.CodeExplorerUseCases
 import co.elpache.codelens.useCases.CodeSmellsUseCases
-import co.elpachecode.codelens.cssSelector.search.finder
 import io.mockk.every
 import io.mockk.mockk
 

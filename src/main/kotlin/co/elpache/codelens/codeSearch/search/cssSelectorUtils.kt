@@ -1,6 +1,8 @@
-package co.elpachecode.codelens.cssSelector
+package co.elpache.codelens.codeSearch.search
 
 import co.elpache.codelens.tree.VData
+import co.elpachecode.codelens.cssSelector.AttributeSelector
+import co.elpachecode.codelens.cssSelector.TypeSelector
 
 fun matches(ce: VData, typeSelector: TypeSelector): Boolean {
 

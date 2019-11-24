@@ -1,4 +1,6 @@
-package co.elpache.codelens
+package co.elpache.codelens.codeSearch.parser
+
+import co.elpache.codelens.trimStart
 
 typealias Code = StringBuilder
 

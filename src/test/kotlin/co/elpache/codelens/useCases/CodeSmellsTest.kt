@@ -26,9 +26,9 @@ class CodeSmellsTest {
           vDataOf("type" to "files"),
           codeTree("3", vDataOf("type" to "fun", "params" to 2)),
           codeTree("4", vDataOf("type" to "fun", "params" to 2)),
-          codeTree("5", vDataOf("type" to "fun", "params" to 4))
+          codeTree("5", vDataOf("type" to "fun", "params" to 5))
         ),
-        codeTree("6", vDataOf("type" to "fun", "params" to 4)),
+        codeTree("6", vDataOf("type" to "fun", "params" to 5)),
         codeTree("7", vDataOf("type" to "fun", "params" to 2)),
         codeTree("8", vDataOf("type" to "fun", "params" to 3))
       )
@@ -36,10 +36,11 @@ class CodeSmellsTest {
 
     val results = uc.executeCodeSmell("longParameterList")
 
-    Assertions.assertThat(results.checkSmell).isTrue()
     Assertions.assertThat(results.analyticsResults.rows).containsExactly(
-      listOf(4, 2)
+      listOf(5, 2)
     )
+    Assertions.assertThat(results.checkSmell).isTrue()
+
     Assertions.assertThat(results.smellResults.results).containsExactly("5", "6")
     //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
   }

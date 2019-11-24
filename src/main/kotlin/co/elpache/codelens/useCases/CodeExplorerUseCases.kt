@@ -1,9 +1,9 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.search.finder
 
 data class SearchResults(
   val treeWithDescendants: CodeTree,
@@ -29,7 +29,6 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
   fun find(query: String) = code.finder().find(query)
 
-  //Todo: Separate into two use cases
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {

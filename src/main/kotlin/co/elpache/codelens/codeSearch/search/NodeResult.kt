@@ -1,11 +1,10 @@
-package co.elpachecode.codelens.cssSelector.search
+package co.elpache.codelens.codeSearch.search
 
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.RelationTypes
 import co.elpachecode.codelens.cssSelector.TypeSelector
-import co.elpachecode.codelens.cssSelector.matches
 import co.elpachecode.codelens.cssSelector.parseCssSelector
 
 fun CodeTree.finder() = NodeResult(rootVid(), this)

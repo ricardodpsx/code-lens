@@ -2,7 +2,7 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.app.database.AstRecord
-import co.elpachecode.codelens.cssSelector.search.finder
+import co.elpache.codelens.codeSearch.search.finder
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging

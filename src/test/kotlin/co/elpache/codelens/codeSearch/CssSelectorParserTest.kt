@@ -9,6 +9,7 @@ class CssSelectorParserTest {
 
   @Test
   fun cssParserSimpleSelect() {
+
     val root = parseCssSelector("class annotationEntry")
 
     assertThat(root.selectors[0].name).isEqualTo("class")

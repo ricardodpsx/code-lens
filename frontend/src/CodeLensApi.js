@@ -1,5 +1,8 @@
+const baseUrl = `http://localhost:8080`;
+
+
 export function loadGraph(query, onResult) {
-  fetch('http://localhost:8080/?query=file%20' + encodeURIComponent(query))
+  fetch(`${baseUrl}/?query=file%20` + encodeURIComponent(query))
      .then(function (response) {
        return response.json();
      })
@@ -14,7 +17,7 @@ export function loadGraph(query, onResult) {
 
 export function loadFile(selectedFile, onFileSelect) {
 
-  fetch(`http://localhost:8080/node/${selectedFile.vid}`)
+  fetch(`${baseUrl}/node/${selectedFile.vid}`)
      .then(function (response) {
        return response.json();
      })
@@ -25,7 +28,7 @@ export function loadFile(selectedFile, onFileSelect) {
 }
 
 export function loadMetrics(param, query, onMetricsLoaded) {
-  fetch(`http://localhost:8080/analytics/${param}?query=file%20${encodeURIComponent(query)}`)
+  fetch(`${baseUrl}/analytics/${param}?query=file%20${encodeURIComponent(query)}`)
      .then(function (response) {
        return response.json();
      })
@@ -33,3 +36,14 @@ export function loadMetrics(param, query, onMetricsLoaded) {
        onMetricsLoaded(data)
      })
 }
+
+export function loadSmells(onSmellsLoaded) {
+  fetch(`${baseUrl}/smell/`)
+     .then(function (response) {
+       return response.json();
+     })
+     .then(function (data) {
+       onSmellsLoaded(data)
+     })
+}
+

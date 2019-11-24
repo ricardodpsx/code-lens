@@ -1,4 +1,4 @@
-package co.elpachecode.codelens.cssSelector.search
+package co.elpache.codelens.codeSearch.search
 
 import co.elpache.codelens.tree.Vid
 
@@ -17,4 +17,5 @@ class NodeResultSet(val list: List<NodeResult>) : List<NodeResult> by list {
   }
 }
 
-fun Collection<NodeResult>.toResultSet() = NodeResultSet(this.toList())
+fun Collection<NodeResult>.toResultSet() =
+  NodeResultSet(this.toList())

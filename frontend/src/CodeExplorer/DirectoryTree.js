@@ -1,9 +1,13 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import '../App.css';
 /* eslint no-console:0, react/no-danger: 0 */
 import 'rc-tree/assets/index.css';
 import Tree, {TreeNode} from 'rc-tree';
 import cssAnimation from 'css-animation';
+import Paper from "@material-ui/core/Paper/Paper";
+import {useStyles} from "../baseStyles";
+import Link from "@material-ui/core/Link/Link";
+import {Title} from "../common";
 
 const STYLE = `
 .collapse {
@@ -57,37 +61,67 @@ function expand(g, v) {
   )
 }
 
-class DirectoryTree extends Component {
 
-  constructor(props = {onFileSelect:()=>{}}) {
-    super(props)
-    this.state = {code: ''}
-  }
+function TreeCollapsed({handleSelect, graph}) {
+  return <Tree
+     onSelect={handleSelect}
+     defaultExpandAll={false}
+     defaultExpandedKeys={[graph.rootVid]}
+     //openAnimation={animation}
+  >{expand(graph, graph.rootVid)}
+  </Tree>
+}
 
-  handleSelect = (keys)=> {
+function TreeExpanded({handleSelect, graph}) {
+  return <Tree
+     onSelect={handleSelect}
+     defaultExpandAll={true}
+     defaultExpandedKeys={[graph.rootVid]}
+     //openAnimation={animation}
+  >{expand(graph, graph.rootVid)}
+  </Tree>
+}
+
+
+function DirectoryTree({results, graph, onFileSelect}) {
+
+  const classes = useStyles();
+
+  const handleSelect = (keys) => {
     if(keys.length !== 1) return true;
-    this.props.onFileSelect({vid: keys[0], name: this.props.graph[keys[0]].name, data: this.props.graph[keys[0]].data})
+    onFileSelect({vid: keys[0], name: graph[keys[0]].name, data: graph[keys[0]].data})
     return true
   }
 
-  render() {
-    if(this.props.results.length == 0)
-      return <div>...loading</div>
+  let [expanded, doExpand] = useState(false)
 
-    return (
-      <div>
-          <style dangerouslySetInnerHTML={{ __html: STYLE }}/>
-            <Tree
-               onSelect={this.handleSelect}
-               defaultExpandAll={false}
-               defaultExpandedKeys={[this.props.graph.rootVid]}
-              //openAnimation={animation}
-            >
-              {expand(this.props.graph, this.props.graph.rootVid)}
-            </Tree>
-      </div>
-    )
-  }
+  return (
+     <div className={classes.root}>
+       <Paper className={classes.paper}>
+
+         <Title title="Directory"/>
+
+         <style dangerouslySetInnerHTML={{__html: STYLE}}/>
+         <Link href="#" color="primary" variant="body2" onClick={e => {
+           e.preventDefault();
+           doExpand(true)
+         }}>expand</Link>&nbsp;
+         | &nbsp;<Link href="#" color="primary" variant="body2" onClick={e => {
+         e.preventDefault();
+         doExpand(false)
+       }}>collapse</Link>
+
+         {//This dumb code was necesary because the library doesn't support just expanding the tree
+           !!results.length &&
+           (expanded ?
+              <TreeExpanded graph={graph} handleSelect={handleSelect}/>
+              : <TreeCollapsed graph={graph} handleSelect={handleSelect}/>)
+         }
+
+       </Paper>
+     </div>
+  )
+
 }
 
 

@@ -1,8 +1,8 @@
 package co.elpache.codelens.codeSearch
 
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.vDataOf
-import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

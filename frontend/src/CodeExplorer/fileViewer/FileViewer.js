@@ -2,7 +2,7 @@ import React from "react";
 //import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
 import "./FileViewer.css"
 import CodeEntity from "./CodeEntity";
-import {slice} from "./treeUtils";
+import {slice} from "../treeUtils";
 
 
 function TextParts({text, nodeData}) {

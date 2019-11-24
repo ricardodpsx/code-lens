@@ -2,8 +2,8 @@ package codelens
 
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.selectCode
-import co.elpachecode.codelens.cssSelector.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

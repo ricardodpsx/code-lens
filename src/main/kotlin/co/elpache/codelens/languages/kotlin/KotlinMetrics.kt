@@ -1,8 +1,8 @@
 package co.elpache.codelens.languages.kotlin
 
+import co.elpache.codelens.codeSearch.search.NodeResult
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.search.NodeResult
 import kotlin.math.max
 
 fun applyKotlinMetrics(fileNode: NodeResult) {

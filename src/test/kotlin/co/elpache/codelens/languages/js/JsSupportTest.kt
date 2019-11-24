@@ -1,6 +1,6 @@
 package codelens
 
-import co.elpachecode.codelens.cssSelector.search.finder
+import co.elpache.codelens.codeSearch.search.finder
 import org.junit.Test
 
 

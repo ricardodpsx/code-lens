@@ -1,6 +1,6 @@
 package co.elpache.codelens.codeLoader
 
-import co.elpachecode.codelens.cssSelector.search.NodeResult
+import co.elpache.codelens.codeSearch.search.NodeResult
 import java.io.File
 
 val languageSupportRegistry = mutableMapOf<String, LanguageIntegration>()

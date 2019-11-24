@@ -1,5 +1,5 @@
 import React from 'react';
-import {slice} from './treeUtils'
+import {slice} from '../treeUtils'
 
 
 it('Can slice the ast text', () => {

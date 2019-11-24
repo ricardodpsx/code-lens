@@ -1,9 +1,9 @@
 package co.elpache.codelens.codeLoader
 
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.search.finder
 
 interface NodeLoader {
   fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?)

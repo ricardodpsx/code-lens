@@ -2,11 +2,12 @@ import Grid from "@material-ui/core/Grid/Grid";
 import Paper from "@material-ui/core/Paper/Paper";
 import TextField from "@material-ui/core/TextField/TextField";
 import DirectoryTree from "./DirectoryTree";
-import FileViewer from "./FileViewer";
+import FileViewer from "./fileViewer/FileViewer";
 import CodeEntityData from "./CodeData";
 import Metrics from "./Metrics";
 import React, {useEffect, useState} from "react";
-import {loadFile, loadGraph, loadMetrics} from "./CodeLensApi";
+import {loadFile, loadGraph, loadMetrics} from "../CodeLensApi";
+import SmellList from "./SmellList";
 
 
 export function CodeExplorer() {
@@ -49,6 +50,10 @@ export function CodeExplorer() {
               variant="outlined"
            />
 
+           <SmellList
+              onSmellSelection={smell => setQuery(smell.query)}
+           />
+
            <DirectoryTree
               query={query}
               results={results}
@@ -80,10 +85,11 @@ export function CodeExplorer() {
          />
 
          <Metrics
+            query={query}
             onParamChange={selectMetric}
             params={metricNames}
             rows={metricData}
-            selectedParam={selectedMetric}
+            selectedMetric={selectedMetric}
          />
        </Grid>
      </Grid>
