@@ -11,10 +11,12 @@ import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 
+
 @SpringBootApplication
 class CodeLensApp {
 
   private val logger = KotlinLogging.logger {}
+
 
   @Bean
   fun factory(context: ApplicationContext) = Factory(context = context)
@@ -35,6 +37,7 @@ class CodeLensApp {
 
     return ec
   }
+
 
   @Bean
   fun codeSmellsUseCases(factory: Factory) = CodeSmellsUseCases(factory)

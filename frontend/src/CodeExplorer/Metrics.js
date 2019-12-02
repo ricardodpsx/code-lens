@@ -1,21 +1,11 @@
 import React from "react";
 import Chart from 'react-google-charts';
-import History from "../CodeEvolution/History";
-import {Title} from "../common";
 
 
-export default function Metrics({selectedMetric = "", query, params = [], rows = [], onParamChange}) {
+export default function Metrics({selectedMetric = "", query, rows = []}) {
+  if (!selectedMetric) return null
 
   return <div>
-
-    <select name="metricNames" onChange={e => onParamChange(e.target.value)}>
-      <option>--Select--</option>
-      {params.map( p => <option value={p} key={p} >{p}</option>)}
-    </select>
-
-    {selectedMetric &&
-    <div>
-      <Title title="Frequency Metrics"/>
     <Chart
        width={'500px'}
        height={'300px'}
@@ -25,14 +15,6 @@ export default function Metrics({selectedMetric = "", query, params = [], rows =
        rows={rows}
        // For tests
        rootProps={{'data-testid': '2'}}
-    /></div>}
+    /></div>
 
-
-    {selectedMetric &&
-    <History
-       query={query}
-       selectedMetric={selectedMetric}
-       rows={rows}
-    />}
-  </div>
 }

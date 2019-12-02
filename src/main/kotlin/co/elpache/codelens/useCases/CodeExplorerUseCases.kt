@@ -1,6 +1,7 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.codeSearch.search.NodeResult
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
@@ -25,20 +26,20 @@ data class AnalyticsResults(val rows: List<List<Int>>)
 
 class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
-  val code = factory.createBaseCode()
+  val codeTreee = factory.createBaseCode()
 
-  fun find(query: String) = code.finder().find(query)
+  fun find(query: String) = codeTreee.finder().find(query)
 
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {
       val res = find(query).vids()
       SearchResults(
-        code.treeFromChildren(res),
+        codeTreee.treeFromChildren(res),
         res
       )
     } catch (e: Exception) {
-      SearchResults(code)
+      SearchResults(codeTreee)
     }
   }
 
@@ -65,8 +66,8 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      code.v(vid).code,
-      code.subTree(vid).toMap()
+      NodeResult(vid, codeTreee).code,
+      codeTreee.subTree(vid).toMap()
     )
 
   fun getPossibleIntParams(query: String) =

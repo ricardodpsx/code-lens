@@ -13,7 +13,17 @@ open class NodeResult(val vid: Vid, val tree: CodeTree) {
 
   fun codeNode() = tree.v(vid)
 
-  open val code: String get() = tree.v(vid).code
+  open val code: String
+    get() {
+      return if (tree.v(vid).type == "file")
+        tree.v(vid).getString("code")
+      else {
+        val fileNode = tree.ancestors(vid).first { tree.v(it).type == "file" }
+        val contents = tree.v(fileNode).getString("code")
+        contents.substring(tree.v(vid).startOffset, tree.v(vid).endOffset)
+      }
+    }
+
   open val data: VData get() = tree.v(vid)
   open val children: NodeResultSet
     get() = tree.children(vid).map {

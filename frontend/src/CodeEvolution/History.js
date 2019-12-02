@@ -20,14 +20,15 @@ function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
 function History({selectedMetric, query}) {
   let [history, setHistory] = useState([])
 
+  if (!selectedMetric) return null
+
   useEffect(() => {
     loadHistory(selectedMetric, query, setHistory)
   }, [selectedMetric, query])
 
   return (<div>
     <Title title={`Evolution of Metric ${selectedMetric}`}/>
-    <HistoryMetrics
-       history={history}/>
+    <HistoryMetrics history={history}/>
   </div>);
 
 

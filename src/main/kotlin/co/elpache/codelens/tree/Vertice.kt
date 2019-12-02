@@ -23,11 +23,11 @@ fun vDataOf(vararg pair: Pair<String, Any?>): VData {
 }
 
 class VData : HashMap<String, Any>() {
-  val code: String get() = this["code"] as String
+  val fileNode: String get() = this["fileNode"] as Vid
   val type: String get() = this["type"] as String
 
-  val startOffset: Int get() = this["startOfffset"] as Int
-  val endOffset: Int get() = this["startOfffset"] as Int
+  val startOffset: Int get() = this["startOffset"] as Int
+  val endOffset: Int get() = this["endOffset"] as Int
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
   fun getInt(key: String): Int = (this[key] as? Int) ?: 0

@@ -12,7 +12,6 @@ fun codeNodeBase(type: String, start: Int, end: Int, astType: String, file: File
     "type" to type,
     "startOffset" to start,
     "endOffset" to end,
-    "code" to code,
     "astType" to astType,
     "firstLine" to code.firstLine(),
     "name" to name

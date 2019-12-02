@@ -12,6 +12,9 @@ const useStyles = makeStyles({
   root: {
     width: 500,
   },
+  appBar: {
+    marginBottom: 20
+  }
 });
 
 export default function MainMenu() {
@@ -20,7 +23,7 @@ export default function MainMenu() {
   const [value, setValue] = React.useState(0);
 
   return (
-     <AppBar position="static">
+     <AppBar className={classes.appBar} position="static">
        <Toolbar>
          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
            <Explore/>

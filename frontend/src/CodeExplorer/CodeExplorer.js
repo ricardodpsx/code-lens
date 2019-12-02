@@ -8,6 +8,30 @@ import Metrics from "./Metrics";
 import React, {useEffect, useState} from "react";
 import {loadFile, loadGraph, loadMetrics} from "../CodeLensApi";
 import SmellList from "./SmellList";
+import Tabs from "@material-ui/core/Tabs/Tabs";
+import Tab from "@material-ui/core/Tab/Tab";
+import Typography from "@material-ui/core/Typography/Typography";
+import Box from "@material-ui/core/Box/Box";
+import History from "../CodeEvolution/History";
+import MetricNameSelect from "./MetricNameSelect";
+
+
+function TabPanel(props) {
+  const {children, value, index, ...other} = props;
+
+  return (
+     <Typography
+        component="div"
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+     >
+       <Box p={3}>{value == index ? children : null}</Box>
+     </Typography>
+  );
+}
 
 
 export function CodeExplorer() {
@@ -37,6 +61,9 @@ export function CodeExplorer() {
     if (selectedMetric) loadMetrics(selectedMetric, query, setMetricData)
   }, [selectedMetric, query])
 
+  const [activeTab, setActiveTab] = useState(0);
+
+
   return (
      <Grid container spacing={3}>
        <Grid item xs={2}>
@@ -58,12 +85,55 @@ export function CodeExplorer() {
               query={query}
               results={results}
               graph={codeTree}
-              onFileSelect={selectFileNode}
+              onFileSelect={file => {
+                selectNode(file.vid)
+                selectFileNode(file);
+              }}
            />
          </Paper>
        </Grid>
 
        <Grid item xs={6}>
+         <Paper>
+
+           <Tabs value={activeTab} onChange={(event, newValue) => setActiveTab(newValue)}>
+             <Tab label="Node Info"/>
+             <Tab label="Frequency"/>
+             <Tab label="Frequency in Time"/>
+             <Tab label="Evolution of Param"/>
+           </Tabs>
+           <TabPanel value={activeTab} index={0}>
+             <CodeEntityData
+                onNodeSelected={selectNode}
+                className="CodeEntityData"
+                vid={selectedNode}
+                ast={ast}
+                text={text}
+             />
+           </TabPanel>
+           <TabPanel value={activeTab} index={1}>
+             <MetricNameSelect
+                params={metricNames}
+                value={selectedMetric}
+                onParamChange={selectMetric}/>
+             <Metrics
+                query={query}
+                rows={metricData}
+                selectedMetric={selectedMetric}
+             />
+           </TabPanel>
+           <TabPanel value={activeTab} index={2}>
+             <MetricNameSelect
+                params={metricNames}
+                value={selectedMetric}
+                onParamChange={selectMetric}/>
+             <History
+                query={query}
+                selectedMetric={selectedMetric}
+             />
+           </TabPanel>
+
+         </Paper>
          <Paper>
            <FileViewer
               text={text}
@@ -75,23 +145,6 @@ export function CodeExplorer() {
          </Paper>
        </Grid>
 
-       <Grid item xs={4}>
-         <CodeEntityData
-            onNodeSelected={selectNode}
-            className="CodeEntityData"
-            vid={selectedNode}
-            ast={ast}
-            text={text}
-         />
-
-         <Metrics
-            query={query}
-            onParamChange={selectMetric}
-            params={metricNames}
-            rows={metricData}
-            selectedMetric={selectedMetric}
-         />
-       </Grid>
      </Grid>
   );
 }
