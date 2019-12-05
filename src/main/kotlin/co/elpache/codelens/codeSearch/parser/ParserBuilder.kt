@@ -23,6 +23,8 @@ abstract class ParserBuilder<T>(
 
   fun <R> oneOf(vararg items: ParserBuilder<R>): R = items.first { it.lookAhead(code) }.takeSet(code)
 
+  fun either(vararg items: ParserBuilder<*>): Any = items.first { it.lookAhead(code) }.takeSet(code)!!
+
 
   fun <R> one(p: ParserBuilder<R>): R = p.takeSet(code)
 
@@ -75,6 +77,9 @@ open class DefaultParser<T>(
 
 fun <T> defaultParser(exp: String, lookAhead: String = exp, definition: ParserDefinition<T>) =
   DefaultParser(Regex(exp), Regex(lookAhead), definition)
+
+fun <T> defaultParser(exp: Regex, lookAhead: Regex = exp, definition: ParserDefinition<T>) =
+  DefaultParser(exp, lookAhead, definition)
 
 fun textParser(exp: String, lookAhead: String = exp, definition: ParserDefinition<String> = { text -> text }) =
   DefaultParser(Regex(exp), Regex(lookAhead), definition)

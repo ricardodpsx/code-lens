@@ -2,11 +2,18 @@ package co.elpache.codelens.languages.js
 
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
+import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 import kotlin.streams.toList
+
+
+fun jsInit() {
+  languageSupportRegistry["js"] = jsLanguageIntegration
+}
+
 
 val jsLanguageIntegration = LanguageIntegration(
   fileLoaderBuilder = ::JsFileLoader,
@@ -14,7 +21,6 @@ val jsLanguageIntegration = LanguageIntegration(
   onBaseCodeLoad = ::preloadParsedFiles
 )
 val parsedCache = HashMap<String, JsonNode>()
-
 
 class JsFileLoader(file: File) : FileLoader(file, "js") {
 
@@ -36,9 +42,7 @@ class JsFileLoader(file: File) : FileLoader(file, "js") {
       traverseChilds(it, ce, visitor)
     }
   }
-
 }
-
 
 /**
  * As Javascript parsing is calling a nodeJs process, parsing files in bundles is more efficient than parsing them one by one.

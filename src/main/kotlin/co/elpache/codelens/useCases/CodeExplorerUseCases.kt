@@ -22,7 +22,8 @@ data class NodeContentsResults(
   val ast: Map<String, Any>
 )
 
-data class AnalyticsResults(val rows: List<List<Int>>)
+data class ParamFrequencyRow(val paramValue: Int, val frequency: Int, val nodes: List<Vid>)
+data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
 class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
@@ -53,14 +54,15 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
     }
   }
 
-
-  fun getFrequencyByParam(query: Vid, param: String) =
+  //Gets the distribution of parameters in nodes,
+  //This make it easy to answer questions like "how many functions have more than 5 params" etc
+  fun getParamDistribution(query: String, param: String) =
     AnalyticsResults(
       frequency(find(query).paramsValues(param))
     )
 
 
-  fun getStatistics(query: String, param: String): DescriptiveStatistics {
+  fun getMetricEvolution(query: String, param: String): DescriptiveStatistics {
     return statistics(find(query).paramsValues(param))
   }
 

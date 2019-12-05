@@ -47,3 +47,27 @@ export function loadSmells(onSmellsLoaded) {
      })
 }
 
+export function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
+  let that = this;
+  fetch(`${baseUrl}/history/${selectedMetric}?query=` + encodeURIComponent(query)
+     + '&maxCommits=' + encodeURIComponent(maxCommits)
+  )
+     .then(function (response) {
+       return response.json();
+     })
+     .then(function (data) {
+       onLoad(data)
+     })
+}
+
+export function loadFrequencyHistory(query, onLoad, maxCommits = 15) {
+  let that = this;
+  fetch(`${baseUrl}/frequency-evolution/?query=` + encodeURIComponent(query)
+     + '&maxCommits=' + encodeURIComponent(maxCommits)
+  ).then(function (response) {
+    return response.json();
+  })
+     .then(function (data) {
+       onLoad(data)
+     })
+}

@@ -39,13 +39,19 @@ class AppController {
   @GetMapping("/analytics/{param}")
   @ResponseBody
   fun analytics(@PathVariable param: String, @RequestParam query: String) =
-    codeExplorerUseCases.getFrequencyByParam(query, param).rows
+    codeExplorerUseCases.getParamDistribution(query, param).rows
 
 
   @GetMapping("/history/{param}")
   @ResponseBody
   fun history(@PathVariable param: String, @RequestParam query: String, @RequestParam maxCommits: Int) =
     evolutionUseCases.collectHistory(query, param, maxCommits)
+
+
+  @GetMapping("/frequency-evolution/")
+  @ResponseBody
+  fun frequencyEvolution(@RequestParam query: String, @RequestParam maxCommits: Int) =
+    evolutionUseCases.collectFrequency(query, maxCommits)
 
 
   @GetMapping("/smell")

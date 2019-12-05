@@ -116,7 +116,7 @@ open class CodeTree {
   fun toMap(): Map<String, Any> {
     return vertices.map {
       it.key to mapOf(
-        "data" to it.value.data,
+        "data" to it.value.data.minus("code"),
         "parent" to it.value.parent,
         "children" to it.value.children.toList()
       )

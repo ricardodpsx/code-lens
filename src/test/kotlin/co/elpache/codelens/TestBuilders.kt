@@ -37,6 +37,9 @@ fun codeTree(vid: String, node: VData, vararg expands: CodeTree): CodeTree {
   return tree
 }
 
+fun createCommits(vararg commits: String) = commits.map { createCommit(it) }
+
+
 fun tree(vid: String, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
   tree = tree.addIfAbsent(vid, vDataOf("value" to vid))
@@ -73,3 +76,4 @@ fun join(parent: CodeTree, child: CodeTree) {
 
 }
 
+fun createCommit(commit: String) = Commit(commit, "", 0)

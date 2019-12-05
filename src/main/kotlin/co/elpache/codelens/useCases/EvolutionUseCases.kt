@@ -1,5 +1,6 @@
 package co.elpache.codelens.useCases
 
+import co.elpache.codelens.Commit
 import co.elpache.codelens.Factory
 import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.codeSearch.search.finder
@@ -13,19 +14,23 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
   private val logger = KotlinLogging.logger {}
 
 
+  data class ParamEvolutionRow(
+    val commit: Commit,
+    val statistics: DescriptiveStatistics
+  )
+
   fun collectHistory(query: String, param: String, maxCommits: Int) =
     collectHistory(query, param, factory.repo.lastCommits(maxCommits))
 
-  fun collectHistory(query: String, param: String, commits: List<String>): Map<String, DescriptiveStatistics> {
+  fun collectHistory(query: String, param: String, commits: List<Commit>): List<ParamEvolutionRow> {
 
     logger.info { "Starting collecting history of $commits" }
-    val history = LinkedHashMap<String, DescriptiveStatistics>()
+    val history = ArrayList<ParamEvolutionRow>()
     commits.forEach {
-      val code = factory.createBaseCode(it)
-      history[it] = statistics(code.finder().find(query).paramsValues(param))
+      val code = factory.createBaseCode(it.id)
+      history.add(ParamEvolutionRow(it, statistics(code.finder().find(query).paramsValues(param))))
     }
     logger.info { "Finished collecting history of $commits" }
-
 
     return history
   }
@@ -50,14 +55,30 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
     preloadCommits(factory.repo.lastCommits(maxCommits))
   }
 
-  fun preloadCommits(commits: List<String>) {
+  fun preloadCommits(commits: List<Commit>) {
     logger.info { "Preloading ${commits}" }
     commits
-      .filter { factory.getAstDatabase().findByCommit(it) == null }
+      .filter { factory.getAstDatabase().findByCommit(it.id) == null }
       .forEach {
-        val code = factory.createBaseCode(it)
-        factory.getAstDatabase().save(AstRecord(it, mapper.writeValueAsString(code)))
+        val code = factory.createBaseCode(it.id)
+        factory.getAstDatabase().save(AstRecord(it.id, mapper.writeValueAsString(code)))
       }
+  }
+
+  fun collectFrequency(query: String, maxCommits: Int): List<EvolutionOfFrequency> =
+    collectFrequency(query, factory.repo.lastCommits(maxCommits))
+
+  data class EvolutionOfFrequency(val commit: Commit, val frequency: Int)
+
+  fun collectFrequency(query: String, commits: List<Commit>): List<EvolutionOfFrequency> {
+    val frequencies = ArrayList<EvolutionOfFrequency>()
+    logger.info { "Starting collecting history of $commits" }
+    commits.forEach {
+      val code = factory.createBaseCode(it.id)
+      frequencies.add(EvolutionOfFrequency(it, code.finder().find(query).size))
+    }
+    logger.info { "Finished collecting history of $commits" }
+    return frequencies
   }
 
 }

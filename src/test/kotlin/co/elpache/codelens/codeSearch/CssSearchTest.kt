@@ -9,11 +9,9 @@ import org.junit.Test
 class CssSearchTest {
   val tree =
     codeTree(
-      "1",
-      vDataOf("type" to "a", "name" to "parent"),
+      "1", vDataOf("type" to "a", "name" to "parent"),
       codeTree(
-        "1.1",
-        vDataOf("type" to "b"),
+        "1.1", vDataOf("type" to "b"),
         codeTree(
           "1.1.1", vDataOf("type" to "c", "lines" to 3),
           codeTree("1.1.1.1", vDataOf("type" to "e"))
@@ -33,7 +31,30 @@ class CssSearchTest {
       )
     )
 
-  private fun search(query: String) = tree.finder().find(query).map { it.vid }
+  val treeWithFunctions =
+    codeTree(
+      "1", vDataOf("type" to "file", "name" to "code.kt"),
+      codeTree(
+        "1.1", vDataOf("type" to "fun"),
+        codeTree(
+          "1.1.1", vDataOf("type" to "param"),
+          codeTree(
+            "1.1.1.1", vDataOf("type" to "int")
+          )
+        ),
+        codeTree(
+          "1.1.2", vDataOf("type" to "param")
+        )
+      ),
+      codeTree(
+        "2.1", vDataOf("type" to "fun"),
+        codeTree(
+          "2.1.1", vDataOf("type" to "param")
+        )
+      )
+    )
+
+  private fun search(query: String) = tree.finder().find(query).vids()
 
   @Test
   fun `Test Single child`() {
@@ -46,6 +67,28 @@ class CssSearchTest {
     println(tree.asString())
     assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
     assertThat(search("a[name='parent'] d d")).containsExactlyInAnyOrder("1.1.2.1")
+  }
+
+
+  @Test
+  fun `Aggregator search`() {
+    assertThat(tree.finder().find("a b | count").value()).isEqualTo(3)
+  }
+
+  @Test
+  fun `Can set metrics into nodes with SET sintax`() {
+    val res = treeWithFunctions.finder().setQuery("SET (fun) paramCount = (param|count)")
+
+    assertThat(res.vids()).containsExactly("1.1", "2.1")
+
+    assertThat(treeWithFunctions.v("1.1").getInt("paramCount")).isEqualTo(2)
+    assertThat(treeWithFunctions.v("2.1").getInt("paramCount")).isEqualTo(1)
+  }
+
+  @Test
+  fun `Test nested query`() {
+    val res = treeWithFunctions.finder().find("fun:has(param int)")
+    assertThat(res.vids()).containsExactly("1.1")
   }
 
 

@@ -12,11 +12,13 @@ export default function CodeEntityData({
 
   if (!data) return null
 
+  let path = parents(ast[vid].parent, ast).map(pVid => [pVid, vertice(pVid, ast)])
+
   return <div className="codeEntityInfo">
-    {parents(ast[vid].parent, ast).map(pVid => [pVid, vertice(pVid, ast)]).map(([pVid, v]) =>
-       <span onClick={() => onNodeSelected(pVid)}>{v.type} &#9658; </span>
-    )}
-    {data.type}
-    {Object.entries(data).map(([k, v]) => <div><strong>{k}: </strong>{v}</div>)}
+    {path.map(([pVid, v]) =>
+       <i onClick={() => onNodeSelected(pVid)}>{v.type} &#9658; </i>)}
+    {<i>{data.type}</i>}
+    <br/>
+    {Object.entries(data).map(([k, v]) => <span><strong>{k}: </strong>{v} | </span>)}
   </div>
 }

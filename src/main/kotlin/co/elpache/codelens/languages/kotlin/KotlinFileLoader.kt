@@ -2,6 +2,7 @@ package co.elpache.codelens.languages.kotlin
 
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
+import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.tree.VData
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -14,6 +15,12 @@ import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
 
+
+fun kotlinInit() {
+  languageSupportRegistry["kt"] = kotlinLanguageIntegration
+
+
+}
 
 val kotlinLanguageIntegration = LanguageIntegration(
   fileLoaderBuilder = ::KotlinFileLoader,

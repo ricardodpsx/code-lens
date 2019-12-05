@@ -2,8 +2,9 @@ package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeTree
-import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.createCodeExplorerUseCases
+import co.elpache.codelens.createCommits
+import co.elpache.codelens.tree.vDataOf
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -59,15 +60,16 @@ class AnalyticsTest {
       )
     )
 
-    val results = uc.getFrequencyByParam("fun", "lines")
+    val results = uc.getParamDistribution("fun", "lines")
 
     assertThat(results.rows).containsExactly(
-      listOf(4, 2), listOf(6, 3)
+      ParamFrequencyRow(4, 2, listOf("5", "6")),
+      ParamFrequencyRow(6, 3, listOf("3", "4", "7"))
     )
   }
 
   @Test
-  fun `Can get statistics`() {
+  fun `Can get evolution of a given metric`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
         "1",
@@ -85,7 +87,7 @@ class AnalyticsTest {
       )
     )
 
-    val statistics = uc.getStatistics("fun", "lines")
+    val statistics = uc.getMetricEvolution("fun", "lines")
 
     assertThat(statistics.median).isCloseTo(3.5, Offset.offset(0.01))
     assertThat(statistics.max).isCloseTo(10.0, Offset.offset(0.01))
@@ -94,9 +96,10 @@ class AnalyticsTest {
 
   }
 
-
   @Test
-  fun `can see evolution of median and average of a metric`() {
+  fun `can see evolution of frequency`() {
+
+    //I.E Have the functions with more than certain lines size increased?
 
     val comm1 =
       codeTree(
@@ -106,7 +109,7 @@ class AnalyticsTest {
           "2",
           vDataOf("type" to "files"),
           codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 10))
+          codeTree("4", vDataOf("type" to "fun", "lines" to 3))
         )
       )
 
@@ -118,7 +121,8 @@ class AnalyticsTest {
           "2",
           vDataOf("type" to "files"),
           codeTree("3", vDataOf("type" to "fun", "lines" to 7)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 7))
+          codeTree("4", vDataOf("type" to "fun", "lines" to 8)),
+          codeTree("5", vDataOf("type" to "fun", "lines" to 9))
         )
       )
 
@@ -129,8 +133,9 @@ class AnalyticsTest {
         codeTree(
           "2",
           vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 3)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 4))
+          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
+          codeTree("4", vDataOf("type" to "fun", "lines" to 4)),
+          codeTree("5", vDataOf("type" to "fun", "lines" to 9))
         )
       )
     val factory = mockk<Factory>()
@@ -144,18 +149,23 @@ class AnalyticsTest {
     } returns comm2
 
     every {
-      factory.createBaseCode()
+      factory.createBaseCode("commit3")
     } returns current
 
 
-    val uc = EvolutionUseCases(factory)
-    val results = uc.collectHistory("fun", "lines", listOf("commit1", "commit2"))
+    val commits = createCommits("commit1", "commit2")
 
-    assertThat(
-      results.values
-    ).extracting("max").containsExactly(10.0, 7.0)
+    val uc = EvolutionUseCases(factory)
+    val results = uc.collectFrequency(
+      "fun[lines>=6]",
+      createCommits("commit1", "commit2", "commit3")
+    )
+
+    assertThat(results.map { it.commit.id to it.frequency }).containsExactly(
+      "commit1" to 1,
+      "commit2" to 3,
+      "commit3" to 2
+    )
 
   }
-
-
 }

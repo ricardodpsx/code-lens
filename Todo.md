@@ -41,12 +41,13 @@
 -[ ] Reload button
 -[ ] Slots/Buckets for charts #charts
 -[ ] Duplicated code #metrics
--[ ] Error Handling: Good error messages for broken files
+-[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
+-[ ] Progress bar when loading history etc
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Aggregators on the search language (count, sum)
 -[ ] Spin loaders for > 1s operations
 -[ ] Add commit metrics
-
+-[ ] Config and setup (Load a new project etc)
 
 IceBox:
 

@@ -2,6 +2,7 @@ package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.app.CodeLensApp
+import co.elpache.codelens.createCommits
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.junit4.SpringRunner
+
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
@@ -36,18 +38,19 @@ class AnalyticsIntegrationTest {
     assertThat(results).contains("depth", "lines")
   }
 
+
   @Test
   fun `Can see change in a function`() {
+    val commits = createCommits("d37fb4b", "a1e3958")
     val uc = EvolutionUseCases(factory!!)
-    uc.preloadCommits(listOf("d37fb4b", "a1e3958"))
+    uc.preloadCommits(commits)
 
     val statistics = uc.collectHistory(
-      "#kotlin #ExampleClass #functionWithParams", "params",
-      listOf("d37fb4b", "a1e3958")
+      "#kotlin #ExampleClass #functionWithParams", "params", commits
     )
 
-    assertThat(statistics["d37fb4b"]?.max).isEqualTo(2.0)
-    assertThat(statistics["a1e3958"]?.max).isEqualTo(3.0)
+    assertThat(statistics[0]?.statistics.max).isEqualTo(2.0)
+    assertThat(statistics[1]?.statistics.max).isEqualTo(3.0)
   }
 
   @Test
@@ -55,11 +58,11 @@ class AnalyticsIntegrationTest {
     val uc = EvolutionUseCases(factory!!)
     val statistics = uc.collectHistory(
       "#ExampleClass", "methods",
-      listOf("e3b714c", "e323c18")
+      createCommits("e3b714c", "e323c18")
     )
 
-    assertThat(statistics["e3b714c"]?.max).isEqualTo(1.0)
-    assertThat(statistics["e323c18"]?.max).isEqualTo(2.0)
+    assertThat(statistics[0]?.statistics.max).isEqualTo(1.0)
+    assertThat(statistics[1]?.statistics.max).isEqualTo(2.0)
   }
 
 }

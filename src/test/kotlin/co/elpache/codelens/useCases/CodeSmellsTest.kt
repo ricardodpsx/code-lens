@@ -44,7 +44,7 @@ class CodeSmellsTest {
     val results = uc.executeCodeSmell("longParameterList")
 
     Assertions.assertThat(results.analyticsResults.rows).containsExactly(
-      listOf(5, 2)
+      ParamFrequencyRow(5, 2, listOf("5", "6"))
     )
     Assertions.assertThat(results.isStinky).isTrue()
 

@@ -14,26 +14,25 @@ fun applyJsMetrics(fileNode: NodeResult) {
   fileNode.data["bindings"] = fileNode.find("$>binding").size
 
   with(fileNode) {
-    find("call").forEach {
-      it.data["args"] = it.find("$>args>arg").size
-    }
+    setQuery("SET (call) args = ($>args>arg|count)")
+    setQuery("SET (fun) params = ($>params>param|count)")
+    setQuery("SET (class) properties = ($>binding | count)")
+    setQuery("SET (class) constructors = ($ fun[kind='constructor'] | count)")
 
     find("fun").forEach {
       it.data["textLines"] = it.code.split("\n").size
       it.data["lines"] = it.code.relevantCodeLines() - 1
       it.data["depth"] = depth(it.tree, it.vid) - 1
-      it.data["params"] = it.find("$>params>param").size
     }
 
     find("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
-      var body = it.find("$>ClassBody>body").first()
-      it.data["constructors"] = body.find("$ fun[kind='constructor']").size
+      val body = it.find("$>ClassBody>body").first()
       it.data["methods"] =
         body.find("$ fun[kind='method']").size + body.find("$ fun[kind='get']").size + it.data.getInt("constructors")
-      it.data["properties"] = body.find("$>binding").size
-      it.data["members"] = body.code.relevantCodeLines()
+
+      it.data["lines"] = body.code.relevantCodeLines()
     }
   }
 }

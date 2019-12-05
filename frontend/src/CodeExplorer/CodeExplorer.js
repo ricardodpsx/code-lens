@@ -14,6 +14,7 @@ import Typography from "@material-ui/core/Typography/Typography";
 import Box from "@material-ui/core/Box/Box";
 import History from "../CodeEvolution/History";
 import MetricNameSelect from "./MetricNameSelect";
+import EvolutionOfFrequency from "../CodeEvolution/EvolutionOfFrequency";
 
 
 function TabPanel(props) {
@@ -28,7 +29,7 @@ function TabPanel(props) {
         aria-labelledby={`simple-tab-${index}`}
         {...other}
      >
-       <Box p={3}>{value == index ? children : null}</Box>
+       <Box p={3}>{value === index ? children : null}</Box>
      </Typography>
   );
 }
@@ -123,10 +124,12 @@ export function CodeExplorer() {
              />
            </TabPanel>
            <TabPanel value={activeTab} index={2}>
-             <MetricNameSelect
-                params={metricNames}
-                value={selectedMetric}
-                onParamChange={selectMetric}/>
+             <EvolutionOfFrequency
+                query={query}
+             />
+           </TabPanel>
+
+           <TabPanel value={activeTab} index={3}>
              <History
                 query={query}
                 selectedMetric={selectedMetric}

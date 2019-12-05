@@ -59,7 +59,7 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
   fun executeCodeSmell(smellName: String): SmellsResults {
     val smellPreset = findSmellByName(smellName)
     val smellResults = codeExplorerUseCases.getSearchResultsWithParams(smellPreset.query)
-    val smellAnalytics = codeExplorerUseCases.getFrequencyByParam(smellPreset.query, smellPreset.param)
+    val smellAnalytics = codeExplorerUseCases.getParamDistribution(smellPreset.query, smellPreset.param)
     return SmellsResults(
       smellPreset,
       smellResults,

@@ -1,7 +1,9 @@
 package codelens.cssSelector
 
+import co.elpachecode.codelens.cssSelector.Query
 import co.elpachecode.codelens.cssSelector.RelationTypes
 import co.elpachecode.codelens.cssSelector.parseCssSelector
+import co.elpachecode.codelens.cssSelector.setQueryParser
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -9,7 +11,6 @@ class CssSelectorParserTest {
 
   @Test
   fun cssParserSimpleSelect() {
-
     val root = parseCssSelector("class annotationEntry")
 
     assertThat(root.selectors[0].name).isEqualTo("class")
@@ -53,14 +54,16 @@ class CssSelectorParserTest {
 
   @Test
   fun cssSelectWithMultipleAttributeSelectors() {
-    val attrs = parseCssSelector("annotationEntry[firstChildren-name$='ricardo'][last-name='pacheco']").selectors[0].attributes
+    val attrs =
+      parseCssSelector("annotationEntry[firstChildren-name$='ricardo'][last-name='pacheco']").selectors[0].attributes
     assertThat(attrs[0].value).isEqualTo("ricardo")
     assertThat(attrs[1].value).isEqualTo("pacheco")
   }
 
   @Test
   fun cssSupportEscape() {
-    val attr = parseCssSelector("class annotationEntry[firstChildren-name$='hello \\'world\\'']").selectors[1].attributes[0]
+    val attr =
+      parseCssSelector("class annotationEntry[firstChildren-name$='hello \\'world\\'']").selectors[1].attributes[0]
     assertThat(attr.name).isEqualTo("firstChildren-name")
     assertThat(attr.op).isEqualTo("$=")
     assertThat(attr.value).isEqualTo("hello \\'world\\'")
@@ -94,6 +97,56 @@ class CssSelectorParserTest {
     assertThat(type.name).isEqualTo("*")
     assertThat(type.attributes[0].name).isEqualTo("lines")
   }
+
+
+  @Test
+  fun `Can parse aggregators`() {
+    val selector = parseCssSelector("a b c | count")
+    assertThat(selector.func!!.op).isEqualTo("count")
+  }
+
+  @Test
+  fun `Can parse aggregators with parameters`() {
+    val selector = parseCssSelector("a b c | sum(param)")
+    assertThat(selector.func!!.op).isEqualTo("sum")
+    assertThat(selector.func!!.params).containsExactly("param")
+  }
+
+  @Test
+  fun `Can parse aggregators with muoltiple parameters`() {
+    val selector = parseCssSelector("a b c | sum(param , 'another param', 123)")
+    assertThat(selector.func!!.op).isEqualTo("sum")
+    assertThat(selector.func!!.params).containsExactly("param", "another param", "123")
+  }
+
+
+  @Test
+  fun `Can have Set queries to set new parameters into nodes`() {
+    val query = setQueryParser.parse("SET (c d) numOfArguments = (a b | count)")
+    val setter = query.paramSetters.first()
+    val nodesToSet = query.nodesToSet
+
+    assertThat(nodesToSet.selectors).extracting("name").containsExactly("c", "d")
+    assertThat((setter.setFunction as Query).selectors).extracting("name").containsExactly("a", "b")
+    assertThat(setter.paramName).isEqualTo("numOfArguments")
+  }
+
+//  @Test
+//  fun `Can have Set queries to set values`() {
+//    funcRegistry["constant"] = { _, _ -> 1 }
+//    val query = setQueryParser.parse("SET (c d) numOfArguments = constant(1) ")
+//    val setter = query.paramSetters.first()
+//    val nodesToSet = query.nodesToSet
+//  }
+
+//  @Test
+//  fun `Can have nested queries to select parents`() {
+//    val pseudoAttribute = parseCssSelector("fun[has(try exception)]").selectors.first()
+//
+//    assertThat(pseudoAttribute.op).isEqualTo("has")
+//    assertThat(pseudoAttribute.query.selectors).extracting("name").containsExactly("try", "exception")
+//  }
+
 
 }
 

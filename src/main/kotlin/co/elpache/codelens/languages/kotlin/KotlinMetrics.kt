@@ -28,11 +28,11 @@ fun applyKotlinMetrics(fileNode: NodeResult) {
     find("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
-      var body = it.find("$>ClassBody").first()
+      val body = it.find("$>ClassBody").first()
       it.data["constructors"] = body.find("$>fun[astType*='Constructor']").size
       it.data["methods"] = body.find("$>fun").size
       it.data["properties"] = body.find("$>binding").size
-      it.data["members"] = it.code.relevantCodeLines()
+      it.data["lines"] = it.code.relevantCodeLines()
     }
   }
 }

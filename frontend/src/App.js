@@ -2,7 +2,8 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import './App.css';
-import History from "./CodeEvolution/History"
+
+
 import MainMenu from "./MainMenu";
 import {CodeExplorer} from "./CodeExplorer/CodeExplorer";
 
@@ -14,9 +15,6 @@ class App extends Component {
            <Router>
              <MainMenu/>
                <Switch>
-                 <Route path="/history">
-                   <History />
-                 </Route>
                  <Route path="/">
                    <CodeExplorer/>
                  </Route>

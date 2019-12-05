@@ -5,7 +5,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter
-import org.eclipse.jgit.revwalk.filter.RevFilter
 import java.io.File
 import java.time.LocalDate
 import java.util.Date
@@ -69,14 +68,20 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
     return logsBetween(since, until).map { it.name }.reversed()
   }
 
-  private fun logsBetween(since: Date, until: Date):  List<RevCommit> {
+  private fun logsBetween(since: Date, until: Date): List<RevCommit> {
     val between = CommitTimeRevFilter.between(since, until)
     return repo!!.log().add(masterId).setRevFilter(between).call().toList()
   }
 
-  fun lastCommits(numCommits: Int): List<String> {
-    return logs(numCommits).map { it.name }.reversed()
-  }
+  fun lastCommits(numCommits: Int) =
+    logs(numCommits).map {
+      Commit(
+        id = it.name,
+        message = it.shortMessage,
+        commitTime = it.commitTime.toLong()
+      )
+    }.reversed()
+
 
   fun logOf(filePath: String): List<String> {
     init()
