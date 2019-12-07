@@ -64,7 +64,7 @@ fun selectCode(
   tree: CodeTree,
   cssSelector: String
 ): List<Map<String, Any>> {
-  return tree.finder().find(cssSelector).data()
+  return tree.finder().find(cssSelector).map { it.data }
 }
 
 

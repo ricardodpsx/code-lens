@@ -1,11 +1,11 @@
 package co.elpache.codelens.languages.js
 
-import co.elpache.codelens.codeSearch.search.NodeResult
+import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
-fun applyJsMetrics(fileNode: NodeResult) {
+fun applyJsMetrics(fileNode: ContextNode) {
 
   fileNode.data["lines"] = fileNode.code.relevantCodeLines()
   fileNode.data["textLines"] = fileNode.code.split("\n").size
@@ -14,10 +14,10 @@ fun applyJsMetrics(fileNode: NodeResult) {
   fileNode.data["bindings"] = fileNode.find("$>binding").size
 
   with(fileNode) {
-    setQuery("SET (call) args = ($>args>arg|count)")
-    setQuery("SET (fun) params = ($>params>param|count)")
-    setQuery("SET (class) properties = ($>binding | count)")
-    setQuery("SET (class) constructors = ($ fun[kind='constructor'] | count)")
+    setQuery("SET {call} args = {$>args>arg | count}")
+    setQuery("SET {fun} params = {$>params>param | count}")
+    setQuery("SET {class} properties = {$>binding | count}")
+    setQuery("SET {class} constructors = {$ fun[kind='constructor'] | count}")
 
     find("fun").forEach {
       it.data["textLines"] = it.code.split("\n").size
@@ -29,8 +29,7 @@ fun applyJsMetrics(fileNode: NodeResult) {
       it.data["lines"] = it.code.relevantCodeLines()
 
       val body = it.find("$>ClassBody>body").first()
-      it.data["methods"] =
-        body.find("$ fun[kind='method']").size + body.find("$ fun[kind='get']").size + it.data.getInt("constructors")
+      it.data["methods"] = body.findValue("$ fun[kind='method' || kind='get' || kind='constructor'] | count") as Int
 
       it.data["lines"] = body.code.relevantCodeLines()
     }

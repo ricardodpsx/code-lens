@@ -1,8 +1,10 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
-import co.elpache.codelens.codeSearch.search.NodeResult
+import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.paramsValues
+import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 
@@ -68,7 +70,7 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      NodeResult(vid, codeTreee).code,
+      ContextNode(vid, codeTreee).code,
       codeTreee.subTree(vid).toMap()
     )
 

@@ -1,6 +1,7 @@
 package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.vDataOf
 import org.assertj.core.api.Assertions.assertThat
@@ -54,7 +55,7 @@ class CssSearchTest {
       )
     )
 
-  private fun search(query: String) = tree.finder().find(query).vids()
+  private fun search(query: String) = tree.finder().find(query).map { it.vid }
 
   @Test
   fun `Test Single child`() {
@@ -69,15 +70,20 @@ class CssSearchTest {
     assertThat(search("a[name='parent'] d d")).containsExactlyInAnyOrder("1.1.2.1")
   }
 
+  @Test
+  fun `Test attribute search`() {
+    println(tree.asString())
+    assertThat(search("a[name='parent']")).containsExactlyInAnyOrder("1")
+  }
 
   @Test
   fun `Aggregator search`() {
-    assertThat(tree.finder().find("a b | count").value()).isEqualTo(3)
+    assertThat(tree.finder().findValue("a b | count")).isEqualTo(3)
   }
 
   @Test
   fun `Can set metrics into nodes with SET sintax`() {
-    val res = treeWithFunctions.finder().setQuery("SET (fun) paramCount = (param|count)")
+    val res = treeWithFunctions.finder().setQuery("SET {fun} paramCount = {param|count}")
 
     assertThat(res.vids()).containsExactly("1.1", "2.1")
 
@@ -87,7 +93,7 @@ class CssSearchTest {
 
   @Test
   fun `Test nested query`() {
-    val res = treeWithFunctions.finder().find("fun:has(param int)")
+    val res = treeWithFunctions.finder().find("fun[{param int}]")
     assertThat(res.vids()).containsExactly("1.1")
   }
 

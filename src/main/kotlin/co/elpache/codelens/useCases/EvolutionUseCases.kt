@@ -4,6 +4,7 @@ import co.elpache.codelens.Commit
 import co.elpache.codelens.Factory
 import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.paramsValues
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging

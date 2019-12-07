@@ -2,169 +2,105 @@
 
 package co.elpachecode.codelens.cssSelector
 
-import co.elpache.codelens.QUOTED_STRING
-import co.elpache.codelens.codeSearch.parser.DefaultParser
-import co.elpache.codelens.codeSearch.parser.defaultParser
-import co.elpache.codelens.codeSearch.parser.rootParser
-import co.elpache.codelens.codeSearch.parser.textParser
+import co.elpache.codelens.parser.antlr4.AstQBaseListener
+import co.elpache.codelens.parser.antlr4.AstQLexer
+import co.elpache.codelens.parser.antlr4.AstQParser
 import co.elpache.codelens.unwrap
-
-fun parseCssSelector(selector: String) = selectorParser.parse(selector)
-
-fun parseTypeSelector(selector: String) = typeSelectorParser.parse(selector)
-
-fun parseSetQuery(selector: String) = setQueryParser.parse(selector)
+import org.antlr.v4.runtime.ANTLRInputStream
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.ParseTreeWalker
 
 
-/*
+fun parseSetQuery(query: String): SetQuery {
 
-root = query
-expr = (expr) | (expr op expr) | funCall | exprQuery
-exprQuery = query '|' aggregator
-query = sel \ sel > query | sel query
-sel = type[expr]
+  val parser = antlr4GetParser(query)
+  val walker = ParseTreeWalker()
+  var res: SetQuery? = null
+  walker.walk(object : AstQBaseListener() {
+    override fun exitSetQuery(ctx: AstQParser.SetQueryContext?) {
+      res = SetQuery(
+        nodesToSet = ctx!!.subQuery().query().toQuery(),
+        paramSetters = ctx.paramSet().map {
+          ParamSet(paramName = it.reference().text, query = it.subQuery().query().toQuery())
+        }
+      )
+    }
+  }, parser.setQuery())
 
-fun[expr]
- */
 
-//Query ast
-data class Query(
-  val selectors: List<TypeSelector>,
-  val func: Func?
-)
-
-data class TypeSelector(
-  val name: String,
-  val attributes: List<AttributeSelector>,
-  val relationType: RelationType,
-  val attributeToMatch: String = "type",
-  val pseudoAttribute: PseudoAttribute?
-)
-
-data class AttributeSelector(
-  val name: String,
-  val op: String? = null,
-  val value: String? = null
-)
-
-val PARENTHENYS_OP = textParser("^\\(")
-val PARENTHENYS_CL = textParser("^\\)")
-
-val paramSetParser = defaultParser<ParamSet>(exp = "^", lookAhead = ".") {
-  val attributeName = one(attributeNameParser)
-  one(textParser("="))
-  ParamSet(attributeName, either(subQuery, funcParser))
+  return res!!
 }
 
-data class ParamSet(val paramName: String, val setFunction: Any)
-data class SetQuery(val nodesToSet: Query, val paramSetters: List<ParamSet>)
+fun parseQuery(query: String): Query {
+  val parser = antlr4GetParser(query)
+  val walker = ParseTreeWalker()
 
-val setQueryParser: DefaultParser<SetQuery> =
-  defaultParser<SetQuery>("^SET") {
+  var res: Query? = null
 
-    one(PARENTHENYS_OP)
-    val nodesToUpdate = one(selectorParser)
-    one(PARENTHENYS_CL)
-    val paramSets = many(paramSetParser)
+  walker.walk(object : AstQBaseListener() {
+    override fun exitQuery(ctx: AstQParser.QueryContext?) {
+      res = ctx.toQuery()
+    }
+  }, parser.query())
 
-    SetQuery(nodesToUpdate, paramSets)
-  }
-
-val subQuery = defaultParser<Query>(exp = "^", lookAhead = "^\\(") {
-  one(PARENTHENYS_OP)
-  val setQuery = one(selectorParser)
-  one(PARENTHENYS_CL)
-  setQuery
+  return res!!;
 }
 
+private fun antlr4GetParser(query: String): AstQParser {
+  val input = ANTLRInputStream(query)
+// create a lexer that feeds off of input CharStream
+  val lexer = AstQLexer(input)
+// create a buffer of tokens pulled from the lexer
+  val tokens = CommonTokenStream(lexer)
+// create a parser that feeds off the tokens buffer
 
-//Query Parser
-val selectorParser: DefaultParser<Query> = rootParser<Query> {
-  Query(selectors = atLeastOne(typeSelectorParser), func = zeroOrOne(funcParser))
+  val parser = AstQParser(tokens)
+  return parser
 }
 
-class Func(val op: String, val params: List<String>)
+fun AstQParser.FuncContext?.toFunction(): Function? {
+  if (this == null) return null
 
-val funcNameParser = textParser("^[A-Za-z0-9_\\-]+")
-
-val funcParser: DefaultParser<Func?> = defaultParser("^\\|") {
-  Func(one(funcNameParser), zeroOrOne(funcParamListParser) ?: listOf())
+  return Function(name = this.reference().text,
+    params = this.expr().map { it.toExpression() }
+  )
 }
 
-val funcParamListParser = defaultParser<List<String>>("^", "\\(") {
-  one(PARENTHENYS_OP)
-  val params = many(funcParamParser)
-  one(PARENTHENYS_CL)
-  params
+fun AstQParser.QueryContext?.toQuery(): Query {
+  return Query(
+    selectors = this!!.type().map {
+      TypeSelector(
+        it.reference().text,
+        relationType = if (it.relation() == null)
+          RelationType.CHILDREN
+        else
+          RelationType.DIRECT_DESCENDANT,
+        attributeToMatch = if (it.PREFIX()?.toString() == "#") "name" else "type",
+        expr = it.attribute()?.expr().toExpression()
+      )
+    },
+    aggregator = this.aggregator()?.func().toFunction()
+  )
 }
 
-val funcParamParser = defaultParser<String>("^", "^['\"0-9A-Za-z\\-_]") {
-  val params = oneOf(attributeValueParser, attributeNameParser)
-  oneOf(textParser("^\\,"), textParser("^", "^\\)"))
-  params
+fun AstQParser.ExprContext?.toExpression(): Expression {
+  val op = listOf(this?.op0(), this?.op1(), this?.op2(), this?.op3()).find { it != null }
+
+  return if (this == null)
+    NullExpression()
+  else if (this.op0() != null || this.op1() != null || this.op2() != null || this.op3() != null) {
+    BinnaryExpression(
+      left = this.expr(0).toExpression(),
+      right = this.expr(1).toExpression(),
+      op = op!!.text
+    )
+  } else if (this.literal() != null) this.literal().toLiteralExpression()
+  else if (this.reference() != null) NameExpression(this.text)
+  else if (this.subQuery() != null) this.subQuery().query().toQuery()
+  else NullExpression()
 }
 
-
-data class PseudoAttribute(val op: String, val query: Query)
-
-val stutff = HashMap<String, Any>()
-
-val pseudoAttributeSelector: DefaultParser<PseudoAttribute> = defaultParser<PseudoAttribute>("^:") {
-  val op = one(textParser("^(has)"))
-  one(PARENTHENYS_OP)
-  val query = one(selectorParser)
-  one(PARENTHENYS_CL)
-
-  PseudoAttribute(op, query)
+fun AstQParser.LiteralContext.toLiteralExpression(): LiteralExpression {
+  return if (this.INT() != null) LiteralExpression(this.INT().text.toInt())
+  else LiteralExpression(this.STRING().text.unwrap())
 }
-
-
-val typeSelectorParser: DefaultParser<TypeSelector> =
-  defaultParser<TypeSelector>("^(#?[A-Za-z0-9_\\-]+|\\$|\\*)") {
-
-    val attrSelector = many(attributeSelectorParser)
-
-    val pseudoAttribute = zeroOrOne(pseudoAttributeSelector)
-    val relation = zeroOrOne(relationParser) ?: RelationType(RelationTypes.CHILDREN)
-
-    val name = if (it.first() == '#') it.drop(1) else it
-
-    val attributeToMatch = if (it.first() == '#') "name" else "type"
-
-    TypeSelector(name, attrSelector, relation, attributeToMatch, pseudoAttribute)
-  }
-
-
-enum class RelationTypes { DIRECT_DESCENDANT, CHILDREN }
-
-class RelationType(val type: RelationTypes)
-
-val relationParser: DefaultParser<RelationType> = defaultParser<RelationType>("^>") {
-  RelationType(RelationTypes.DIRECT_DESCENDANT)
-}
-
-val openBraket: DefaultParser<String> = textParser("^\\[")
-val closeBraket: DefaultParser<String> = textParser("^\\]")
-
-val attributeSelectorParser: DefaultParser<AttributeSelector> = defaultParser<AttributeSelector>("^", "^\\[")
-{
-  one(openBraket)
-  val attrName = one(attributeNameParser)
-  val attrOperation = zeroOrOne(attributeOperationParser)
-  val attrValue = zeroOrOne(attributeValueParser)
-  one(closeBraket)
-
-  AttributeSelector(attrName, attrOperation, attrValue)
-}
-
-val attributeValueParser = textParser("^", "^['\"0-9]") {
-  oneOf(attributeStringParser, attributeIntegerParser)
-}
-
-val attributeNameParser = textParser("^[A-Za-z0-9_\\-]+")
-
-val attributeOperationParser = textParser("^([\\^\\|\\~\\$\\*!<>]?=|<|>)")
-
-val attributeStringParser = textParser(QUOTED_STRING, "^['\"]") { it.unwrap() }
-
-val attributeIntegerParser = textParser("^[+-]?[0-9]+")

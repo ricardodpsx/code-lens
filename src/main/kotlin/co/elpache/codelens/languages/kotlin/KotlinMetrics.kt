@@ -1,11 +1,12 @@
 package co.elpache.codelens.languages.kotlin
 
-import co.elpache.codelens.codeSearch.search.NodeResult
+import co.elpache.codelens.codeSearch.search.ContextNode
+import co.elpache.codelens.codeSearch.search.firstNode
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
-fun applyKotlinMetrics(fileNode: NodeResult) {
+fun applyKotlinMetrics(fileNode: ContextNode) {
 
   fileNode.data["lines"] = fileNode.code.relevantCodeLines()
   fileNode.data["textLines"] = fileNode.code.split("\n").size
@@ -28,7 +29,7 @@ fun applyKotlinMetrics(fileNode: NodeResult) {
     find("class").forEach {
       it.data["lines"] = it.code.relevantCodeLines()
 
-      val body = it.find("$>ClassBody").first()
+      val body = it.find("$>ClassBody").firstNode()
       it.data["constructors"] = body.find("$>fun[astType*='Constructor']").size
       it.data["methods"] = body.find("$>fun").size
       it.data["properties"] = body.find("$>binding").size

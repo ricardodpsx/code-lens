@@ -1,17 +1,23 @@
 package codelens.cssSelector
 
+import co.elpachecode.codelens.cssSelector.BinnaryExpression
+import co.elpachecode.codelens.cssSelector.Expression
+import co.elpachecode.codelens.cssSelector.LiteralExpression
+import co.elpachecode.codelens.cssSelector.NameExpression
 import co.elpachecode.codelens.cssSelector.Query
-import co.elpachecode.codelens.cssSelector.RelationTypes
-import co.elpachecode.codelens.cssSelector.parseCssSelector
-import co.elpachecode.codelens.cssSelector.setQueryParser
+import co.elpachecode.codelens.cssSelector.RelationType
+import co.elpachecode.codelens.cssSelector.parseQuery
+import co.elpachecode.codelens.cssSelector.parseSetQuery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+
 
 class CssSelectorParserTest {
 
   @Test
   fun cssParserSimpleSelect() {
-    val root = parseCssSelector("class annotationEntry")
+
+    val root = parseQuery("class annotationEntry")
 
     assertThat(root.selectors[0].name).isEqualTo("class")
     assertThat(root.selectors[1].name).isEqualTo("annotationEntry")
@@ -19,133 +25,119 @@ class CssSelectorParserTest {
 
   @Test
   fun cssSelectWithAttributes() {
-    val attr = parseCssSelector("class annotationEntry[name]").selectors[1].attributes[0]
-    assertThat(attr.name).isEqualTo("name")
+    val attr = parseQuery("class annotationEntry[name]").selectors[1].expr as NameExpression
+    assertThat(attr.value).isEqualTo("name")
 
-    val attrWithFilter = parseCssSelector("class annotationEntry[name='hello']").selectors[1].attributes[0]
+    val attrWithFilter = parseQuery("class annotationEntry[name='hello']").selectors[1].expr as BinnaryExpression
 
-    assertThat(attrWithFilter.name).isEqualTo("name")
+
+    assertThat((attrWithFilter.left as NameExpression).value).isEqualTo("name")
     assertThat(attrWithFilter.op).isEqualTo("=")
-    assertThat(attrWithFilter.value).isEqualTo("hello")
+    assertThat((attrWithFilter.right as LiteralExpression).value).isEqualTo("hello")
   }
+
+
+  fun leftValue(exp: Expression) = ((exp as BinnaryExpression).left as NameExpression).value
+  fun rightValue(exp: Expression) = ((exp as BinnaryExpression).right as LiteralExpression).value
 
 
   @Test
   fun `Support all operators`() {
     listOf("*=", "=", "^=", "$=", "<", ">", ">=", "<=", "!=").forEach { op ->
-      val type = parseCssSelector("myClass[lines $op 6]").selectors[0]
-      assertThat(type.attributes[0].op).isEqualTo(op)
+      println(op)
+      val type = parseQuery("myClass[lines $op 6]").selectors[0].expr as BinnaryExpression
+      assertThat(type.op).isEqualTo(op)
     }
   }
 
   @Test
   fun `Select by numeric attribute`() {
-    val type = parseCssSelector("myClass[lines=6]").selectors[0]
-    assertThat(type.attributes[0].value).isEqualTo("6")
+    val type = parseQuery("myClass[lines=6]").selectors[0].expr
+    assertThat(rightValue(type)).isEqualTo(6)
   }
 
   @Test
   fun cssSelectWithExtendedAttributeOperations() {
-    val attr = parseCssSelector("class annotationEntry[firstChildren-name$='hello']").selectors[1].attributes[0]
-    assertThat(attr.name).isEqualTo("firstChildren-name")
+    val attr = parseQuery("class annotationEntry[firstChildrenName$='hello']").selectors[1].expr as BinnaryExpression
+    assertThat(leftValue(attr)).isEqualTo("firstChildrenName")
     assertThat(attr.op).isEqualTo("$=")
-    assertThat(attr.value).isEqualTo("hello")
+    assertThat(rightValue(attr)).isEqualTo("hello")
   }
 
-  @Test
-  fun cssSelectWithMultipleAttributeSelectors() {
-    val attrs =
-      parseCssSelector("annotationEntry[firstChildren-name$='ricardo'][last-name='pacheco']").selectors[0].attributes
-    assertThat(attrs[0].value).isEqualTo("ricardo")
-    assertThat(attrs[1].value).isEqualTo("pacheco")
-  }
 
   @Test
   fun cssSupportEscape() {
     val attr =
-      parseCssSelector("class annotationEntry[firstChildren-name$='hello \\'world\\'']").selectors[1].attributes[0]
-    assertThat(attr.name).isEqualTo("firstChildren-name")
+      parseQuery("class annotationEntry[firstChildrenName$='hello \\'world\\'']").selectors[1].expr as BinnaryExpression
+    assertThat(leftValue(attr)).isEqualTo("firstChildrenName")
     assertThat(attr.op).isEqualTo("$=")
-    assertThat(attr.value).isEqualTo("hello \\'world\\'")
+    assertThat(rightValue(attr)).isEqualTo("hello \\'world\\'")
   }
 
   @Test
   fun supportDirectDescendantRelations() {
-    val type = parseCssSelector("class>method").selectors
+    val type = parseQuery("class>method").selectors
     assertThat(type[0].name).isEqualTo("class")
-    assertThat(type[0].relationType.type == RelationTypes.DIRECT_DESCENDANT).isTrue()
+    assertThat(type[0].relationType == RelationType.DIRECT_DESCENDANT).isTrue()
     assertThat(type[1].name).isEqualTo("method")
   }
 
   @Test
   fun `Select by id`() {
-    val type = parseCssSelector("#myClass").selectors[0]
+    val type = parseQuery("#myClass").selectors[0]
     assertThat(type.attributeToMatch).isEqualTo("name")
     assertThat(type.name).isEqualTo("myClass")
   }
 
   @Test
   fun `Select by current node`() {
-    val type = parseCssSelector("$").selectors[0]
+    val type = parseQuery("$").selectors[0]
     assertThat(type.name).isEqualTo("$")
+
+    val type2 = parseQuery("$ fun").selectors
+    assertThat(type2[0].name).isEqualTo("$")
   }
 
 
   @Test
   fun `Select by any node`() {
-    val type = parseCssSelector("*[lines=1]").selectors[0]
+    val type = parseQuery("*[lines=1]").selectors[0]
     assertThat(type.name).isEqualTo("*")
-    assertThat(type.attributes[0].name).isEqualTo("lines")
+    assertThat(leftValue(type.expr)).isEqualTo("lines")
   }
 
 
   @Test
   fun `Can parse aggregators`() {
-    val selector = parseCssSelector("a b c | count")
-    assertThat(selector.func!!.op).isEqualTo("count")
+    val selector = parseQuery("fun | count")
+    assertThat(selector.aggregator!!.name).isEqualTo("count")
   }
 
   @Test
   fun `Can parse aggregators with parameters`() {
-    val selector = parseCssSelector("a b c | sum(param)")
-    assertThat(selector.func!!.op).isEqualTo("sum")
-    assertThat(selector.func!!.params).containsExactly("param")
-  }
-
-  @Test
-  fun `Can parse aggregators with muoltiple parameters`() {
-    val selector = parseCssSelector("a b c | sum(param , 'another param', 123)")
-    assertThat(selector.func!!.op).isEqualTo("sum")
-    assertThat(selector.func!!.params).containsExactly("param", "another param", "123")
+    val selector = parseQuery("a b c | sum(a, b)")
+    assertThat(selector.aggregator!!.name).isEqualTo("sum")
+    assertThat(selector.aggregator!!.params).extracting("value").containsExactly("a", "b")
   }
 
 
   @Test
   fun `Can have Set queries to set new parameters into nodes`() {
-    val query = setQueryParser.parse("SET (c d) numOfArguments = (a b | count)")
+    val query = parseSetQuery("SET {c d} numOfArguments = {a b | count}")
     val setter = query.paramSetters.first()
     val nodesToSet = query.nodesToSet
 
     assertThat(nodesToSet.selectors).extracting("name").containsExactly("c", "d")
-    assertThat((setter.setFunction as Query).selectors).extracting("name").containsExactly("a", "b")
+    assertThat(setter.query.selectors).extracting("name").containsExactly("a", "b")
     assertThat(setter.paramName).isEqualTo("numOfArguments")
   }
 
-//  @Test
-//  fun `Can have Set queries to set values`() {
-//    funcRegistry["constant"] = { _, _ -> 1 }
-//    val query = setQueryParser.parse("SET (c d) numOfArguments = constant(1) ")
-//    val setter = query.paramSetters.first()
-//    val nodesToSet = query.nodesToSet
-//  }
+  @Test
+  fun `Can have nested queries to select parents`() {
+    val pseudoAttribute = parseQuery("fun[{try exception}]").selectors.first()
 
-//  @Test
-//  fun `Can have nested queries to select parents`() {
-//    val pseudoAttribute = parseCssSelector("fun[has(try exception)]").selectors.first()
-//
-//    assertThat(pseudoAttribute.op).isEqualTo("has")
-//    assertThat(pseudoAttribute.query.selectors).extracting("name").containsExactly("try", "exception")
-//  }
+    assertThat((pseudoAttribute.expr as Query).selectors).extracting("name").containsExactly("try", "exception")
+  }
 
 
 }

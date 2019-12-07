@@ -35,7 +35,7 @@ apply plugin: 'kotlin-spring'
 apply plugin: "kotlin-jpa"
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-
+apply plugin: 'antlr'
 
 sourceCompatibility = 1.8
 
@@ -83,11 +83,13 @@ dependencies {
     compile "org.springframework.boot:spring-boot-devtools"
     testCompile "io.mockk:mockk:1.9.3"
     compile 'org.nield:kotlin-statistics:1.2.1'
-
+    compile 'org.typemeta:funcj:0.6.15'
 
     compile 'io.github.microutils:kotlin-logging:1.7.6'
 
     implementation 'org.eclipse.jgit:org.eclipse.jgit:5.4.2.201908231537-r'
+
+    antlr "org.antlr:antlr4:4.5" // use ANTLR version 3
 
 }
 
@@ -98,3 +100,17 @@ configurations {
     }
 }
 
+generateGrammarSource {
+    doLast {
+        println "Copying generated grammar lexer/parser files to main directory."
+
+//        delete {
+//            "src/main/java/some"
+//        }
+//        copy {
+//            from "${buildDir}/generated-src/antlr/main"
+//            into "src/main/java"
+//        }
+
+    }
+}
