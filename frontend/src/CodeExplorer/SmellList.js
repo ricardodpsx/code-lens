@@ -6,6 +6,9 @@ import List from "@material-ui/core/List/List";
 import ListItem from "@material-ui/core/ListItem/ListItem";
 import {useStyles} from "../baseStyles";
 import Divider from "@material-ui/core/Divider/Divider";
+import ErrorIcon from '@material-ui/icons/Error';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { green, red } from '@material-ui/core/colors';
 
 
 export default function SmellList({onSmellSelection}) {
@@ -26,11 +29,19 @@ export default function SmellList({onSmellSelection}) {
                 <ListItem className={classes.listItem} button
                           onClick={e => onSmellSelection(smell)}
                 >
-                  {smell.title} </ListItem> <Divider/>
+                  {smell.title} {renderSmellSemaphore(smell.stinky)}</ListItem> <Divider/>
               </div>
            )}
          </List>
        </Paper>
      </div>
   );
+}
+
+function renderSmellSemaphore(smellStinks){
+    return <span style={{marginLeft: 5}}>
+        {smellStinks?
+        <ErrorIcon style={{ color: red[400] }}/>:
+        <CheckCircleIcon style={{ color: green[400] }}/>}
+    </span>;
 }
