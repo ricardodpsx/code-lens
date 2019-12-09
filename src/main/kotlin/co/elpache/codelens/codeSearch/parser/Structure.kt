@@ -4,6 +4,7 @@ package co.elpachecode.codelens.cssSelector
 
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.PathFinder
+import mu.KotlinLogging
 
 data class ParamSet(val paramName: String, val query: Query)
 data class SetQuery(val nodesToSet: Query, val paramSetters: List<ParamSet>)
@@ -48,6 +49,8 @@ fun isThruty(value: Any?) =
 
 data class BinnaryExpression(val left: Expression, val op: String, val right: Expression) :
   Expression {
+  private val logger = KotlinLogging.logger {}
+
   override fun evaluate(context: ContextNode): Any? {
     val leftRaw = left.evaluate(context)
     val rightRaw = right.evaluate(context)
@@ -73,6 +76,8 @@ data class BinnaryExpression(val left: Expression, val op: String, val right: Ex
         else -> error("Operation '$op' not implemented")
       }
     } catch (e: Exception) {
+      //Todo: Pass down the original expression string so it's easier to troubleshoot
+      logger.warn("Problem evaluating $this") { e }
       return false
     }
   }
