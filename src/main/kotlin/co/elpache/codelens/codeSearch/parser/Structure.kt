@@ -53,23 +53,27 @@ data class BinnaryExpression(val left: Expression, val op: String, val right: Ex
     val rightRaw = right.evaluate(context)
     val leftVal = leftRaw.toString()
     val rightVal = rightRaw.toString()
-    return when (op) {
-      "=" -> leftVal == rightVal
-      "*=" -> leftVal.contains(rightVal)
-      "^=" -> leftVal.startsWith(rightVal)
-      "$=" -> leftVal.endsWith(rightVal)
-      ">" -> leftVal.toDouble() > rightVal.toDouble()
-      "<" -> leftVal.toDouble() < rightVal.toDouble()
-      ">=" -> leftVal.toDouble() >= rightVal.toDouble()
-      "<=" -> leftVal.toDouble() <= rightVal.toDouble()
-      "!=" -> leftVal != rightVal
-      "||" -> isThruty(leftRaw) || isThruty(rightRaw)
-      "&&" -> isThruty(leftRaw) && isThruty(rightRaw)
-      "+" -> leftVal.toDouble() + rightVal.toDouble()
-      "-" -> leftVal.toDouble() - rightVal.toDouble()
-      "*" -> leftVal.toDouble() * rightVal.toDouble()
-      "/" -> leftVal.toDouble() / rightVal.toDouble()
-      else -> error("Operation '$op' not implemented")
+    try {
+      return when (op) {
+        "=" -> leftVal == rightVal
+        "*=" -> leftVal.contains(rightVal)
+        "^=" -> leftVal.startsWith(rightVal)
+        "$=" -> leftVal.endsWith(rightVal)
+        ">" -> leftVal.toDouble() > rightVal.toDouble()
+        "<" -> leftVal.toDouble() < rightVal.toDouble()
+        ">=" -> leftVal.toDouble() >= rightVal.toDouble()
+        "<=" -> leftVal.toDouble() <= rightVal.toDouble()
+        "!=" -> leftVal != rightVal
+        "||" -> isThruty(leftRaw) || isThruty(rightRaw)
+        "&&" -> isThruty(leftRaw) && isThruty(rightRaw)
+        "+" -> leftVal.toDouble() + rightVal.toDouble()
+        "-" -> leftVal.toDouble() - rightVal.toDouble()
+        "*" -> leftVal.toDouble() * rightVal.toDouble()
+        "/" -> leftVal.toDouble() / rightVal.toDouble()
+        else -> error("Operation '$op' not implemented")
+      }
+    } catch (e: Exception) {
+      return false
     }
   }
 }

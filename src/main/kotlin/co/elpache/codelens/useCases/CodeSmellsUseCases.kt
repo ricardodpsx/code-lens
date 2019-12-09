@@ -1,6 +1,7 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.Vid
 
 data class SmellsResults(
@@ -23,11 +24,12 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
 
   private val codeExplorerUseCases = CodeExplorerUseCases(factory)
 
+
   private val smellsPresets = mapOf(
     "longParameterList" to SmellsPreset(
       "Long Parameter List",
       "functions should have max 4 parameters",
-      "fun[params>10]",
+      "fun[params>4]",
       "params",
       false
     ),
@@ -53,7 +55,7 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
   }
 
   private fun isSmellStinky(query: String, param: String) =
-    codeExplorerUseCases.getFrequencyByParam(query, param).rows.isNotEmpty()
+    codeExplorerUseCases.codeTreee.finder().find(query).isNotEmpty()
 
 
   fun executeCodeSmell(smellName: String): SmellsResults {
