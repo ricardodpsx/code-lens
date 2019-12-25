@@ -15,8 +15,7 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
       if (dir.isAbsolute)
         return FolderLoader(dir, File(src))
 
-      val path = System.getProperty("user.dir")
-      val c = FolderLoader(File("$path/$src"), File(path))
+      val c = FolderLoader(File(src), File(src))
 
       languageSupportRegistry.values.forEach {
         it.onBaseCodeLoad(c.dir)
@@ -27,11 +26,11 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
   }
 
   override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
-    traverse(dir, visitor, parent)
+    traverse(dir, visitor, parent, dir)
   }
 }
 
-fun traverse(cur: File, visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
+fun traverse(cur: File, visitor: (node: VData, parent: VData?) -> Unit, parent: VData?, basePath: File) {
   val data = vDataOf("fileName" to cur.name, "type" to "dir", "name" to cur.name)
 
   visitor(data, parent)
@@ -39,8 +38,8 @@ fun traverse(cur: File, visitor: (node: VData, parent: VData?) -> Unit, parent: 
   try {
     cur.listFiles()
       .forEach {
-        if (it.isDirectory) traverse(it, visitor, data)
-        else FileLoader.loadFile(it.toString(), data, visitor)
+        if (it.isDirectory) traverse(it, visitor, data, basePath)
+        else FileLoader.loadFile(it.toString(), data, visitor, basePath)
       }
   } catch (e: Exception) {
     throw RuntimeException("problem opening directory ${cur.absolutePath}", e)

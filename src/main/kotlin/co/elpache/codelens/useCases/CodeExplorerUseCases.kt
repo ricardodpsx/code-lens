@@ -28,6 +28,9 @@ data class ParamFrequencyRow(val paramValue: Int, val frequency: Int, val nodes:
 data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
 class CodeExplorerUseCases(private val factory: Factory = Factory()) {
+  init {
+    Factory.initializeLanguageRegistry()
+  }
 
   val codeTreee = factory.createBaseCode()
 

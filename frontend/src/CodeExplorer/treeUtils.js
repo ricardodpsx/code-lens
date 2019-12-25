@@ -2,6 +2,13 @@
 import _ from "lodash"
 
 //Todo: WIP
+
+export function ancestors(graph, v) {
+
+  if (!graph[v] || graph[v].parent == null) return []
+  return [graph[v].parent].concat(ancestors(graph, graph[v].parent))
+}
+
 export function slice(text, graph, v = graph.rootVid) {
 
   //Index starts
@@ -16,9 +23,7 @@ export function slice(text, graph, v = graph.rootVid) {
         starts.push(graph[cVid].data)
         //ends.push(graph[cVid].data)
       }
-
     }
-
   })
 
   starts.sort((a, b) => {

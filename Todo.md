@@ -30,10 +30,8 @@
      -[x] UI
 -[x] Basic sintax highlighting
 -[x] Performance experience for History
--[ ] Evolution Metrics, see detals of the commits and code that are affecting the metrics
--[ ] Integrate code charts with search Results: Right now when you select boxes in the chart nothing happens, 
-       Instead the relevant code entities should be listed
--[ ] When you select a frequency box it should show the selected functions
+-[ ] Is my commit making things worse?
+-[ ] Params select should make sense
 -[ ] Add Rules/Threshold #evolution
 -[ ] Unequality selectors #search fun
 -[ ] Preset Clean Code queries: File Total Size, Function parameters, function sizes.
@@ -45,12 +43,14 @@
 -[ ] Progress bar when loading history etc
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Aggregators on the search language (count, sum)
--[ ] Spin loaders for > 1s operations
+-[ ] Spin loaders for > 1s operations or maybe just an indexer with status
 -[ ] Add commit metrics
 -[ ] Config and setup (Load a new project etc)
 
-IceBox:
 
+
+IceBox:
+-[ ] Evolution Metrics, see details of the commits and code that are affecting the metrics
 -[ ] Problems with comments parsing in Kotlin
 -[ ] Simplify/unify tree types (JS/KT) #2 #search
      -[ ] loops: for, while, common functional loops 

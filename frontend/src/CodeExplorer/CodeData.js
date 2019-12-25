@@ -19,6 +19,8 @@ export default function CodeEntityData({
        <i onClick={() => onNodeSelected(pVid)}>{v.type} &#9658; </i>)}
     {<i>{data.type}</i>}
     <br/>
-    {Object.entries(data).map(([k, v]) => <span><strong>{k}: </strong>{v} | </span>)}
+    {Object.entries(data)
+       .filter(([k, v]) => k != "code")
+       .map(([k, v]) => <span key={k}><strong>{k}: </strong>{v} | </span>)}
   </div>
 }

@@ -39,7 +39,9 @@ export function CodeExplorer() {
 
   let [query, setQuery] = useState("")
   let [graph, setGraph] = useState({codeTree: null, results: [], metricNames: []})
-  let {codeTree, results, metricNames} = graph
+  let [results, setResults] = useState([])
+
+  let {codeTree, metricNames} = graph
 
   let [selectedFile, selectFileNode] = useState(null)
   let [fileNode, setFileNode] = useState({ast: null, text: ""})
@@ -50,9 +52,18 @@ export function CodeExplorer() {
   let [selectedMetric, selectMetric] = useState(null)
   let [metricData, setMetricData] = useState([])
 
+  const [activeTab, setActiveTab] = useState(0);
+
+  const [codeViewerTab, setCodeViewerTab] = useState(0);
+
   useEffect(() => {
-    loadGraph(query, setGraph)
+    loadGraph(query, (g) => {
+      setGraph(g);
+      setResults(g.results)
+      setCodeViewerTab(0)
+    })
   }, [query])
+
 
   useEffect(() => {
     if (selectedFile) loadFile(selectedFile, setFileNode)
@@ -62,7 +73,6 @@ export function CodeExplorer() {
     if (selectedMetric) loadMetrics(selectedMetric, query, setMetricData)
   }, [selectedMetric, query])
 
-  const [activeTab, setActiveTab] = useState(0);
 
 
   return (
@@ -86,6 +96,7 @@ export function CodeExplorer() {
               query={query}
               results={results}
               graph={codeTree}
+              selectedFile={selectedFile && selectedFile.vid}
               onFileSelect={file => {
                 selectNode(file.vid)
                 selectFileNode(file);
@@ -121,6 +132,7 @@ export function CodeExplorer() {
                 query={query}
                 rows={metricData}
                 selectedMetric={selectedMetric}
+                onDataSelected={(data) => setResults(data.nodes)}
              />
            </TabPanel>
            <TabPanel value={activeTab} index={2}>
@@ -133,18 +145,46 @@ export function CodeExplorer() {
              <History
                 query={query}
                 selectedMetric={selectedMetric}
+
              />
            </TabPanel>
 
          </Paper>
          <Paper>
-           <FileViewer
-              text={text}
-              ast={ast}
-              results={results}
-              selectedNode={selectedNode}
-              onNodeSelected={selectNode}
-           />
+           <Tabs value={codeViewerTab} onChange={(event, newValue) => setCodeViewerTab(newValue)}>
+             <Tab label="Results"/>
+             <Tab label="File"/>
+           </Tabs>
+           <TabPanel value={codeViewerTab} index={0}>
+             {
+               codeTree && results.map(r => (
+                  codeTree[r] &&
+                  <div key={r}>
+                    <a href=''
+                       onClick={(e) => {
+                         selectNode(r)
+                         //todo: this could be a helper function
+                         selectFileNode(codeTree[codeTree[r].data.fileVid].data);
+                         setCodeViewerTab(1)
+                         e.preventDefault()
+                       }}
+                    >{codeTree[r].data.fileVid && codeTree[codeTree[r].data.fileVid].data.path} </a> <br/>
+                    {codeTree[r].data.firstLine}...
+                    <hr/>
+                  </div>
+               ))
+             }
+           </TabPanel>
+           <TabPanel value={codeViewerTab} index={1}>
+             <FileViewer
+                text={text}
+                ast={ast}
+                results={results}
+                selectedNode={selectedNode}
+                onNodeSelected={selectNode}
+             />
+           </TabPanel>
+
          </Paper>
        </Grid>
 

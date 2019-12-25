@@ -18,7 +18,7 @@ fun codeNodeBase(type: String, start: Int, end: Int, astType: String, file: File
   )
 }
 
-abstract class FileLoader(val file: File, val lang: String) : NodeLoader {
+abstract class FileLoader(val file: File, lang: String, basePath: File) : NodeLoader {
   val type = "file"
   val fileName = file.name
   val name: String = file.nameWithoutExtension
@@ -34,14 +34,15 @@ abstract class FileLoader(val file: File, val lang: String) : NodeLoader {
     "endOffset" to endOffset,
     "type" to type,
     "lang" to lang,
-    "code" to contents()
+    "code" to contents(),
+    "path" to file.relativeTo(basePath).toString()
   )
 
   companion object {
-    fun loadFile(path: String, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit) {
+    fun loadFile(path: String, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit, basePath: File) {
       val file = File(path)
       languageSupportRegistry[file.extension]?.let {
-        it.fileLoaderBuilder(file).traverse(visitor, parent)
+        it.fileLoaderBuilder(file, basePath).traverse(visitor, parent)
       }
     }
   }

@@ -1,8 +1,8 @@
 const baseUrl = `http://localhost:8080`;
 
-
 export function loadGraph(query, onResult) {
-  fetch(`${baseUrl}/?query=file%20` + encodeURIComponent(query))
+  query = query || "file"
+  fetch(`${baseUrl}/?query=` + encodeURIComponent(query))
      .then(function (response) {
        return response.json();
      })
@@ -24,7 +24,6 @@ export function loadFile(selectedFile, onFileSelect) {
      .then(function (data) {
        onFileSelect({ast: data.ast, text: data.text})
      })
-
 }
 
 export function loadMetrics(param, query, onMetricsLoaded) {
@@ -48,7 +47,6 @@ export function loadSmells(onSmellsLoaded) {
 }
 
 export function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
-  let that = this;
   fetch(`${baseUrl}/history/${selectedMetric}?query=` + encodeURIComponent(query)
      + '&maxCommits=' + encodeURIComponent(maxCommits)
   )
@@ -61,7 +59,6 @@ export function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
 }
 
 export function loadFrequencyHistory(query, onLoad, maxCommits = 15) {
-  let that = this;
   fetch(`${baseUrl}/frequency-evolution/?query=` + encodeURIComponent(query)
      + '&maxCommits=' + encodeURIComponent(maxCommits)
   ).then(function (response) {

@@ -7,7 +7,7 @@ import org.junit.Test
 class JsSupportTest : LanguageSupportTests("js", "../code-examples/js/fixtures/") {
 
   @Test
-  fun `can print tree`() {
+  fun `can print js tree`() {
     tree.finder().find("#classes")[0].printTree()
   }
 

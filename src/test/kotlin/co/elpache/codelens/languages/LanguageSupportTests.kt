@@ -3,6 +3,7 @@ package codelens
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.finder
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.SoftAssertions
 import org.junit.After
 import org.junit.Test
@@ -20,6 +21,17 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   @After
   fun after() {
     assertAll()
+  }
+
+  @Test
+  fun `can print tree`() {
+    tree.finder().find("#classes")[0].printTree()
+  }
+
+  @Test
+  fun `Can get right file id from an ast node`() {
+    val fileVid = tree.finder().find("#functions").first()["vid"]
+    Assertions.assertThat(tree.finder().find("#functions fun").first()["fileVid"]).isEqualTo(fileVid)
   }
 
   @Test

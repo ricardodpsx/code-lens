@@ -30,19 +30,6 @@ fun simplifyType(astType: String, parent: VData?) = when (astType) {
   else astType
 }
 
-fun getName(c: JsonNode): String? {
-  val type = c.get("type").asText()
-  val name = c.get("name")?.asText()
-  val id = c.at("/id/name")
-
-  if (!id.isMissingNode)
-    return id.asText()
-
-  if (type == "ClassMethod")
-    return c.at("/key/name").asText()
-
-  return name
-}
 
 internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VData {
   val astType = c.get("type").asText()
@@ -60,6 +47,21 @@ internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VDat
     "async" to c.get("async")?.asText(),
     "async" to c.get("generator")?.asText()
   )
+}
+
+
+fun getName(c: JsonNode): String? {
+  val type = c.get("type").asText()
+  val name = c.get("name")?.asText()
+  val id = c.at("/id/name")
+
+  if (!id.isMissingNode)
+    return id.asText()
+
+  if (type == "ClassMethod")
+    return c.at("/key/name").asText()
+
+  return name
 }
 
 

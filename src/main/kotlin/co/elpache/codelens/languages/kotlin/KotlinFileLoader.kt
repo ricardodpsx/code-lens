@@ -27,7 +27,7 @@ val kotlinLanguageIntegration = LanguageIntegration(
   applyMetrics = ::applyKotlinMetrics
 )
 
-class KotlinFileLoader(file: File) : FileLoader(file, "kotlin") {
+class KotlinFileLoader(file: File, basePath: File) : FileLoader(file, "kotlin", basePath) {
   override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
     visitor(data, parent)
     parseFile(file.readText()).children.forEach { traverse(it, data, visitor) }

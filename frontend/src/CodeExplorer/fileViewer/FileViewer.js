@@ -34,12 +34,14 @@ function CodeText({slicedText, ast, results, onNodeSelected}) {
 }
 
 
-function FileViewer({ast, text, results, onNodeSelected}) {
+function FileViewer({ast, text, results, onNodeSelected, selectedNode}) {
   if (!ast) return null
   let slicedText = slice(text, ast, ast.rootVid, results);
   let file = ast[ast.rootVid].data
 
-    return (<div>
+  setTimeout(() => document.location.hash = `#code-entity-${selectedNode}`, 200)
+
+  return (<div style={{height: 400, overflow: 'auto'}}>
       <pre className={`code file-${file.lang}`}>
         <CodeText
            ast={ast}

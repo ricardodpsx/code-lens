@@ -22,7 +22,7 @@ val jsLanguageIntegration = LanguageIntegration(
 )
 val parsedCache = HashMap<String, JsonNode>()
 
-class JsFileLoader(file: File) : FileLoader(file, "js") {
+class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath) {
 
   override fun traverse(visitor: (ce: VData, parent: VData?) -> Unit, parent: VData?) {
     visitor(data, parent)

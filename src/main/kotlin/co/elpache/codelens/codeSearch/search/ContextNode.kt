@@ -13,17 +13,6 @@ fun Collection<ContextNode>.paramsValues(param: String): List<Pair<Vid, Int>> {
     .map { Pair(it.vid, it.data[param] as Int) }
 }
 
-class EmptySearchNode : ContextNode("--Empty--", CodeTree()) {
-  override val code = ""
-  override val data: VData = VData()
-  override val children = emptyList<ContextNode>()
-  override fun find(css: String) = listOf<ContextNode>()
-  override fun findValue(css: String) = 0
-}
-
-fun Collection<ContextNode>.firstNode() = firstOrNull() ?: EmptySearchNode()
-fun Collection<ContextNode>.vids() = map { it.vid }
-
 open class ContextNode(val vid: Vid, val tree: CodeTree) {
   open fun find(css: String): List<ContextNode> {
     return (parseQuery(css).evaluate(this) as List<ContextNode>)
@@ -39,10 +28,12 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
 
   open val code: String
     get() {
+
+
       return if (tree.v(vid).type == "file")
         tree.v(vid).getString("code")
       else {
-        val fileNode = tree.ancestors(vid).first { tree.v(it).type == "file" }
+        val fileNode = get("fileVid") as Vid
         val contents = tree.v(fileNode).getString("code")
         contents.substring(tree.v(vid).startOffset, tree.v(vid).endOffset)
       }
@@ -75,3 +66,14 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   fun printTree() = println(tree.subTree(vid).asString())
 
 }
+
+class EmptySearchNode : ContextNode("--Empty--", CodeTree()) {
+  override val code = ""
+  override val data: VData = VData()
+  override val children = emptyList<ContextNode>()
+  override fun find(css: String) = listOf<ContextNode>()
+  override fun findValue(css: String) = 0
+}
+
+fun Collection<ContextNode>.firstNode() = firstOrNull() ?: EmptySearchNode()
+fun Collection<ContextNode>.vids() = map { it.vid }

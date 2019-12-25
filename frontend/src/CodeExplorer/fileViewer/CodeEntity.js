@@ -6,6 +6,7 @@ export default function CodeEntity({
   }
                                    }) {
   return <span
+     id={`code-entity-${vid}`}
      onClick={(e) => {
        onNodeSelected(vid)
        e.stopPropagation()

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import '../App.css';
 /* eslint no-console:0, react/no-danger: 0 */
 import 'rc-tree/assets/index.css';
@@ -8,6 +8,7 @@ import Paper from "@material-ui/core/Paper/Paper";
 import {useStyles} from "../baseStyles";
 import Link from "@material-ui/core/Link/Link";
 import {Title} from "../common";
+import {ancestors} from "./treeUtils";
 
 const STYLE = `
 .collapse {
@@ -62,38 +63,53 @@ function expand(g, v) {
 }
 
 
-function TreeCollapsed({handleSelect, graph}) {
-  return <Tree
-     onSelect={handleSelect}
-     defaultExpandAll={false}
-     defaultExpandedKeys={[graph.rootVid]}
-     //openAnimation={animation}
-  >{expand(graph, graph.rootVid)}
-  </Tree>
-}
+// function TreeCollapsed({handleSelect, graph, selectedKeys}) {
+//   return <Tree
+//      onSelect={handleSelect}
+//      defaultExpandAll={false}
+//      defaultExpandedKeys={[graph.rootVid]}
+//      selectedKeys={selectedKeys}
+//      //openAnimation={animation}
+//   >{expand(graph, graph.rootVid)}
+//   </Tree>
+// }
 
-function TreeExpanded({handleSelect, graph}) {
-  return <Tree
-     onSelect={handleSelect}
-     defaultExpandAll={true}
-     defaultExpandedKeys={[graph.rootVid]}
-     //openAnimation={animation}
-  >{expand(graph, graph.rootVid)}
-  </Tree>
+function TreeExpanded({handleSelect, graph, selectedKeys, expandedKeys}) {
+  return
 }
 
 
-function DirectoryTree({results, graph, onFileSelect}) {
+function DirectoryTree({results, graph, onFileSelect, selectedFile}) {
+
+  if (!graph || results.length === 0) return null
 
   const classes = useStyles();
 
+  let selectedFileAncestors = selectedFile ? ancestors(graph, selectedFile) : []
+  const [expandedKeys, setExpandedKeys] = useState([graph.rootVid])
+
+  useEffect(() => {
+    setExpandedKeys(expandedKeys.concat(selectedFileAncestors))
+  }, [selectedFile])
+
+  const onExpand = (keys, {expanded}) => {
+    let s = new Set(keys)
+
+    if (expanded) keys.forEach(k => s.add(k))
+    else s.delete(keys)
+
+    setExpandedKeys(Array.from(s))
+  }
+
   const handleSelect = (keys) => {
     if(keys.length !== 1) return true;
+
+    setExpandedKeys(expandedKeys.concat(selectedFileAncestors))
     onFileSelect({vid: keys[0], name: graph[keys[0]].name, data: graph[keys[0]].data})
     return true
   }
 
-  let [expanded, doExpand] = useState(false)
+  let [allExpanded, doExpandAll] = useState(false)
 
   return (
      <div className={classes.root}>
@@ -104,19 +120,21 @@ function DirectoryTree({results, graph, onFileSelect}) {
          <style dangerouslySetInnerHTML={{__html: STYLE}}/>
          <Link href="#" color="primary" variant="body2" onClick={e => {
            e.preventDefault();
-           doExpand(true)
+           doExpandAll(true)
          }}>expand</Link>&nbsp;
          | &nbsp;<Link href="#" color="primary" variant="body2" onClick={e => {
          e.preventDefault();
-         doExpand(false)
+         doExpandAll(false)
        }}>collapse</Link>
 
-         {//This dumb code was necesary because the library doesn't support just expanding the tree
-           !!results.length &&
-           (expanded ?
-              <TreeExpanded graph={graph} handleSelect={handleSelect}/>
-              : <TreeCollapsed graph={graph} handleSelect={handleSelect}/>)
-         }
+         <Tree
+            onExpand={onExpand}
+            onSelect={handleSelect}
+            selectedKeys={[selectedFile]}
+            expandedKeys={expandedKeys}
+            //openAnimation={animation}
+         >{expand(graph, graph.rootVid)}
+         </Tree>
 
        </Paper>
      </div>

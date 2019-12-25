@@ -105,6 +105,7 @@ class CssSearchTest {
     assertThat(search("a>d")).containsExactlyInAnyOrder("1.3.1")
   }
 
+
   @Test
   fun `Mixing selectors`() {
     assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")

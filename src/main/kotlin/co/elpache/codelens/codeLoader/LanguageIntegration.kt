@@ -6,7 +6,7 @@ import java.io.File
 val languageSupportRegistry = mutableMapOf<String, LanguageIntegration>()
 
 data class LanguageIntegration(
-  val fileLoaderBuilder: (File) -> NodeLoader,
+  val fileLoaderBuilder: (File, File) -> NodeLoader,
   val applyMetrics: (vid: ContextNode) -> Unit,
   val onBaseCodeLoad: (File) -> Unit = {}
 )

@@ -22,6 +22,7 @@ class CodeLoader {
 
   private fun _expandTreeNode(tree: CodeTree, node: FolderLoader): CodeLoader {
 
+    tree.rootVid = "0"
     node.traverse({ node, parent ->
       val vid = ids.size.toString()
       ids.add(vid)
@@ -31,9 +32,12 @@ class CodeLoader {
         tree.addChild(parent["vid"] as Vid, vid, node)
       else
         tree.addIfAbsent("0", node)
+
+      node["fileVid"] = tree.ancestors(vid).find { tree.v(it).type == "file" } ?: ""
+
     }, null)
 
-    tree.rootVid = "0"
+
     return this
   }
 

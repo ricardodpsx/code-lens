@@ -1,7 +1,10 @@
 import {ResponsiveBar} from "@nivo/bar";
 import React from "react";
 
-export default ({data, xField, yField, xLabel = xField, yLabel = yField}) => (
+export default ({
+                  data, xField, yField, xLabel = xField, yLabel = yField, onDataSelected = () => {
+  }
+                }) => (
    <div style={{height: 400}}><ResponsiveBar
       data={data}
       keys={[yField]}
@@ -19,6 +22,7 @@ export default ({data, xField, yField, xLabel = xField, yLabel = yField}) => (
         legendOffset: 32
 
       }}
+      onClick={({data}) => onDataSelected(data)}
       axisLeft={{
         tickSize: 5,
         tickPadding: 5,

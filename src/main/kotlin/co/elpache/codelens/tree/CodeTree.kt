@@ -73,7 +73,7 @@ open class CodeTree {
 
   fun asString(): String {
     val out = StringBuilder()
-    val root = v(rootVid())
+    val root = v(rootVid()).plus("code" to "<Excluded>")
     out.append("${rootVid}: ${root}\n")
     dfs(rootVid(), "-", out)
     return out.toString()

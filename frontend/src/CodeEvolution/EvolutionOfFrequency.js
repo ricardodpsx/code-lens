@@ -23,9 +23,7 @@ function EvolutionOfFrequency({query}) {
           data={frequencies.map(it => ({commit: formatDate(it.commit.commitTime), frequency: it.frequency}))}
           // For tests
           rootProps={{'data-testid': '2'}}/>
-     </div>
-  );
-
+  </div>);
 
 }
 
