@@ -23,6 +23,8 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
 
     dir.mkdir()
 
+    dir.resolve(".git/index.lock").delete()
+
     repo = try {
       Git.open(dir)
     } catch (e: RepositoryNotFoundException) {
@@ -91,6 +93,10 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
   private fun logs(numCommits: Int): List<RevCommit> {
     init()
     return repo!!.log().add(masterId).setMaxCount(numCommits).call().toList()
+  }
+
+  fun close() {
+    repo!!.close()
   }
 
 }

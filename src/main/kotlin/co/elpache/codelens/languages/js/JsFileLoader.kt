@@ -2,25 +2,26 @@ package co.elpache.codelens.languages.js
 
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
+import co.elpache.codelens.codeLoader.ignorePatterns
 import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.toList
 
-
 fun jsInit() {
-  languageSupportRegistry["js"] = jsLanguageIntegration
+  languageSupportRegistry[".*\\.js"] = jsLanguageIntegration
 }
-
 
 val jsLanguageIntegration = LanguageIntegration(
   fileLoaderBuilder = ::JsFileLoader,
   applyMetrics = ::applyJsMetrics,
   onBaseCodeLoad = ::preloadParsedFiles
 )
-val parsedCache = HashMap<String, JsonNode>()
+
+val parsedCache = ConcurrentHashMap<String, JsonNode>()
 
 class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath) {
 
@@ -44,6 +45,13 @@ class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath
   }
 }
 
+
+fun parseFile(file: File): JsonNode {
+  return parsedCache.computeIfAbsent(file.path) {
+    toJson(parseFiles(listOf(file)).first())
+  }
+}
+
 /**
  * As Javascript parsing is calling a nodeJs process, parsing files in bundles is more efficient than parsing them one by one.
  * Because initializing nodejs everytime is expensive. If there is a limit on the amount of arguments tha can be passed
@@ -51,21 +59,26 @@ class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath
  * Another more memory-efficient approach would be to make the JsParsing process interactive and use pipelines.
  */
 fun preloadParsedFiles(path: File) {
-  parsedCache.clear()
+  //parsedCache.clear()
 
-  val files = path.walkTopDown().filter { it.extension == "js" }.toList()
+  //Todo: Using a recursive file traverser that avoids visiting unnecesary folders may be more efficient
+  val files = path.walkTopDown()
+    .filterNot { f ->
+      ignorePatterns.any { f.path.matches(it.toRegex()) }
+    }
+    .filter { it.extension == "js" }.toList()
 
   if (files.isNotEmpty()) {
-    val parsed = parseFiles(files)
 
-    files.zip(parsed).forEach {
-      parsedCache[it.first!!.path] = toJson(it.second)
+    files.chunked(50) {
+      val parsed = parseFiles(it)
+      it.zip(parsed).forEach {
+        parsedCache[it.first.path] = toJson(it.second)
+      }
     }
-  }
-}
 
-fun toJson(js: String): JsonNode {
-  return ObjectMapper().readTree(js)
+
+  }
 }
 
 fun parseFiles(files: List<File>): List<String> {
@@ -81,3 +94,8 @@ fun parseFiles(files: List<File>): List<String> {
 
   return programOutput
 }
+
+fun toJson(js: String): JsonNode {
+  return ObjectMapper().readTree(js)
+}
+

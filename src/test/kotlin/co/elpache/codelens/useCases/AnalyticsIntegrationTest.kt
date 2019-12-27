@@ -31,7 +31,7 @@ class AnalyticsIntegrationTest {
   @Test
   fun `Can get Int Params`() {
 
-    val uc = CodeExplorerUseCases(factory!!)
+    val uc = CodeExplorerUseCases(factory)
 
     val results = uc.getPossibleIntParams("fun")
 
@@ -42,27 +42,27 @@ class AnalyticsIntegrationTest {
   @Test
   fun `Can see change in a function`() {
     val commits = createCommits("d37fb4b", "a1e3958")
-    val uc = EvolutionUseCases(factory!!)
-    uc.preloadCommits(commits)
+    val uc = EvolutionUseCases(factory)
+    factory.preloadCommits(commits)
 
     val statistics = uc.collectHistory(
       "#kotlin #ExampleClass #functionWithParams", "params", commits
     )
 
-    assertThat(statistics[0]?.statistics.max).isEqualTo(2.0)
-    assertThat(statistics[1]?.statistics.max).isEqualTo(3.0)
+    assertThat(statistics[0].statistics.max).isEqualTo(2.0)
+    assertThat(statistics[1].statistics.max).isEqualTo(3.0)
   }
 
   @Test
   fun `Can see change of methods in a class`() {
-    val uc = EvolutionUseCases(factory!!)
+    val uc = EvolutionUseCases(factory)
     val statistics = uc.collectHistory(
       "#ExampleClass", "methods",
       createCommits("e3b714c", "e323c18")
     )
 
-    assertThat(statistics[0]?.statistics.max).isEqualTo(1.0)
-    assertThat(statistics[1]?.statistics.max).isEqualTo(2.0)
+    assertThat(statistics[0].statistics.max).isEqualTo(1.0)
+    assertThat(statistics[1].statistics.max).isEqualTo(2.0)
   }
 
 }

@@ -1,6 +1,5 @@
 package co.elpache.codelens.useCases
 
-import co.elpache.codelens.Factory
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.Vid
 
@@ -20,10 +19,8 @@ data class SmellsPreset(
   val isStinky: Boolean
 )
 
-class CodeSmellsUseCases(factory: Factory = Factory()) {
-
-  private val codeExplorerUseCases = CodeExplorerUseCases(factory)
-
+//Todo: Should use cases use other use cases?
+class CodeSmellsUseCases(private val codeExplorerUseCases: CodeExplorerUseCases) {
 
   private val smellsPresets = mapOf(
     "longParameterList" to SmellsPreset(
@@ -56,7 +53,6 @@ class CodeSmellsUseCases(factory: Factory = Factory()) {
 
   private fun isSmellStinky(query: String, param: String) =
     codeExplorerUseCases.codeTreee.finder().find(query).isNotEmpty()
-
 
   fun executeCodeSmell(smellName: String): SmellsResults {
     val smellPreset = findSmellByName(smellName)

@@ -5,6 +5,9 @@ import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
 import java.io.File
 
+val ignorePatterns = listOf(".*node_modules.*")
+
+
 open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
   val file = dir
 
@@ -37,6 +40,9 @@ fun traverse(cur: File, visitor: (node: VData, parent: VData?) -> Unit, parent: 
 
   try {
     cur.listFiles()
+      .filterNot { f ->
+        ignorePatterns.any { f.path.matches(it.toRegex()) }
+      }
       .forEach {
         if (it.isDirectory) traverse(it, visitor, data, basePath)
         else FileLoader.loadFile(it.toString(), data, visitor, basePath)

@@ -15,7 +15,7 @@ fun createCodeExplorerUseCases(codeTree: CodeTree): CodeExplorerUseCases {
 }
 
 fun createCodeSmellsUseCases(codeTree: CodeTree): CodeSmellsUseCases {
-  return CodeSmellsUseCases(getMockFactory(codeTree))
+  return CodeSmellsUseCases(CodeExplorerUseCases(getMockFactory(codeTree)))
 }
 
 private fun getMockFactory(codeTree: CodeTree): Factory {

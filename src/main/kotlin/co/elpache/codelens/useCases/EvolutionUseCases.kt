@@ -2,7 +2,6 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Commit
 import co.elpache.codelens.Factory
-import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.paramsValues
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -53,18 +52,9 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
   }
 
   fun preloadCommits(maxCommits: Int) {
-    preloadCommits(factory.repo.lastCommits(maxCommits))
+    factory.preloadCommits(factory.repo.lastCommits(maxCommits))
   }
 
-  fun preloadCommits(commits: List<Commit>) {
-    logger.info { "Preloading ${commits}" }
-    commits
-      .filter { factory.getAstDatabase().findByCommit(it.id) == null }
-      .forEach {
-        val code = factory.createBaseCode(it.id)
-        factory.getAstDatabase().save(AstRecord(it.id, mapper.writeValueAsString(code)))
-      }
-  }
 
   fun collectFrequency(query: String, maxCommits: Int): List<EvolutionOfFrequency> =
     collectFrequency(query, factory.repo.lastCommits(maxCommits))

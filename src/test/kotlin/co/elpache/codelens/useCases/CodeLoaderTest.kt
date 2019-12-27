@@ -2,8 +2,8 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.compareTreeOutputs
-import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.createCodeExplorerUseCases
+import co.elpache.codelens.tree.vDataOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -40,7 +40,7 @@ class CodeLoaderTest {
     compareTreeOutputs(
       treeWithDescendants,
       """
-      1: {type=file}
+      1: {type=file, code=<Excluded>}
       - 2: {type=fun}
       -- 6: {type=X}
       - 7: {type=fun}

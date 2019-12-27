@@ -40,7 +40,7 @@ class EvolutionUseCasesTest {
     val commits = factory.repo.lastCommits(6)
 
     val preloadTime = measureTimeMillis {
-      uc.preloadCommits(commits)
+      factory.preloadCommits(commits)
     }
 
     val loadTime = measureTimeMillis {

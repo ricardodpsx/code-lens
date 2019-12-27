@@ -30,23 +30,24 @@
      -[x] UI
 -[x] Basic sintax highlighting
 -[x] Performance experience for History
+-[x] Add Rules/Threshold #evolution (Same as smells)
+-[x] Unequality selectors #search fun
+-[x] Aggregators on the search language (count, sum)
+-[ ] Just tree visualization (The JSON as it is?)
+-[ ] On packages, see Dependencies etc #cleanCode
+-[ ] Progress bar when loading history etc, maybe just an indexer with status
+-[ ] Baseline
+-[ ] Add commit metrics
+-[ ] Mean, Media, Max, min for charts
 -[ ] Is my commit making things worse?
 -[ ] Params select should make sense
--[ ] Add Rules/Threshold #evolution
--[ ] Unequality selectors #search fun
 -[ ] Preset Clean Code queries: File Total Size, Function parameters, function sizes.
--[ ] Fowler Smells #Smells
--[ ] Reload button
+-[ ] UX (Results, Evolution, selected file)
 -[ ] Slots/Buckets for charts #charts
--[ ] Duplicated code #metrics
+-[ ] Reload button
 -[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
--[ ] Progress bar when loading history etc
--[ ] On packages, see Dependencies etc #cleanCode
--[ ] Aggregators on the search language (count, sum)
--[ ] Spin loaders for > 1s operations or maybe just an indexer with status
--[ ] Add commit metrics
 -[ ] Config and setup (Load a new project etc)
-
+-[ ] Duplicated code #metrics
 
 
 IceBox:
@@ -82,3 +83,4 @@ IceBox:
 -[ ] Refresh single node, Instead of reload everything for evolutionary metrics #optimization
 -[ ] Kotlin, add name as a node so it's easy to extract
 -[ ] Add References navigator (How classes, types files relate to each other) #charts
+-[ ] Find and replace

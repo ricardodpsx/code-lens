@@ -17,9 +17,7 @@ import java.io.File
 
 
 fun kotlinInit() {
-  languageSupportRegistry["kt"] = kotlinLanguageIntegration
-
-
+  languageSupportRegistry[".*\\.kt"] = kotlinLanguageIntegration
 }
 
 val kotlinLanguageIntegration = LanguageIntegration(

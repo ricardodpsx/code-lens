@@ -1,5 +1,6 @@
 package co.elpache.codelens
 
+import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.app.database.AstRepository
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
@@ -10,11 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
+import java.util.concurrent.ConcurrentHashMap
+import javax.annotation.PreDestroy
 
 class Factory(
   val path: String = "./tmp", //Path to put the repository and navigate back and forth
   val currentCodePath: String = "../code-examples",
-  val repoUrl: String = "https://github.com/ricardodpsx/test-repo.git",
+  repoUrl: String = "https://github.com/ricardodpsx/test-repo.git",
   val context: ApplicationContext? = null
 ) {
   private val logger = KotlinLogging.logger {}
@@ -33,7 +36,6 @@ class Factory(
 
     val codeTree = CodeLoader().expandFullCodeTree(FolderLoader.load(currentCodePath))
 
-
     logger.info { "Done loading code" }
 
     return codeTree
@@ -47,7 +49,20 @@ class Factory(
 
   val mapper = ObjectMapper().registerModule(KotlinModule())
 
-  val astCache = HashMap<String, CodeTree>()
+  val astCache = ConcurrentHashMap<String, CodeTree>()
+
+
+  fun preloadCommits(commits: List<Commit>) {
+    repo
+    logger.info { "Preloading ${commits}" }
+    commits
+      .filter { getAstDatabase().findByCommit(it.id) == null }
+      .forEach {
+        logger.info { "Preloading commit # ${it.id}" }
+        val code = createBaseCode(it.id)
+        getAstDatabase().save(AstRecord(it.id, mapper.writeValueAsString(code)))
+      }
+  }
 
   fun createBaseCode(commit: String): CodeTree {
     //In memory cache
@@ -68,6 +83,13 @@ class Factory(
     }
     astCache[commit] = res
     return res
+  }
+
+
+  @PreDestroy
+  @Throws(Exception::class)
+  fun onDestroy() {
+    repo.close()
   }
 
 }

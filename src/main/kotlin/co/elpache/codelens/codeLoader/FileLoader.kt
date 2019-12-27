@@ -41,8 +41,15 @@ abstract class FileLoader(val file: File, lang: String, basePath: File) : NodeLo
   companion object {
     fun loadFile(path: String, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit, basePath: File) {
       val file = File(path)
-      languageSupportRegistry[file.extension]?.let {
-        it.fileLoaderBuilder(file, basePath).traverse(visitor, parent)
+      try {
+        //Todo: There is a duplicated use of languageSupportRegistry
+        languageSupportRegistry.entries.forEach {
+          if (path.matches(it.key.toRegex())) {
+            it.value.fileLoaderBuilder(file, basePath).traverse(visitor, parent)
+          }
+        }
+      } catch (e: Exception) {
+        throw RuntimeException("Problem loading file ${file.path}", e)
       }
     }
   }

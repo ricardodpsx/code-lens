@@ -4,6 +4,7 @@ import co.elpache.codelens.codeTree
 import co.elpache.codelens.createCodeSmellsUseCases
 import co.elpache.codelens.tree.vDataOf
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test;
 
@@ -32,6 +33,12 @@ class CodeSmellsTest {
   }
 
   @Test
+  fun testRegexp() {
+    assertThat("yy/node_modules/xxx".matches(".*node_modules.*".toRegex())).isTrue()
+  }
+
+
+  @Test
   fun `can get code smell list`() {
     val smellPresets = uc.getSmellPresets()
 
@@ -51,4 +58,7 @@ class CodeSmellsTest {
     Assertions.assertThat(results.smellResults.results).containsExactly("5", "6")
     //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
   }
+
+
 }
+

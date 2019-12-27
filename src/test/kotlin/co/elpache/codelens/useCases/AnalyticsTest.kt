@@ -153,8 +153,6 @@ class AnalyticsTest {
     } returns current
 
 
-    val commits = createCommits("commit1", "commit2")
-
     val uc = EvolutionUseCases(factory)
     val results = uc.collectFrequency(
       "fun[lines>=6]",

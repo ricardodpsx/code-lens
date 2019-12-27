@@ -14,7 +14,7 @@ class CodeLoader {
   fun expandFullCodeTree(node: FolderLoader): CodeTree {
     val tree = CodeTree()
     _expandTreeNode(tree, node)
-    applyAnalytics(tree)
+    applyMetrics(tree)
     return tree
   }
 
@@ -42,12 +42,18 @@ class CodeLoader {
   }
 
   //Todo: This should be pluggable
-  private fun applyAnalytics(tree: CodeTree): CodeLoader {
+  private fun applyMetrics(tree: CodeTree): CodeLoader {
+
     tree.finder().find("file")
       .map { it to it.codeNode() }
-      .forEach {
-        languageSupportRegistry[it.second["extension"]]?.apply {
-          applyMetrics(it.first)
+      .forEach { (node, data) ->
+
+
+        languageSupportRegistry.forEach {
+          if (data.getString("path").matches(it.key.toRegex())) {
+            it.value.applyMetrics(node)
+          }
+
         }
       }
     return this

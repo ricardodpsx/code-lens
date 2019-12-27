@@ -8,5 +8,6 @@ val languageSupportRegistry = mutableMapOf<String, LanguageIntegration>()
 data class LanguageIntegration(
   val fileLoaderBuilder: (File, File) -> NodeLoader,
   val applyMetrics: (vid: ContextNode) -> Unit,
-  val onBaseCodeLoad: (File) -> Unit = {}
+  val onBaseCodeLoad: (File) -> Unit = {},
+  val ignorePatterns: List<String> = listOf()
 )
