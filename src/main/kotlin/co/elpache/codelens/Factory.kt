@@ -4,11 +4,9 @@ import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.app.database.AstRepository
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
-import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.languages.js.jsInit
 import co.elpache.codelens.languages.kotlin.kotlinInit
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.vDataOf
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
@@ -34,6 +32,7 @@ class Factory(
     fun initializeLanguageRegistry() {
       jsInit()
       kotlinInit()
+      gitInit()
     }
 
   }
@@ -43,26 +42,12 @@ class Factory(
 
   fun createBaseCode(): CodeTree {
 
+    logger.info { "loading current base code" }
+
     val codeTree = CodeLoader()
       .expandFullCodeTree(FolderLoader.load(currentCodePath))
 
-    //Todo: This doesn't belong here
-    codeTree.finder().find("file").forEach { f ->
-      val commits = repo.logOf(f.data.getString("path"))
-      commits.forEach { c ->
-        codeTree.addIfAbsent(
-          c.id, vDataOf(
-            "type" to "commit",
-            "id" to c.id,
-            "author" to c.commitTime,
-            "time" to c.commitTime
-          )
-        )
-        codeTree.addChild(f.vid, c.id)
-      }
-    }
-
-    logger.info { "Done loading code" }
+    logger.info { "Done loading current base code" }
 
     return codeTree
   }

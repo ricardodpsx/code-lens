@@ -6,34 +6,35 @@ import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
-fun applyKotlinMetrics(fileNode: ContextNode) {
+fun applyKotlinMetrics(ctx: ContextNode) {
+  ctx.find("file[lang='kotlin']").forEach { fileNode ->
+    fileNode.data["lines"] = fileNode.code.relevantCodeLines()
+    fileNode.data["textLines"] = fileNode.code.split("\n").size
+    fileNode.data["functions"] = fileNode.find("fun").size
+    fileNode.data["classes"] = fileNode.find("class").size
+    fileNode.data["bindings"] = fileNode.find("binding").size
 
-  fileNode.data["lines"] = fileNode.code.relevantCodeLines()
-  fileNode.data["textLines"] = fileNode.code.split("\n").size
-  fileNode.data["functions"] = fileNode.find("fun").size
-  fileNode.data["classes"] = fileNode.find("class").size
-  fileNode.data["bindings"] = fileNode.find("binding").size
+    with(fileNode) {
+      find("call").forEach {
+        it.data["args"] = it.find("$>args>arg").size
+      }
 
-  with(fileNode) {
-    find("call").forEach {
-      it.data["args"] = it.find("$>args>arg").size
-    }
+      find("fun").forEach {
+        it.data["textLines"] = it.code.split("\n").size
+        it.data["lines"] = it.code.relevantCodeLines() - 1
+        it.data["depth"] = depth(it.tree, it.vid) - 1
+        it.data["params"] = it.find("$>params>param").size
+      }
 
-    find("fun").forEach {
-      it.data["textLines"] = it.code.split("\n").size
-      it.data["lines"] = it.code.relevantCodeLines() - 1
-      it.data["depth"] = depth(it.tree, it.vid) - 1
-      it.data["params"] = it.find("$>params>param").size
-    }
+      find("class").forEach {
+        it.data["lines"] = it.code.relevantCodeLines()
 
-    find("class").forEach {
-      it.data["lines"] = it.code.relevantCodeLines()
-
-      val body = it.find("$>ClassBody").firstNode()
-      it.data["constructors"] = body.find("$>fun[astType*='Constructor']").size
-      it.data["methods"] = body.find("$>fun").size
-      it.data["properties"] = body.find("$>binding").size
-      it.data["lines"] = it.code.relevantCodeLines()
+        val body = it.find("$>ClassBody").firstNode()
+        it.data["constructors"] = body.find("$>fun[astType*='Constructor']").size
+        it.data["methods"] = body.find("$>fun").size
+        it.data["properties"] = body.find("$>binding").size
+        it.data["lines"] = it.code.relevantCodeLines()
+      }
     }
   }
 }

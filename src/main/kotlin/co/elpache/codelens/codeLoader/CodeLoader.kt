@@ -43,17 +43,7 @@ class CodeLoader {
 
   //Todo: This should be pluggable
   private fun applyMetrics(tree: CodeTree): CodeLoader {
-
-    tree.finder().find("file")
-      .map { it to it.codeNode() }
-      .forEach { (node, data) ->
-        languageSupportRegistry.forEach {
-          if (data.getString("path").matches(it.key.toRegex())) {
-            it.value.applyMetrics(node)
-          }
-
-        }
-      }
+    languageSupportRegistry.forEach { it.value.applyMetrics(tree.finder()) }
     return this
   }
 }

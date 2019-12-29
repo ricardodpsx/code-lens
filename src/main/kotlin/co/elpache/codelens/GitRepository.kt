@@ -14,6 +14,12 @@ data class Commit(val id: String, val message: String, val commitTime: Long, val
   fun date() = LocalDate.ofEpochDay(commitTime)
 }
 
+
+/**
+ * Todo: Git probably requires two abstractions? one to deal with git related commands on the current code and one
+ * to deal with the evolutionary metrics stuff
+ * The init method right now is making a lot of assumptions
+ */
 class GitRepository(path: String, val remoteUrl: String, val branch: String = "refs/heads/master") {
   val dir = File(path)
   var repo: Git? = null

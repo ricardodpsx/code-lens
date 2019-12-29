@@ -33,10 +33,10 @@
 -[x] Add Rules/Threshold #evolution (Same as smells)
 -[x] Unequality selectors #search fun
 -[x] Aggregators on the search language (count, sum)
--[ ] Just tree visualization (The JSON as it is?)
 -[ ] On packages, see Dependencies etc #cleanCode
 -[ ] Progress bar when loading history etc, maybe just an indexer with status
 -[ ] Baseline
+-[ ] Memory control (Register how many Ram is being used by the cache etc)
 -[ ] Add commit metrics
 -[ ] Mean, Media, Max, min for charts
 -[ ] Is my commit making things worse?
@@ -46,11 +46,19 @@
 -[ ] Slots/Buckets for charts #charts
 -[ ] Reload button
 -[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
+-[ ] Reliability: When db is down the app should keep working
 -[ ] Config and setup (Load a new project etc)
 -[ ] Duplicated code #metrics
-
+-[ ] Replace H2 by file cache
+-[ ] Either use sampling or smarter code saving (It could go up really quickly)
+-[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent
+-[ ] Cyclomatic Complexity #metrics (use https://github.com/escomplex/)
+-[ ] Just tree visualization (The JSON as it is?)
+-[ ] Commits with bug
+-[ ] Commit user story
 
 IceBox:
+-[ ] Use concurrent queue + blocking loadCommit so that commit preloading can give priority to user requested commits
 -[ ] Evolution Metrics, see details of the commits and code that are affecting the metrics
 -[ ] Problems with comments parsing in Kotlin
 -[ ] Simplify/unify tree types (JS/KT) #2 #search
@@ -67,7 +75,7 @@ IceBox:
 -[ ] Command line for Queries and Stats
 -[ ] Query items showin in the Graph #charts
 -[ ] Branching #metrics
--[ ] Cyclomatic Complexity #metrics
+-[ ] Amount of changes #metrics
 -[ ] On classes... #cleanCode
 -[ ] Naming and Semantics
 -[ ] Linguistic Similarity

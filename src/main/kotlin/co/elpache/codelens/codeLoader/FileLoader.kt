@@ -42,12 +42,10 @@ abstract class FileLoader(val file: File, lang: String, basePath: File) : NodeLo
     fun loadFile(path: String, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit, basePath: File) {
       val file = File(path)
       try {
-
-
         //Todo: There is a duplicated use of languageSupportRegistry
         languageSupportRegistry.entries.forEach {
           if (path.matches(it.key.toRegex())) {
-            it.value.fileLoaderBuilder(file, basePath).traverse(visitor, parent)
+            it.value.fileLoaderBuilder!!(file, basePath).traverse(visitor, parent)
           }
         }
       } catch (e: Exception) {
