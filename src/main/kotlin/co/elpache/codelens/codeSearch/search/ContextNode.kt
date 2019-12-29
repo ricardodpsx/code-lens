@@ -31,7 +31,8 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
       return if (tree.v(vid).type == "file")
         tree.v(vid).getString("code")
       else {
-        val fileNode = get("fileVid") as Vid
+        val fileNode = tree.ancestors(vid).find { tree.v(it).type == "file" } as Vid
+
         val contents = tree.v(fileNode).getString("code")
         contents.substring(tree.v(vid).startOffset, tree.v(vid).endOffset)
       }

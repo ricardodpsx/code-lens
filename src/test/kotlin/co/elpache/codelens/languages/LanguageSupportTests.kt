@@ -31,7 +31,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   @Test
   fun `Can get right file id from an ast node`() {
     val fileVid = tree.finder().find("#functions").first()["vid"]
-    Assertions.assertThat(tree.finder().find("#functions fun").first()["fileVid"]).isEqualTo(fileVid)
+    Assertions.assertThat(tree.finder().find("#functions fun").first().code).isNotBlank()
   }
 
   @Test

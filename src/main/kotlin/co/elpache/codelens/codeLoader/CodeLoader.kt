@@ -33,8 +33,6 @@ class CodeLoader {
       else
         tree.addIfAbsent("0", node)
 
-      node["fileVid"] = tree.ancestors(vid).find { tree.v(it).type == "file" } ?: ""
-
     }, null)
 
 

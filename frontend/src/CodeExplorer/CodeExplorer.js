@@ -48,22 +48,26 @@ function SearchResults({query, codeTree, results, onResultSelected}) {
 
   if (query == "" || !codeTree || !results || !results.length) return <div>No results</div>
 
-  return results.map(r => (
-     codeTree[r] &&
-     <div key={r}>
-       <a href=''
-          onClick={(e) => {
-            console.info(codeTree[r].data)
-            onResultSelected(r);
-            e.preventDefault();
-          }}>
-         {codeTree[r].data.id} {codeTree[r].data.fileVid && codeTree[codeTree[r].data.fileVid].data.path}
 
-       </a> <br/>
-       {codeTree[r].data.firstLine}...
-       <hr/>
-     </div>
-  ))
+  return results.map(r => {
+    if (!codeTree[r]) return null;
+
+    let f = fileAncestor(codeTree, r)
+
+    return <div key={r}>
+      <a href=''
+         onClick={(e) => {
+           console.info(codeTree[r].data)
+           onResultSelected(r);
+           e.preventDefault();
+         }}>
+        {codeTree[f] && codeTree[f].data.path}
+
+      </a> <br/>
+      {codeTree[r].data.firstLine}...
+      <hr/>
+    </div>
+  })
 }
 
 export function CodeExplorer() {
