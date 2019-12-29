@@ -16,6 +16,7 @@ import History from "../CodeEvolution/History";
 import MetricNameSelect from "./MetricNameSelect";
 import EvolutionOfFrequency from "../CodeEvolution/EvolutionOfFrequency";
 import {makeStyles} from "@material-ui/core";
+import {fileAncestor} from "./treeUtils";
 
 
 const useStyles = makeStyles(theme => ({
@@ -56,7 +57,9 @@ function SearchResults({query, codeTree, results, onResultSelected}) {
             onResultSelected(r);
             e.preventDefault();
           }}>
-         {codeTree[r].data.fileVid && codeTree[codeTree[r].data.fileVid].data.path} </a> <br/>
+         {codeTree[r].data.id} {codeTree[r].data.fileVid && codeTree[codeTree[r].data.fileVid].data.path}
+
+       </a> <br/>
        {codeTree[r].data.firstLine}...
        <hr/>
      </div>
@@ -161,8 +164,8 @@ export function CodeExplorer() {
                     query={query}
                     results={results} codeTree={codeTree} onResultSelected={r => {
                    selectNode(r)
-
-                   codeTree[r].data.fileVid && selectFileNode(codeTree[codeTree[r].data.fileVid].data)
+                   let f = fileAncestor(codeTree, r)
+                   selectFileNode(codeTree[f].data)
                    setCodeViewerTab(1)
                  }}
                  />

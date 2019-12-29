@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
 
-class EvolutionUseCases(private val factory: Factory = Factory()) {
+class EvolutionUseCases(val factory: Factory = Factory()) {
   val mapper = ObjectMapper().registerModule(KotlinModule())
 
   private val logger = KotlinLogging.logger {}
@@ -26,10 +26,10 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
 
     logger.info { "Starting collecting history of $commits" }
     val history = ArrayList<ParamEvolutionRow>()
-    commits.forEach {
-      val code = factory.createBaseCode(it.id)
-      history.add(ParamEvolutionRow(it, statistics(code.finder().find(query).paramsValues(param))))
-    }
+    factory.loadCodeFromCommits(commits)
+      .forEach {
+        history.add(ParamEvolutionRow(it.key, statistics(it.value.finder().find(query).paramsValues(param))))
+      }
     logger.info { "Finished collecting history of $commits" }
 
     return history
@@ -64,9 +64,8 @@ class EvolutionUseCases(private val factory: Factory = Factory()) {
   fun collectFrequency(query: String, commits: List<Commit>): List<EvolutionOfFrequency> {
     val frequencies = ArrayList<EvolutionOfFrequency>()
     logger.info { "Starting collecting history of $commits" }
-    commits.forEach {
-      val code = factory.createBaseCode(it.id)
-      frequencies.add(EvolutionOfFrequency(it, code.finder().find(query).size))
+    factory.loadCodeFromCommits(commits).forEach {
+      frequencies.add(EvolutionOfFrequency(it.key, it.value.finder().find(query).size))
     }
     logger.info { "Finished collecting history of $commits" }
     return frequencies

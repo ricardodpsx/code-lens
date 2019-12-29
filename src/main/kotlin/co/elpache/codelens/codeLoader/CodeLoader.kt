@@ -47,8 +47,6 @@ class CodeLoader {
     tree.finder().find("file")
       .map { it to it.codeNode() }
       .forEach { (node, data) ->
-
-
         languageSupportRegistry.forEach {
           if (data.getString("path").matches(it.key.toRegex())) {
             it.value.applyMetrics(node)

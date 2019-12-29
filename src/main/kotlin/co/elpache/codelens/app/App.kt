@@ -8,10 +8,12 @@ import co.elpache.codelens.useCases.EvolutionUseCases
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
+import org.springframework.beans.factory.InitializingBean
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.core.env.Environment
 
 
 @SpringBootApplication
@@ -35,13 +37,19 @@ class CodeLensApp {
 
   @Bean
   fun evolutionUseCases(factory: Factory): EvolutionUseCases {
-    val ec = EvolutionUseCases(factory)
+    return EvolutionUseCases(factory)
+  }
 
-    GlobalScope.launch {
-      ec.preloadCommits(20)
+  @Bean
+  fun startupStuff(ec: EvolutionUseCases, env: Environment): InitializingBean {
+
+    return InitializingBean {
+      if (!env.activeProfiles.contains("test"))
+
+        GlobalScope.launch {
+          ec.preloadCommits(40)
+        }
     }
-
-    return ec
   }
 
 }

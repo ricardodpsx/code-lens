@@ -4,9 +4,13 @@ import _ from "lodash"
 //Todo: WIP
 
 export function ancestors(graph, v) {
-
   if (!graph[v] || graph[v].parent == null) return []
   return [graph[v].parent].concat(ancestors(graph, graph[v].parent))
+}
+
+export function fileAncestor(graph, v) {
+  let a = ancestors(graph, v)
+  return a.find(f => graph[f].data.type === "file")
 }
 
 export function slice(text, graph, v = graph.rootVid) {

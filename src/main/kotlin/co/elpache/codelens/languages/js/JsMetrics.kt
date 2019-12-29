@@ -13,8 +13,6 @@ fun applyJsMetrics(fileNode: ContextNode) {
   fileNode.data["classes"] = fileNode.find("$>class").size
   fileNode.data["bindings"] = fileNode.find("$>binding").size
 
-  fileNode.data["commits"] = hashMapOf("x" to 1, "y" to listOf(1, 2))
-
   with(fileNode) {
     setQuery("SET {call} args = {$>args>arg | count}")
     setQuery("SET {fun} params = {$>params>param | count}")

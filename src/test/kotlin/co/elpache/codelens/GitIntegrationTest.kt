@@ -34,7 +34,7 @@ class GitIntegrationTest {
   @Test
   fun `See commit id of file`() {
     val repo = initRepository()
-    assertThat(repo.logOf("README.md").first()).isEqualTo("123aeca976c663f9f5359aad5f17d6eefd20d434")
+    assertThat(repo.logOf("README.md").first().id).isEqualTo("123aeca976c663f9f5359aad5f17d6eefd20d434")
   }
 
 

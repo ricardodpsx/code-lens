@@ -28,8 +28,6 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
 
   open val code: String
     get() {
-
-
       return if (tree.v(vid).type == "file")
         tree.v(vid).getString("code")
       else {

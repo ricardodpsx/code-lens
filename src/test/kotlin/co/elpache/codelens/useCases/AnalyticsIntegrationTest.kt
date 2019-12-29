@@ -10,15 +10,18 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
+@ActiveProfiles(profiles = ["test"])
 class AnalyticsIntegrationTest {
 
   @Autowired
   lateinit var applicationContext: ApplicationContext
+
 
   var factory: Factory = Factory()
 
@@ -56,6 +59,8 @@ class AnalyticsIntegrationTest {
   @Test
   fun `Can see change of methods in a class`() {
     val uc = EvolutionUseCases(factory)
+    factory.preloadCommits(createCommits("e3b714c", "e323c18"))
+
     val statistics = uc.collectHistory(
       "#ExampleClass", "methods",
       createCommits("e3b714c", "e323c18")

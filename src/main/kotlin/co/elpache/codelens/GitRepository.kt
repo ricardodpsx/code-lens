@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.Date
 
 
-data class Commit(val id: String, val message: String, val commitTime: Long) {
+data class Commit(val id: String, val message: String, val commitTime: Long, val author: String = "") {
   fun date() = LocalDate.ofEpochDay(commitTime)
 }
 
@@ -80,14 +80,22 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
       Commit(
         id = it.name,
         message = it.shortMessage,
-        commitTime = it.commitTime.toLong()
+        commitTime = it.commitTime.toLong(),
+        author = it.authorIdent.name
       )
     }.reversed()
 
 
-  fun logOf(filePath: String): List<String> {
+  fun logOf(filePath: String): List<Commit> {
     init()
-    return repo!!.log().add(masterId).addPath(filePath).call().map { it.id.name }
+    return repo!!.log().add(masterId).addPath(filePath).call().map {
+      Commit(
+        id = it.name,
+        message = it.shortMessage,
+        commitTime = it.commitTime.toLong(),
+        author = it.authorIdent.name
+      )
+    }
   }
 
   private fun logs(numCommits: Int): List<RevCommit> {

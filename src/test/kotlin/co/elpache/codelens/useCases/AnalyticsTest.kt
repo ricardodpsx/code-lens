@@ -3,6 +3,7 @@ package co.elpache.codelens.useCases;
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.createCodeExplorerUseCases
+import co.elpache.codelens.createCommit
 import co.elpache.codelens.createCommits
 import co.elpache.codelens.tree.vDataOf
 import io.mockk.every
@@ -101,6 +102,7 @@ class AnalyticsTest {
 
     //I.E Have the functions with more than certain lines size increased?
 
+    //Todo: Can be more clear
     val comm1 =
       codeTree(
         "1",
@@ -141,17 +143,12 @@ class AnalyticsTest {
     val factory = mockk<Factory>()
 
     every {
-      factory.createBaseCode("commit1")
-    } returns comm1
-
-    every {
-      factory.createBaseCode("commit2")
-    } returns comm2
-
-    every {
-      factory.createBaseCode("commit3")
-    } returns current
-
+      factory.loadCodeFromCommits(any())
+    } returns mapOf(
+      createCommit("commit1") to comm1,
+      createCommit("commit2") to comm2,
+      createCommit("commit3") to current
+    )
 
     val uc = EvolutionUseCases(factory)
     val results = uc.collectFrequency(

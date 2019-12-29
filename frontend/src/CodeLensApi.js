@@ -46,7 +46,7 @@ export function loadSmells(onSmellsLoaded) {
      })
 }
 
-export function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
+export function loadHistory(selectedMetric, query, onLoad, maxCommits = 20) {
   fetch(`${baseUrl}/history/${selectedMetric}?query=` + encodeURIComponent(query)
      + '&maxCommits=' + encodeURIComponent(maxCommits)
   )
@@ -58,7 +58,7 @@ export function loadHistory(selectedMetric, query, onLoad, maxCommits = 15) {
      })
 }
 
-export function loadFrequencyHistory(query, onLoad, maxCommits = 15) {
+export function loadFrequencyHistory(query, onLoad, maxCommits = 20) {
   fetch(`${baseUrl}/frequency-evolution/?query=` + encodeURIComponent(query)
      + '&maxCommits=' + encodeURIComponent(maxCommits)
   ).then(function (response) {

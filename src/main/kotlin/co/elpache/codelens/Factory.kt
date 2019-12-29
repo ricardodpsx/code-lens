@@ -4,9 +4,11 @@ import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.app.database.AstRepository
 import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.languages.js.jsInit
 import co.elpache.codelens.languages.kotlin.kotlinInit
 import co.elpache.codelens.tree.CodeTree
+import co.elpache.codelens.tree.vDataOf
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
@@ -14,12 +16,18 @@ import org.springframework.context.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PreDestroy
 
+
+//Todo: Factory is becomming big
 class Factory(
   val path: String = "./tmp", //Path to put the repository and navigate back and forth
   val currentCodePath: String = "../code-examples",
   repoUrl: String = "https://github.com/ricardodpsx/test-repo.git",
   val context: ApplicationContext? = null
 ) {
+
+  val astCache = ConcurrentHashMap<String, CodeTree>()
+
+
   private val logger = KotlinLogging.logger {}
 
   companion object {
@@ -27,6 +35,7 @@ class Factory(
       jsInit()
       kotlinInit()
     }
+
   }
 
   //Todo: Move to property files or command line args
@@ -34,7 +43,24 @@ class Factory(
 
   fun createBaseCode(): CodeTree {
 
-    val codeTree = CodeLoader().expandFullCodeTree(FolderLoader.load(currentCodePath))
+    val codeTree = CodeLoader()
+      .expandFullCodeTree(FolderLoader.load(currentCodePath))
+
+    //Todo: This doesn't belong here
+    codeTree.finder().find("file").forEach { f ->
+      val commits = repo.logOf(f.data.getString("path"))
+      commits.forEach { c ->
+        codeTree.addIfAbsent(
+          c.id, vDataOf(
+            "type" to "commit",
+            "id" to c.id,
+            "author" to c.commitTime,
+            "time" to c.commitTime
+          )
+        )
+        codeTree.addChild(f.vid, c.id)
+      }
+    }
 
     logger.info { "Done loading code" }
 
@@ -49,40 +75,60 @@ class Factory(
 
   val mapper = ObjectMapper().registerModule(KotlinModule())
 
-  val astCache = ConcurrentHashMap<String, CodeTree>()
-
 
   fun preloadCommits(commits: List<Commit>) {
-    repo
+
     logger.info { "Preloading ${commits}" }
     commits
-      .filter { getAstDatabase().findByCommit(it.id) == null }
+      .reversed()
       .forEach {
-        logger.info { "Preloading commit # ${it.id}" }
-        val code = createBaseCode(it.id)
-        getAstDatabase().save(AstRecord(it.id, mapper.writeValueAsString(code)))
+        fromCache(it.id) {
+          logger.info { "Preloading ${it.id}" }
+          repo.goTo(it.id)
+          CodeLoader().expandFullCodeTree(FolderLoader.load(path))
+        }
       }
   }
 
-  fun createBaseCode(commit: String): CodeTree {
-    //In memory cache
-    if (astCache[commit] != null) {
-      logger.info { "in Memory hit" }
-      return astCache[commit]!!
+  fun loadCodeFromCommits(commits: List<Commit>): Map<Commit, CodeTree> {
+    return commits.filter {
+      astCache[it.id] != null
+    }.map {
+      it to astCache[it.id]!!
+    }.toMap()
+  }
+
+  fun createBaseCode(commit: String): CodeTree? {
+    return astCache[commit]
+  }
+
+  private fun fromCache(commit: String, loadCallback: () -> CodeTree): CodeTree {
+
+    val fromMemory = {
+      if (astCache.contains(commit)) logger.info { "in Memory hit" }
+      astCache[commit]
     }
 
-    //Database cache
-    val record = getAstDatabase().findByCommit(commit)
+    val fromDb = {
 
-    val res = if (record != null)
-      createBaseCode(mapper.readValue(record.ast, CodeTree::class.java))
-    else {
-      repo.goTo(commit)
-      CodeLoader()
-        .expandFullCodeTree(FolderLoader.load(path))
+      val record = getAstDatabase().findByCommit(commit)
+      if (record != null) {
+        logger.info { "DB hit" }
+        createBaseCode(mapper.readValue(record.ast, CodeTree::class.java))
+      } else null
     }
-    astCache[commit] = res
-    return res
+
+
+    var first = fromMemory()
+
+    if (first == null) first = fromDb()
+
+    if (first == null) first = loadCallback()
+
+    astCache[commit] = first
+    getAstDatabase().save(AstRecord(commit, mapper.writeValueAsString(first)))
+
+    return first
   }
 
 

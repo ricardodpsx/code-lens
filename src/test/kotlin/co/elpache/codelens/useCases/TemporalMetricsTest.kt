@@ -1,39 +1,67 @@
 package co.elpache.codelens.useCases;
 
-import co.elpache.codelens.Factory
-import co.elpache.codelens.app.CodeLensApp
-import org.junit.Before
-import org.junit.runner.RunWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.ApplicationContext
-import org.springframework.test.context.junit4.SpringRunner
+import co.elpache.codelens.Commit
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.data.Percentage
+import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.util.TreeMap
 
 
-@RunWith(SpringRunner::class)
-@SpringBootTest(classes = [CodeLensApp::class])
 class TemporalMetricsTest {
 
-  @Autowired
-  lateinit var applicationContext: ApplicationContext
+  @Test
+  fun `can percent of change in last N days`() {
+    val commits = listOf(
+      Commit("012", "", commitTime = today(7)),
+      Commit("123", "", commitTime = today(2)),
+      Commit("123-2", "", commitTime = today(2)),
+      Commit("234", "", commitTime = today(1)),
+      Commit("345", "", commitTime = today()),
+      Commit("345-2", "", commitTime = today()),
+      Commit("345-3", "", commitTime = today())
+    )
 
-  var factory: Factory = Factory()
+    assertThat(percentOfChanges(commits, 3)).isCloseTo(1.0, Percentage.withPercentage(1.0))
 
-  @Before
-  fun setup() {
-    factory = Factory(path = "tmp", currentCodePath = "../code-examples/change", context = applicationContext)
-    Factory.initializeLanguageRegistry()
+
+    //In a week
+    assertThat(percentOfChanges(commits, 7)).isCloseTo(0.428, Percentage.withPercentage(1.0))
+
+    assertThat(percentOfChanges(commits, 8)).isCloseTo(0.5, Percentage.withPercentage(1.0))
+
   }
 
-//  @Test
-//  fun `can see changes in a file`() {
-//    val code = factory.createBaseCode()
-//
-//    assertThat(code.finder().find("#fileAddedLater>commits>commit")).extracting("id").contains(
-//      "fd3b52fa6cf46fc98ca398629d12a93698b8dcfd",
-//      "4e4cf91d604d618ecdc2658d9d700ac7f7b7027f",
-//      "5f17efeaf4c23928a464505f4699809ec679da67"
-//    )
-//  }
 
+}
+
+fun today(minus: Long = 0) =
+  LocalDate.now().atStartOfDay().minusDays(minus).toEpochSecond()
+
+
+fun LocalDateTime.toEpochSecond() =
+  toEpochSecond(OffsetDateTime.now().offset)
+
+fun percentOfChanges(commits: List<Commit>, lastNDays: Long): Double {
+
+  val changed = TreeMap<Long, Boolean>()
+
+  var from = LocalDate.now().atStartOfDay().minusDays(lastNDays - 1)
+  val to = LocalDate.now().atStartOfDay()
+
+  while (from <= to) {
+    changed[from.toEpochSecond()] = false
+    from = from.plusDays(1)
+  }
+
+  commits.map {
+    changed.floorKey(it.commitTime)?.let {
+      changed[it] = true
+    }
+  }
+
+
+  return changed.filter { it.value }.size.toDouble() / lastNDays
 }

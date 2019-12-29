@@ -1,23 +1,33 @@
 package co.elpache.codelens.useCases
 
-import co.elpache.codelens.Factory
 import co.elpache.codelens.app.CodeLensApp
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringRunner
 import kotlin.system.measureTimeMillis
 
 
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
-class EvolutionUseCasesTest {
+@ActiveProfiles(profiles = ["test"])
+class PreloadingIntegrationTest {
 
   @Autowired
   lateinit var context: ApplicationContext
+
+  @Autowired
+  lateinit var uc: EvolutionUseCases
+
+  @Before
+  fun setup() {
+    uc.preloadCommits(6)
+  }
 
   /**
    *
@@ -34,25 +44,24 @@ class EvolutionUseCasesTest {
 
   @Test
   fun `Preload commits in DB so that queries can be done faster later`() {
-    val factory = Factory(context = context)
-    val uc = EvolutionUseCases(factory)
 
-    val commits = factory.repo.lastCommits(6)
-
-    val preloadTime = measureTimeMillis {
-      factory.preloadCommits(commits)
-    }
+    //Giving some time to the preload commits to finish
 
     val loadTime = measureTimeMillis {
-      assertThat(commits.size).isEqualTo(6)
-      uc.collectHistory("fun", "lines", commits)
+      assertThat(uc.collectHistory("fun", "lines", 6).size).isEqualTo(6)
     }
 
-    println(
-      "Preload Time: ${preloadTime / 1000.0}\n" +
-          "Load time ${loadTime / 1000.0} Secs"
-    )
+
+    println("Load time ${loadTime / 1000.0} Secs")
 
     assertThat(loadTime).isLessThan(4000)
+  }
+
+  @Test
+  fun `History should only be collected for preloaded commits`() {
+
+    val loadTime = measureTimeMillis {
+      assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
+    }
   }
 }

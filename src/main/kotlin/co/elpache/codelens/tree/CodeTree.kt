@@ -62,7 +62,7 @@ open class CodeTree {
     items.add(vid)
     while (items.isNotEmpty()) {
       val p = items.pop()
-      ct.vertices.put(p, vertices[p]!!)
+      ct.vertices[p] = vertices[p]!!
       children(p).forEach {
         items.add(it)
       }
