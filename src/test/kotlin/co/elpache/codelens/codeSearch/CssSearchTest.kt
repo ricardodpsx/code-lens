@@ -10,7 +10,7 @@ import org.junit.Test
 class CssSearchTest {
   val tree =
     codeTree(
-      "1", vDataOf("type" to "a", "name" to "parent"),
+      "1", vDataOf("type" to "a AA", "name" to "parent"),
       codeTree(
         "1.1", vDataOf("type" to "b"),
         codeTree(
@@ -67,7 +67,13 @@ class CssSearchTest {
   fun `Test children search`() {
     println(tree.asString())
     assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
+
     assertThat(search("a[name='parent'] d d")).containsExactlyInAnyOrder("1.1.2.1")
+  }
+
+  @Test
+  fun `support multiple types`() {
+    assertThat(search("AA b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
   }
 
   @Test
@@ -129,4 +135,18 @@ class CssSearchTest {
     assertThat(search("a *[lines]")).containsExactlyInAnyOrder("1.1.1", "1.1.2")
   }
 
+
+  @Test
+  fun `Pseudo elements search`() {
+    tree.vertices["1.1"]!!.data[":childDs"] = "$ d"
+
+    assertThat(tree.finder().find("b :childDs").map { it.vid })
+      .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
+  }
+
+  @Test
+  fun `Pseudo elements search error`() {
+    assertThat(tree.finder().find("d :unregistered").map { it.vid }).isEmpty()
+
+  }
 }

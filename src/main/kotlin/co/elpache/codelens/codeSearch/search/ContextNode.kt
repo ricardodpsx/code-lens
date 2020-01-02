@@ -14,6 +14,11 @@ fun Collection<ContextNode>.paramsValues(param: String): List<Pair<Vid, Int>> {
 }
 
 open class ContextNode(val vid: Vid, val tree: CodeTree) {
+
+  companion object {
+    val pseudoElementsRegistry = HashMap<String, String>()
+  }
+
   open fun find(css: String): List<ContextNode> {
     return (parseQuery(css).evaluate(this) as List<ContextNode>)
   }
@@ -28,17 +33,19 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
 
   open val code: String
     get() {
-      return if (tree.v(vid).type == "file")
+      return if (tree.v(vid).isA("file"))
         tree.v(vid).getString("code")
       else {
-        val fileNode = tree.ancestors(vid).find { tree.v(it).type == "file" } as Vid
+        val fileNode = tree.ancestors(vid).find { tree.v(it).isA("file") } as Vid
 
         val contents = tree.v(fileNode).getString("code")
-        contents.substring(tree.v(vid).startOffset, tree.v(vid).endOffset)
+        contents.substring(tree.v(vid).start, tree.v(vid).end)
       }
     }
 
   open val data: VData get() = tree.v(vid)
+  val parent: VData? get() = tree.parentNode(vid)
+
   open val children: List<ContextNode>
     get() = tree.children(vid).map { ContextNode(it, tree) }
 
@@ -62,7 +69,9 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   }
 
 
-  fun printTree() = println(tree.subTree(vid).asString())
+  fun printTree() = println(asString())
+
+  fun asString() = tree.subTree(vid).asString()
 
 }
 

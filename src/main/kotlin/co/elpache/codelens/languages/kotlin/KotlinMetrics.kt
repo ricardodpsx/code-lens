@@ -14,6 +14,7 @@ fun applyKotlinMetrics(ctx: ContextNode) {
     fileNode.data["classes"] = fileNode.find("class").size
     fileNode.data["bindings"] = fileNode.find("binding").size
 
+
     with(fileNode) {
       find("call").forEach {
         it.data["args"] = it.find("$>args>arg").size
@@ -23,6 +24,7 @@ fun applyKotlinMetrics(ctx: ContextNode) {
         it.data["textLines"] = it.code.split("\n").size
         it.data["lines"] = it.code.relevantCodeLines() - 1
         it.data["depth"] = depth(it.tree, it.vid) - 1
+        it.data[":params"] = "$>params>param"
         it.data["params"] = it.find("$>params>param").size
       }
 

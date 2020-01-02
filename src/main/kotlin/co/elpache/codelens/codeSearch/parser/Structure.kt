@@ -100,12 +100,14 @@ data class TypeSelector(
   val relationType: RelationType,
   val attributeToMatch: String = "type",
   val expr: Expression
-) {
+) : Expression {
 
-  fun matches(ctx: ContextNode): Boolean {
-    val ce = ctx.data
+  fun isPseudoElement() = name.startsWith(":")
 
-    if (name != "*" && ce[attributeToMatch].toString().toLowerCase() != name.toLowerCase())
+  override fun evaluate(ctx: ContextNode): Boolean {
+    val values = ctx.data[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
+
+    if (name != "*" && values.none { it == name.toLowerCase() })
       return false
 
     if (expr is NullExpression) return true

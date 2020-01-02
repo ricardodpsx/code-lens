@@ -16,7 +16,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
     res.map { it.data }
   }
 
-  val getValue = { funName: String, metric: String -> search(funName).first()[metric] as Any }
+  val getValue = { funName: String, metric: String -> search(funName).first()[metric] }
 
   @After
   fun after() {
@@ -24,13 +24,8 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   }
 
   @Test
-  fun `can print tree`() {
-    tree.finder().find("#classes")[0].printTree()
-  }
-
-  @Test
-  fun `Can get right file id from an ast node`() {
-    val fileVid = tree.finder().find("#functions").first()["vid"]
+  fun `Can get the code of a node`() {
+    tree.finder().find("#functions fun").first().printTree()
     Assertions.assertThat(tree.finder().find("#functions fun").first().code).isNotBlank()
   }
 
@@ -42,20 +37,20 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
       .contains("functionWith2NestingLevels", "functionWith2Lines", "functionWith3Params")
 
     funs.forEach {
-      assertThat(it["startOffset"]).isNotNull
-      assertThat(it["endOffset"]).isNotNull
+      assertThat(it["start"]).isNotNull
+      assertThat(it["end"]).isNotNull
       assertThat(it["lines"]).isNotNull
       assertThat(it["params"]).isNotNull
       assertThat(it["type"]).isNotNull
       assertThat(it["depth"]).isNotNull
     }
 
-    assertThat(search("#functionWith3Params>params>param")).hasSize(3)
-    assertThat(search("#functionWith3Params>params>param")).extracting("name").containsExactly("x", "y", "z")
+    assertThat(search("#functionWith3Params :params")).hasSize(3)
+    assertThat(search("#functionWith3Params :params")).extracting("name").containsExactly("x", "y", "z")
 
-    assertThat(getValue("#functionWith2NestingLevels", "depth") as Int).isEqualTo(2)
     assertThat(getValue("#functionWith2Lines", "lines") as Int).isEqualTo(2)
     assertThat(getValue("#functionWith3Params", "params") as Int).isEqualTo(3)
+    assertThat(getValue("#functionWith2NestingLevels", "depth") as Int).isEqualTo(2)
   }
 
 
@@ -63,6 +58,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   fun `Test Calls`() {
     assertThat(search("call")).extracting("firstLine").contains("functionWith3Params(1, 2, 3)")
 
+    tree.finder().find("call[firstLine^='functionWith3Params']").first().printTree()
 
     assertThat(search("call[firstLine^='functionWith3Params']>args>arg")).hasSize(3)
     assertThat(getValue("call[firstLine^='functionWith3Params']", "args")).isEqualTo(3)

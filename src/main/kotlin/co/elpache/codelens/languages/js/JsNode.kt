@@ -1,6 +1,5 @@
 package co.elpache.codelens.languages.js
 
-import co.elpache.codelens.codeLoader.codeNodeBase
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -30,24 +29,6 @@ fun simplifyType(astType: String, parent: VData?) = when (astType) {
   else astType
 }
 
-
-internal fun toJsNode(c: JsonNode, codeFile: JsFileLoader, parent: VData?): VData {
-  val astType = c.get("type").asText()
-
-  return codeNodeBase(
-    name = getName(c),
-    astType = astType,
-    type = simplifyType(astType, parent),
-    start = c.get("start").asInt(),
-    end = c.get("end").asInt(),
-    file = codeFile
-  ).addAll(
-    "keys" to c.fieldNames().asSequence().toList(),
-    "kind" to c.get("kind")?.asText(),
-    "async" to c.get("async")?.asText(),
-    "async" to c.get("generator")?.asText()
-  )
-}
 
 
 fun getName(c: JsonNode): String? {

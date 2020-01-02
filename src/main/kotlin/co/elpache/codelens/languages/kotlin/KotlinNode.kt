@@ -1,6 +1,7 @@
 package co.elpache.codelens.languages.kotlin
 
 import co.elpache.codelens.codeLoader.codeNodeBase
+import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.underscoreToCamel
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
@@ -48,31 +49,11 @@ internal fun toCodeEntity(c: PsiElement, fileLoader: KotlinFileLoader): VData {
   val astType = c.node.elementType.toString().underscoreToCamel()
 
   return codeNodeBase(
-    name = name,
-    astType = astType,
     type = simplifyType(astType),
     start = c.startOffsetSkippingComments,
     end = c.endOffset,
-    file = fileLoader
+    astType = astType,
+    name = name,
+    firstLine = c.text.firstLine()
   )
-
-  //Comments don't parse as nodes with this parser
-//  if (c.startsWithComment()) {
-//
-//    val comm = vDataOf(
-//      "astType" to "comment",
-//      "type" to "comment",
-//      "startOffset" to c.startOffset,
-//      "endOffset" to c.startOffsetSkippingComments,
-//      "codeFile" to codeFile,
-//      "line" to c.startOffset,
-//      "node" to c
-//    )
-//    val commCode = codeFile.contents().substring(comm.getInt("startOffset"), comm.getInt("endOffset"))
-//    comm["firstLine"] = commCode.firstLine()
-//    comm["code"] = commCode
-//    return listOf(comm).plus(data)
-//  }
-//
-//  return listOf(data)
 }

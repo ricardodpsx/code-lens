@@ -64,6 +64,13 @@ class CssSelectorParserTest {
     assertThat(rightValue(attr)).isEqualTo("hello")
   }
 
+  @Test
+  fun `Supports pseudo childs`() {
+    val sel = parseQuery("class :methods").selectors[1]
+
+    assertThat(sel.name).isEqualTo(":methods")
+  }
+
 
   @Test
   fun cssSupportEscape() {

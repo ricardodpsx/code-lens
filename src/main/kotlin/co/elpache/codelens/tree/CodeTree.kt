@@ -24,6 +24,13 @@ open class CodeTree {
 
   fun root(): VData = v(rootVid())
 
+  fun addNode(vid: String, data: VData = vDataOf()): VData {
+    val vid = vid
+    addIfAbsent(vid, data)
+    data["vid"] = vid
+    return data
+  }
+
   fun addIfAbsent(id: String, data: VData): CodeTree {
     if (contains(id)) return this
     vertices[id] = Vertice(id, data)
@@ -73,17 +80,17 @@ open class CodeTree {
 
   fun asString(): String {
     val out = StringBuilder()
-    val root = v(rootVid()).plus("code" to "<Excluded>")
-    out.append("${rootVid}: ${root}\n")
+    val root = v(rootVid()).plus("code" to "<Excluded>").minus("vid")
+    out.append("${root}\n")
     dfs(rootVid(), "-", out)
     return out.toString()
   }
 
   private fun dfs(vid: Vid, tab: String, out: StringBuilder) {
     for (cVid in children(vid)) {
-      val child = v(cVid).minus("code")
+      val child = v(cVid).minus("code").minus("vid")
 
-      out.append(" $tab ${cVid}: ${child}\n")
+      out.append(" $tab ${child}\n")
       dfs(cVid, "$tab-", out)
     }
   }
@@ -132,6 +139,17 @@ open class CodeTree {
   private fun vertice(vid: Vid) = vertices[vid] ?: error("Vertice $vid not found")
 
   fun contains(vid: Vid) = vertices.contains(vid)
+
+  fun addSubTree(subTree: CodeTree, to: Vid): CodeTree {
+    val expectedSize = subTree.vertices.size + vertices.size
+    vertices.putAll(subTree.vertices)
+    addChild(to, subTree.rootVid())
+
+    if (vertices.size != expectedSize)
+      throw Error("The trees should be disjoint")
+
+    return this
+  }
 }
 
 

@@ -2,7 +2,6 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.app.CodeLensApp
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,11 +23,6 @@ class PreloadingIntegrationTest {
   @Autowired
   lateinit var uc: EvolutionUseCases
 
-  @Before
-  fun setup() {
-    uc.preloadCommits(6)
-  }
-
   /**
    *
    * Todo: This needs a discussion, because if the base code is too big, saving the ast's of the whole projects may be too much
@@ -45,10 +39,13 @@ class PreloadingIntegrationTest {
   @Test
   fun `Preload commits in DB so that queries can be done faster later`() {
 
+    uc.preloadCommits(6)
+
     //Giving some time to the preload commits to finish
 
     val loadTime = measureTimeMillis {
-      assertThat(uc.collectHistory("fun", "lines", 6).size).isEqualTo(6)
+      //Should only load pre-loaded commits
+      assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
     }
 
 
@@ -57,11 +54,4 @@ class PreloadingIntegrationTest {
     assertThat(loadTime).isLessThan(4000)
   }
 
-  @Test
-  fun `History should only be collected for preloaded commits`() {
-
-    val loadTime = measureTimeMillis {
-      assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
-    }
-  }
 }

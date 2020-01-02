@@ -25,12 +25,27 @@ fun vDataOf(vararg pair: Pair<String, Any?>): VData {
 class VData : HashMap<String, Any>() {
   val fileNode: String get() = this["fileNode"] as Vid
   val type: String get() = this["type"] as String
+  val vid: String get() = this["vid"] as String
 
-  val startOffset: Int get() = this["startOffset"] as Int
-  val endOffset: Int get() = this["endOffset"] as Int
+  fun isA(str: String): Boolean {
+    return type.split(" ").map { it.trim().toLowerCase() }.any { str.toLowerCase() == it }
+  }
+
+  val start: Int get() = this.getInt("start")
+  val end: Int get() = this.getInt("end")
+
+  operator fun set(key: String, value: Any) {
+    if (value.toString().isBlank()) return
+
+    //Avoiding overriding of fields
+    if (containsKey(key))
+      super.put(key, listOf(super.get(key).toString().trim(), value.toString().trim()).joinToString(" "))
+    else
+      super.put(key, value)
+  }
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
-  fun getInt(key: String): Int = (this[key] as? Int) ?: 0
+  fun getInt(key: String): Int = this[key].toString().toIntOrNull() ?: 0
   fun addAll(vararg pairs: Pair<String, Any?>): VData {
     pairs.filter { it.second != null }.forEach {
       this[it.first] = it.second!!

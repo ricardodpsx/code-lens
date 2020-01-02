@@ -4,10 +4,12 @@ import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeLoader.ignorePatterns
 import co.elpache.codelens.codeLoader.languageSupportRegistry
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
+import java.util.LinkedList
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.toList
 
@@ -25,23 +27,47 @@ val parsedCache = ConcurrentHashMap<String, JsonNode>()
 
 class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath) {
 
-  override fun traverse(visitor: (ce: VData, parent: VData?) -> Unit, parent: VData?) {
-    visitor(data, parent)
+  override fun load(): CodeTree {
+    val parsed = parseFile(file).at("/program/body")
+    val codeTree = CodeTree()
 
-    parsedCache[file.path]!!
-      .at("/program/body")
-      .asIterable()
-      .map {
-        traverseChilds(it, data, visitor)
+    val fileNode = codeTree.addNode(file.path, fileData())
+
+    data class Item(val jsonNode: JsonNode, val parent: VData, val key: String? = null, val index: Int? = null)
+
+    val list = LinkedList<Item>()
+    list.addLast(Item(jsonNode = parsed, parent = fileNode, key = "body"))
+
+    var i = 0
+    while (list.isNotEmpty()) {
+      val (jsonNode, parent, key, index) = list.removeFirst()
+
+      val node = codeTree.addNode("${file.path}-$i")
+
+      codeTree.addChild(parent.vid, node.vid)
+
+      if (jsonNode.isArray)
+        jsonNode.asSequence().withIndex().forEach {
+          if (it.value.isValueNode)
+            parent[it.index.toString()] = it.value.asText()
+          else
+            list.addLast(Item(it.value, node, index = it.index))
+        }
+
+      jsonNode.fields().forEach {
+        if (it.value.isValueNode)
+          node[it.key] = it.value.asText()
+        else list.addLast(Item(it.value, node, key = it.key))
       }
-  }
 
-  private fun traverseChilds(node: JsonNode, parent: VData?, visitor: (ce: VData, parent: VData?) -> Unit) {
-    val ce = toJsNode(node, this, parent)
-    visitor(ce, parent)
-    node.astChildren().forEach {
-      traverseChilds(it, ce, visitor)
+      if (index != null) node["index"] = index
+      if (key != null) node["type"] = key
+
+      i++
     }
+    //Todo: Make the rootVid the first added node by default
+    codeTree.rootVid = fileNode.vid
+    return codeTree
   }
 }
 
@@ -76,8 +102,6 @@ fun preloadParsedFiles(path: File) {
         parsedCache[it.first.path] = toJson(it.second)
       }
     }
-
-
   }
 }
 

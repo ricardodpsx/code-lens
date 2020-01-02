@@ -20,6 +20,42 @@ class CodeTreeTest {
     assertThat(ct.children("a").map { ct.v(it)["value"] }).contains("a.1", "a.2")
   }
 
+  @Test
+  fun `Add Subtree`() {
+
+    val a = tree(
+      "a",
+      tree("a.1"),
+      tree("a.2")
+    )
+
+    val b = tree(
+      "b",
+      tree("b.1"),
+      tree("b.2")
+    )
+
+    assertThat(inorder(a.addSubTree(b, "a.1"))).contains("a", "a.1", "a.2", "b", "b.1", "b.2")
+  }
+
+  @Test(expected = Error::class)
+  fun `Should not join non-disjoint trees`() {
+
+    val a = tree(
+      "a",
+      tree("a.1"),
+      tree("a.2")
+    )
+
+    val b = tree(
+      "a",
+      tree("b.1"),
+      tree("b.2")
+    )
+
+    a.addSubTree(b, "a.1")
+  }
+
 
   @Test
   fun testCodeTreeAsGraph() {

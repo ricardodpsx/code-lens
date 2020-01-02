@@ -40,11 +40,11 @@ class CodeLoaderTest {
     compareTreeOutputs(
       treeWithDescendants,
       """
-      1: {type=file, code=<Excluded>}
-      - 2: {type=fun}
-      -- 6: {type=X}
-      - 7: {type=fun}
-      -- 8: {type=X}"""
+        {type=file, code=<Excluded>}
+         - {type=fun}
+         -- {type=X}
+         - {type=fun}
+         -- {type=X}"""
     )
 
   }

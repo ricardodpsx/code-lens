@@ -1,15 +1,20 @@
 package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
+import mu.KotlinLogging
 import java.io.File
+import java.util.LinkedList
 
 val ignorePatterns = listOf(".*node_modules.*")
 
 
 open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
   val file = dir
+
+  private val logger = KotlinLogging.logger {}
 
   companion object {
     fun load(src: String): FolderLoader {
@@ -28,26 +33,52 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
     }
   }
 
-  override fun traverse(visitor: (node: VData, parent: VData?) -> Unit, parent: VData?) {
-    traverse(dir, visitor, parent, dir)
+  override fun load(): CodeTree {
+    languageSupportRegistry.values.forEach {
+      it.onBaseCodeLoad(dir)
+    }
+
+    val codeTree = CodeTree()
+
+    data class Child(val node: File, val parent: VData?)
+
+    val queue = LinkedList<Child>()
+    queue.addLast(Child(dir, null))
+
+    while (queue.isNotEmpty()) {
+      val (cur, parent) = queue.removeFirst()
+      try {
+        if (cur.isDirectory) {
+          val node = codeTree.addNode(
+            cur.path,
+            vDataOf("fileName" to cur.name, "type" to "dir", "name" to cur.name)
+          )
+
+          cur.listFiles()
+            .filterNot { f ->
+              ignorePatterns.any { f.path.matches(it.toRegex()) }
+            }
+            .forEach {
+              queue.addLast(Child(it, node))
+            }
+
+          if (parent != null)
+            codeTree.addChild(parent.vid, node.vid)
+
+        } else {
+          val loader = languageSupportRegistry.entries.find {
+            cur.path.matches(it.key.toRegex())
+          }?.value?.fileLoaderBuilder ?: ::DefaultFileLoader
+
+          codeTree.addSubTree(loader(cur, basePath).load(), parent!!.vid)
+        }
+
+      } catch (e: Exception) {
+        logger.warn(e) { "problem opening directory ${cur.absolutePath}" }
+      }
+    }
+    codeTree.rootVid = dir.path
+    return codeTree
   }
 }
 
-fun traverse(cur: File, visitor: (node: VData, parent: VData?) -> Unit, parent: VData?, basePath: File) {
-  val data = vDataOf("fileName" to cur.name, "type" to "dir", "name" to cur.name)
-
-  visitor(data, parent)
-
-  try {
-    cur.listFiles()
-      .filterNot { f ->
-        ignorePatterns.any { f.path.matches(it.toRegex()) }
-      }
-      .forEach {
-        if (it.isDirectory) traverse(it, visitor, data, basePath)
-        else FileLoader.loadFile(it.toString(), data, visitor, basePath)
-      }
-  } catch (e: Exception) {
-    throw RuntimeException("problem opening directory ${cur.absolutePath}", e)
-  }
-}
