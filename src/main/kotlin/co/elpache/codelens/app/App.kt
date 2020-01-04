@@ -18,7 +18,6 @@ import org.springframework.core.env.Environment
 
 @SpringBootApplication
 class CodeLensApp {
-
   private val logger = KotlinLogging.logger {}
 
 

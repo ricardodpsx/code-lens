@@ -6,12 +6,12 @@ import org.nield.kotlinstatistics.descriptiveStatistics
 import org.nield.kotlinstatistics.median
 
 
-fun frequency(values: List<Pair<Vid, Int>>): List<ParamFrequencyRow> {
-  val vidsByParam = HashMap<Int, List<Vid>>()
+fun frequency(values: List<Pair<Vid, Double>>): List<ParamFrequencyRow> {
+  val vidsByParam = HashMap<Double, List<Vid>>()
 
   values.forEach { p ->
     vidsByParam.computeIfAbsent(p.second) { listOf() }
-    vidsByParam.computeIfPresent(p.second) { a: Int, b: List<Vid> ->
+    vidsByParam.computeIfPresent(p.second) { a: Double, b: List<Vid> ->
       b.plus(p.first)
     }
   }

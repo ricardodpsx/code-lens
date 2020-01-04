@@ -8,9 +8,9 @@ import co.elpachecode.codelens.cssSelector.parseQuery
 import co.elpachecode.codelens.cssSelector.parseSetQuery
 
 fun CodeTree.finder() = ContextNode(rootVid(), this)
-fun Collection<ContextNode>.paramsValues(param: String): List<Pair<Vid, Int>> {
+fun Collection<ContextNode>.paramsValues(param: String): List<Pair<Vid, Double>> {
   return filter { it.data.contains(param) }
-    .map { Pair(it.vid, it.data[param] as Int) }
+    .map { Pair(it.vid, it.data.getDouble(param)) }
 }
 
 open class ContextNode(val vid: Vid, val tree: CodeTree) {
@@ -48,6 +48,8 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
 
   open val children: List<ContextNode>
     get() = tree.children(vid).map { ContextNode(it, tree) }
+
+  fun adj(): List<ContextNode> = tree.adj(vid).map { ContextNode(it, tree) }
 
   override fun toString() = data.toString()
 

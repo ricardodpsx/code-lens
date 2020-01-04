@@ -5,11 +5,9 @@ import co.elpachecode.codelens.cssSelector.RelationType
 import co.elpachecode.codelens.cssSelector.TypeSelector
 import co.elpachecode.codelens.cssSelector.parseQuery
 
-
 val funcRegistry = HashMap<String, (res: PathFinder, params: List<String>) -> Any>()
 
-
-class PathFinder(val ctx: ContextNode) {
+class PathFinder(private val ctx: ContextNode) {
   val tree = ctx.tree
   val vid = ctx.vid
 
@@ -17,15 +15,24 @@ class PathFinder(val ctx: ContextNode) {
     ContextNode(it, tree)
   }
 
+  private fun allNodes() =
+    //When searching from root it should look for all nodes
+    if (tree.rootVid == vid)
+      tree.vertices.map { ContextNode(it.key, tree) }
+    else
+      descendants()
+
   fun find(query: Query): List<ContextNode> {
     return findMatchingPathsFromSubSet(
-      listOf(ctx).plus(descendants()), query.selectors
+      listOf(ctx).plus(allNodes()).distinctBy { it.vid }, query.selectors
     )
   }
 
   private fun find(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(descendants(), selectors)
 
-  private fun findNext(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(ctx.children, selectors)
+  private fun findNext(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(
+    ctx.adj(), selectors
+  )
 
   private fun expandForPseudoElements(path: List<TypeSelector>, subset: List<ContextNode>):
       Pair<List<TypeSelector>, List<ContextNode>> {
@@ -44,6 +51,7 @@ class PathFinder(val ctx: ContextNode) {
    * subSet: Subset of Nodes from where to start to search the items that match the path
    * path: The path defined by the query language. example class fun>if
    */
+  //TODO: This can be greatly improved by using actual sets and VIDs instead of lists of contextNode
   private fun findMatchingPathsFromSubSet(
     subSet: List<ContextNode>,
     path: List<TypeSelector>
@@ -58,7 +66,7 @@ class PathFinder(val ctx: ContextNode) {
         if (path.first().name == "$") it.ctx == ctx
         else path.first().evaluate(it.ctx)
       }.map {
-        if (path.first().relationType == RelationType.CHILDREN)
+        if (path.first().relation.type == RelationType.FOLLOW_RELATION)
           it.find(path.drop(1))
         else
           it.findNext(path.drop(1))

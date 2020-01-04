@@ -17,7 +17,7 @@ export function loadGraph(query, onResult) {
 
 export function loadFile(selectedFile, onFileSelect) {
 
-  fetch(`${baseUrl}/node/${selectedFile.vid}`)
+  fetch(`${baseUrl}/node/${encodeURIComponent(selectedFile.vid)}`)
      .then(function (response) {
        return response.json();
      })
@@ -27,7 +27,8 @@ export function loadFile(selectedFile, onFileSelect) {
 }
 
 export function loadMetrics(param, query, onMetricsLoaded) {
-  fetch(`${baseUrl}/analytics/${param}?query=file%20${encodeURIComponent(query)}`)
+  query = query || "file"
+  fetch(`${baseUrl}/analytics/${param}?query=${encodeURIComponent(query)}`)
      .then(function (response) {
        return response.json();
      })

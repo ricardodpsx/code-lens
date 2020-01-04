@@ -15,7 +15,7 @@ import kotlin.system.measureTimeMillis
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
 @ActiveProfiles(profiles = ["test"])
-class PreloadingIntegrationTest {
+class PreloadingIT {
 
   @Autowired
   lateinit var context: ApplicationContext
@@ -47,7 +47,6 @@ class PreloadingIntegrationTest {
       //Should only load pre-loaded commits
       assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
     }
-
 
     println("Load time ${loadTime / 1000.0} Secs")
 

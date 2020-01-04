@@ -8,7 +8,7 @@ import mu.KotlinLogging
 import java.io.File
 import java.util.LinkedList
 
-val ignorePatterns = listOf(".*node_modules.*")
+val ignorePatterns = listOf("(.*node_modules.*|\\.git)")
 
 
 open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
@@ -33,6 +33,7 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
     }
   }
 
+  //Todo: long method
   override fun load(): CodeTree {
     languageSupportRegistry.values.forEach {
       it.onBaseCodeLoad(dir)
@@ -68,9 +69,10 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
         } else {
           val loader = languageSupportRegistry.entries.find {
             cur.path.matches(it.key.toRegex())
-          }?.value?.fileLoaderBuilder ?: ::DefaultFileLoader
+          }?.value?.fileLoaderBuilder
 
-          codeTree.addSubTree(loader(cur, basePath).load(), parent!!.vid)
+          if (loader != null)
+            codeTree.addSubTree(loader(cur, basePath).load(), parent!!.vid)
         }
 
       } catch (e: Exception) {

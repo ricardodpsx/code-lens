@@ -1,9 +1,7 @@
-package co.elpache.codelens.useCases;
+package co.elpache.codelens;
 
-import co.elpache.codelens.Factory
 import co.elpache.codelens.app.CodeLensApp
 import co.elpache.codelens.codeSearch.search.finder
-import co.elpache.codelens.createCommits
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -18,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
 @ActiveProfiles(profiles = ["test"])
-class GitLanguageIntegrationTest {
+class GitCommitsIT {
 
   @Autowired
   lateinit var applicationContext: ApplicationContext

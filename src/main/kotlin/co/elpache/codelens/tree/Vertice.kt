@@ -24,7 +24,7 @@ fun vDataOf(vararg pair: Pair<String, Any?>): VData {
 
 class VData : HashMap<String, Any>() {
   val fileNode: String get() = this["fileNode"] as Vid
-  val type: String get() = this["type"] as String
+  val type: String get() = this.getOrDefault("type", "").toString()
   val vid: String get() = this["vid"] as String
 
   fun isA(str: String): Boolean {
@@ -46,6 +46,9 @@ class VData : HashMap<String, Any>() {
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
   fun getInt(key: String): Int = this[key].toString().toIntOrNull() ?: 0
+
+  fun getDouble(key: String): Double = this[key].toString().toDoubleOrNull() ?: 0.0
+
   fun addAll(vararg pairs: Pair<String, Any?>): VData {
     pairs.filter { it.second != null }.forEach {
       this[it.first] = it.second!!
@@ -54,11 +57,20 @@ class VData : HashMap<String, Any>() {
   }
 }
 
+data class Edge(
+  val name: String,
+  val to: Vid
+) : Comparable<Edge> {
+  override fun compareTo(other: Edge): Int =
+    "$name-$to".compareTo(other = "${other.name}-${other.to}")
+}
+
 data class Vertice(
   val vid: Vid,
   val data: VData,
   var parent: Vid? = null,
-  val children: TreeSet<Vid> = TreeSet()
+  val children: TreeSet<Vid> = TreeSet(),
+  val relations: TreeSet<Edge> = TreeSet()
 ) {
-  fun clone() = this.copy(parent = parent, children = TreeSet(children))
+  fun clone() = this.copy(parent = parent, children = TreeSet(children), relations = TreeSet(relations))
 }

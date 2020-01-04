@@ -4,8 +4,8 @@
 
 ##Functions
 -[x] Long Parameters/Arguments list *
--[ ] Flag arguments *
--[ ] Output arguments  *
+-[ ] Flag arguments
+-[ ] Output arguments
 -[ ] Dead Function  	Single Level of Abstraction  (How close to each other are the nouns inside the functions) 
 -[x] Long function *
 -[ ] Cyclomatic Complexity   *
@@ -28,16 +28,19 @@
 -[x] Long method *
 -[ ] Large Class *
 -[x] Long Parameter List *
--[ ] Divergent Change (a class/file/fun that changes too much) *
--[ ] Shotgun Surgery (A commit that touches a lot of classes at the same time) *
+-[x] Divergent Change (a class/file/fun that changes too much) *
+-[*] Shotgun Surgery (A commit, or story that touches a lot of classes at the same time) *
 -[ ] Feature Envy * (A Class that is using too much of another)
 -[ ] Middle Man
 -[ ] Data Clumps* (Look at function arguments and see subsets)
 -[ ] Case statements 	
-- [ ] Lazy Class
--[ ] Temporarly Fields * 	Alternative classes with different interfaces
+-[ ] Lazy Class
+-[ ] Temporarly Fields * 	
+-[ ] Alternative classes with different interfaces
 -[ ] Similar subclasses
 
-#Mine
+#Others
 -[ ] Runtime Depth (How depth is the callstack to it)
 -[ ] Dependencies of a function, file, class
+-[ ] Cyclick dependencies *
+-[ ] Semantic text

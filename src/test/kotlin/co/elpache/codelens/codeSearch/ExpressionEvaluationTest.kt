@@ -33,7 +33,6 @@ class ExpressionEvaluationTest {
 
     assertThat(exprWithReference.evaluate(mockContext("name" to 1))).isEqualTo(true)
     assertThat(exprWithReference.evaluate(mockContext("name" to 2))).isEqualTo(false)
-
   }
 
   @Test
@@ -42,11 +41,36 @@ class ExpressionEvaluationTest {
 
     assertThat(exprWithReference.evaluate(mockContext("name" to "c"))).isEqualTo(false)
     assertThat(exprWithReference.evaluate(mockContext("name" to "b"))).isEqualTo(true)
-
   }
 
+  @Test
+  fun `Support grouping`() {
+    val exprWithReference = parseQuery("class[(1 + 2)*4=12]").selectors.first().expr
 
-  fun mockContext(vararg pair: Pair<String, Any>): ContextNode {
+    assertThat(exprWithReference.evaluate(mockContext())).isEqualTo(true)
+  }
+
+  @Test
+  fun `evaluate Aliasing`() {
+    val aliasExpression = parseQuery("class[1 + 2 as aSum]").selectors.first().expr
+    val context = mockContext()
+
+    aliasExpression.evaluate(context)
+
+    assertThat(context.data["aSum"]).isEqualTo(3.0)
+  }
+
+  @Test
+  fun `Supports decimals`() {
+    val aliasExpression = parseQuery("class[1.5 + 2.5 as aSum]").selectors.first().expr
+    val context = mockContext()
+
+    aliasExpression.evaluate(context)
+
+    assertThat(context.data["aSum"]).isEqualTo(4.0)
+  }
+
+  private fun mockContext(vararg pair: Pair<String, Any>): ContextNode {
     val tree = CodeTree()
     tree.addIfAbsent("1", vDataOf().addAll(*pair))
     return ContextNode("1", tree)

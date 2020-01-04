@@ -9,6 +9,7 @@ export function ancestors(graph, v) {
 }
 
 export function fileAncestor(graph, v) {
+  if (graph[v].data.type == "file") return v
   let a = ancestors(graph, v)
   return a.find(f => graph[f].data.type === "file")
 }
@@ -23,7 +24,7 @@ export function slice(text, graph, v = graph.rootVid) {
   Object.keys(graph).forEach(cVid =>{
     if(graph[cVid].data) {
       graph[cVid].data.vid = cVid
-      if (graph[cVid].data.startOffset < graph[cVid].data.endOffset) {
+      if (graph[cVid].data.start < graph[cVid].data.end) {
         starts.push(graph[cVid].data)
         //ends.push(graph[cVid].data)
       }
@@ -31,8 +32,8 @@ export function slice(text, graph, v = graph.rootVid) {
   })
 
   starts.sort((a, b) => {
-    let x = a.startOffset - b.startOffset
-    return x == 0 ? b.endOffset - a.endOffset : x
+    let x = a.start - b.start
+    return x == 0 ? b.end - a.end : x
   })
   //ends.sort((a, b) => a.endOffset - b.endOffset)
 
@@ -46,22 +47,20 @@ export function slice(text, graph, v = graph.rootVid) {
 
     while(c < text.length) {
 
-      if (ends.length > 0 && c == _.last(ends).endOffset) {
+      if (ends.length > 0 && c == _.last(ends).end) {
         stack.pop()
         ends.pop()
-      }
-      else if (starts[0] && c == starts[0].startOffset) {
+      } else if (starts[0] && c == starts[0].start) {
         let n = starts.shift()
         ends.push(n)
         let e = {vid: n.vid, children: []}
         _.last(stack).children.push(e)
         stack.push(e)
-      }
-      else {
+      } else {
         let children = _.last(stack).children
-        if(typeof _.last(children) == "string")
+        if (typeof _.last(children) == "string")
           children[children.length - 1] = children[children.length - 1] + text.charAt(c++)
-          else
+        else
           children.push(text.charAt(c++))
       }
     }
@@ -75,19 +74,19 @@ export function slice2(text, graph, v = graph.rootVid) {
 
   let last = 0
   let res = []
-  let {startOffset: parentStartOffset} = graph[v].data
+  let {start: parentStartOffset} = graph[v].data
 
 
-  graph[v].children.sort((a, b) => graph[a].data.startOffset - graph[b].data.startOffset)
+  graph[v].children.sort((a, b) => graph[a].data.start - graph[b].data.start)
      .forEach(c => {
-       let {startOffset, endOffset} = graph[c].data
+       let {start, end} = graph[c].data
 
-       if(startOffset < parentStartOffset ) {
+       if (start < parentStartOffset) {
          return;
        }
 
-       let startOffsetRel = startOffset - parentStartOffset
-       let endOffsetRel = endOffset - parentStartOffset
+       let startOffsetRel = start - parentStartOffset
+       let endOffsetRel = end - parentStartOffset
 
        if (text.slice(last, startOffsetRel)) {
          //console.info(`(parent) ${graph[v].data.type} Adding text `, (text.slice(last, startOffsetRel)), graph[c].data)

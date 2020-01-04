@@ -121,5 +121,33 @@ class CodeTreeTest {
     assertThat(inorder(res)).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
   }
 
+  @Test
+  fun `Can add relations to a tree`() {
+    val tree = tree(
+      "a",
+      tree(
+        "b",
+        tree("b_1"),
+        tree("b_2")
+      ),
+      tree(
+        "c",
+        tree("d")
+      ),
+      tree(
+        "e",
+        tree(
+          "f",
+          tree("b_3")
+        )
+      )
+    )
+
+    tree.addRelation("friends", "c", "e")
+
+    assertThat(tree.adj("c", "friends")).contains("e")
+    assertThat(tree.adj("c")).contains("d", "e")
+  }
+
 
 }

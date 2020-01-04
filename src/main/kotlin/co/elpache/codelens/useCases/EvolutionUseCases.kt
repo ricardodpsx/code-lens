@@ -28,7 +28,9 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
     val history = ArrayList<ParamEvolutionRow>()
     factory.loadCodeFromCommits(commits)
       .forEach {
-        history.add(ParamEvolutionRow(it.key, statistics(it.value.finder().find(query).paramsValues(param))))
+        history.add(ParamEvolutionRow(it.key, statistics(it.value.finder().find(query).paramsValues(param).map {
+          it.first to it.second.toInt()
+        })))
       }
     logger.info { "Finished collecting history of $commits" }
 

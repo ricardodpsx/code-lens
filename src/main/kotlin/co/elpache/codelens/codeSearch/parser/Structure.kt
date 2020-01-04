@@ -9,22 +9,56 @@ import mu.KotlinLogging
 data class ParamSet(val paramName: String, val query: Query)
 data class SetQuery(val nodesToSet: Query, val paramSetters: List<ParamSet>)
 enum class RelationType {
-  CHILDREN, DIRECT_DESCENDANT
+  DIRECT_RELATION,
+  FOLLOW_RELATION
 }
 
 
-data class Function(
+private val logger = KotlinLogging.logger {}
+
+data class SelectorFunction(
   val name: String,
   val params: List<Expression>
-)
+) : Expression {
 
+  data class FunctionEntry(
+    val name: String,
+    val function: (args: List<String>, node: ContextNode) -> Any,
+    val type: String
+  )
+
+  companion object {
+    private val functionRegistry: MutableList<FunctionEntry> = mutableListOf()
+    fun addFunction(name: String, type: String, function: (args: List<String>, node: ContextNode) -> Any) {
+      functionRegistry.add(
+        FunctionEntry(
+          name = name,
+          function = function,
+          type = type
+        )
+      )
+    }
+  }
+
+  override fun evaluate(context: ContextNode): Any? =
+    functionRegistry.firstOrNull {
+      name == it.name && context.data.isA(it.type)
+    }?.let {
+      try {
+        it.function(params.map { param -> param.evaluate(context).toString() }, context)
+      } catch (e: Exception) {
+        logger.warn("Problem executing $it", e)
+      }
+    }
+
+}
 //Query ast
 data class Query(
   val selectors: List<TypeSelector>,
-  val aggregator: Function? = null
+  val aggregator: SelectorFunction? = null
 ) : Expression {
-  override fun evaluate(ctx: ContextNode): Any? {
-    val res = PathFinder(ContextNode(ctx.vid, ctx.tree)).find(this)
+  override fun evaluate(context: ContextNode): Any? {
+    val res = PathFinder(ContextNode(context.vid, context.tree)).find(this)
     return if (aggregator != null) res.size else res
   }
 }
@@ -44,8 +78,7 @@ fun isThruty(value: Any?) =
       || value.toString().isBlank()
       || ((value as? Int) == 0)
       || ((value as? Boolean) == false)
-      || ((value as? List<*>)?.size == 0)
-      )
+      || ((value as? List<*>)?.size == 0))
 
 data class BinnaryExpression(val left: Expression, val op: String, val right: Expression) :
   Expression {
@@ -58,7 +91,8 @@ data class BinnaryExpression(val left: Expression, val op: String, val right: Ex
     val rightVal = rightRaw.toString()
     try {
       return when (op) {
-        "=" -> leftVal == rightVal
+        "=" -> equals(leftRaw, rightRaw)
+        "!=" -> !equals(leftRaw, rightRaw)
         "*=" -> leftVal.contains(rightVal)
         "^=" -> leftVal.startsWith(rightVal)
         "$=" -> leftVal.endsWith(rightVal)
@@ -66,7 +100,6 @@ data class BinnaryExpression(val left: Expression, val op: String, val right: Ex
         "<" -> leftVal.toDouble() < rightVal.toDouble()
         ">=" -> leftVal.toDouble() >= rightVal.toDouble()
         "<=" -> leftVal.toDouble() <= rightVal.toDouble()
-        "!=" -> leftVal != rightVal
         "||" -> isThruty(leftRaw) || isThruty(rightRaw)
         "&&" -> isThruty(leftRaw) && isThruty(rightRaw)
         "+" -> leftVal.toDouble() + rightVal.toDouble()
@@ -80,6 +113,13 @@ data class BinnaryExpression(val left: Expression, val op: String, val right: Ex
       logger.warn("Problem evaluating $this") { e }
       return false
     }
+  }
+
+  private fun equals(leftRaw: Any?, rightRaw: Any?): Boolean {
+    return if (leftRaw is String || rightRaw is String)
+      leftRaw == rightRaw
+    else
+      leftRaw.toString().toDouble() == rightRaw.toString().toDouble()
   }
 }
 
@@ -95,24 +135,30 @@ data class NameExpression(val value: String) : UnnaryExpression {
   }
 }
 
+data class Relation(
+  val name: String,
+  val type: RelationType
+)
+
 data class TypeSelector(
   val name: String,
-  val relationType: RelationType,
   val attributeToMatch: String = "type",
-  val expr: Expression
+  val expr: Expression,
+  val relation: Relation
 ) : Expression {
+
 
   fun isPseudoElement() = name.startsWith(":")
 
-  override fun evaluate(ctx: ContextNode): Boolean {
-    val values = ctx.data[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
+  override fun evaluate(context: ContextNode): Boolean {
+    val values = context.data[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
 
     if (name != "*" && values.none { it == name.toLowerCase() })
       return false
 
     if (expr is NullExpression) return true
 
-    return isThruty(expr.evaluate(ctx))
+    return isThruty(expr.evaluate(context))
   }
 
 }
@@ -122,3 +168,15 @@ data class AttributeSelector(
   val op: String? = null,
   val value: String? = null
 )
+
+data class AliasExpression(val name: String, val expr: Expression) : Expression {
+  override fun evaluate(context: ContextNode): Any? {
+    if (context.data.containsKey(name))
+      logger.warn { "Trying to set an alias for an existing element" }
+
+    return expr.evaluate(context)?.let {
+      context.data.put(name, it)
+      it
+    }
+  }
+}

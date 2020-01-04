@@ -16,7 +16,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
     res.map { it.data }
   }
 
-  val getValue = { funName: String, metric: String -> search(funName).first()[metric] }
+  val getValue = { funName: String, metric: String -> search(funName).first { it.containsKey(metric) }[metric] }
 
   @After
   fun after() {
@@ -47,6 +47,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
     assertThat(search("#functionWith3Params :params")).hasSize(3)
     assertThat(search("#functionWith3Params :params")).extracting("name").containsExactly("x", "y", "z")
+
 
     assertThat(getValue("#functionWith2Lines", "lines") as Int).isEqualTo(2)
     assertThat(getValue("#functionWith3Params", "params") as Int).isEqualTo(3)

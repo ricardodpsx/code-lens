@@ -9,10 +9,10 @@ import co.elpache.codelens.unwrap
 import org.antlr.v4.runtime.ANTLRInputStream
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTreeWalker
+import org.antlr.v4.runtime.tree.TerminalNode
 
 
 fun parseSetQuery(query: String): SetQuery {
-
   val parser = antlr4GetParser(query)
   val walker = ParseTreeWalker()
   var res: SetQuery? = null
@@ -26,7 +26,6 @@ fun parseSetQuery(query: String): SetQuery {
       )
     }
   }, parser.setQuery())
-
 
   return res!!
 }
@@ -58,23 +57,36 @@ private fun antlr4GetParser(query: String): AstQParser {
   return parser
 }
 
-fun AstQParser.FuncContext?.toFunction(): Function? {
+fun AstQParser.FuncContext?.toFunction(): SelectorFunction? {
   if (this == null) return null
 
-  return Function(name = this.reference().text,
+  return SelectorFunction(name = this.reference().text,
     params = this.expr().map { it.toExpression() }
   )
 }
+
+
+fun AstQParser.RelationContext?.toRelation(): Relation {
+
+  fun getName(name: TerminalNode?) = name?.text ?: "children"
+
+  return if (this == null)
+    Relation(name = "children", type = RelationType.FOLLOW_RELATION)
+  else if (directRelation() != null)
+    Relation(name = getName(directRelation().NAME()), type = RelationType.DIRECT_RELATION)
+  else if (followRelation() != null)
+    Relation(name = getName(followRelation().NAME()), type = RelationType.FOLLOW_RELATION)
+  else
+    error("Unsupported relation!")
+}
+
 
 fun AstQParser.QueryContext?.toQuery(): Query {
   return Query(
     selectors = this!!.type().map {
       TypeSelector(
         it.reference().text,
-        relationType = if (it.relation() == null)
-          RelationType.CHILDREN
-        else
-          RelationType.DIRECT_DESCENDANT,
+        relation = it.relation().toRelation(),
         attributeToMatch = if (it.PREFIX()?.toString() == "#") "name" else "type",
         expr = it.attribute()?.expr().toExpression()
       )
@@ -94,13 +106,18 @@ fun AstQParser.ExprContext?.toExpression(): Expression {
       right = this.expr(1).toExpression(),
       op = op!!.text
     )
-  } else if (this.literal() != null) this.literal().toLiteralExpression()
+  } else if (this.alias() != null) AliasExpression(expr = this.expr(0).toExpression(), name = this.NAME().text)
+  else if (this.group() != null) this.group().expr().toExpression()
+  else if (this.literal() != null) this.literal().toLiteralExpression()
   else if (this.reference() != null) NameExpression(this.text)
   else if (this.subQuery() != null) this.subQuery().query().toQuery()
+  else if (this.func() != null) this.func().toFunction()!!
   else NullExpression()
 }
 
+
 fun AstQParser.LiteralContext.toLiteralExpression(): LiteralExpression {
   return if (this.INT() != null) LiteralExpression(this.INT().text.toInt())
+  else if (this.DECIMAL() != null) LiteralExpression(this.DECIMAL().text.toDouble())
   else LiteralExpression(this.STRING().text.unwrap())
 }

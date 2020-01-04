@@ -1,4 +1,4 @@
-package co.elpache.codelens.languages.kotlin
+package co.elpache.codelens.extensions.kotlin
 
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.firstNode
@@ -13,7 +13,6 @@ fun applyKotlinMetrics(ctx: ContextNode) {
     fileNode.data["functions"] = fileNode.find("fun").size
     fileNode.data["classes"] = fileNode.find("class").size
     fileNode.data["bindings"] = fileNode.find("binding").size
-
 
     with(fileNode) {
       find("call").forEach {

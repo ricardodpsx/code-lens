@@ -24,6 +24,12 @@ open class CodeTree {
 
   fun root(): VData = v(rootVid())
 
+  fun addRoot(vid: String, data: VData = vDataOf()): VData {
+    addNode(vid, data)
+    rootVid = vid
+    return data
+  }
+
   fun addNode(vid: String, data: VData = vDataOf()): VData {
     val vid = vid
     addIfAbsent(vid, data)
@@ -150,6 +156,16 @@ open class CodeTree {
 
     return this
   }
+
+  fun addRelation(name: String, from: Vid, to: Vid) {
+    vertices[from]!!.relations.add(Edge(name, to))
+  }
+
+  fun adj(vid: String): List<Vid> =
+    vertices[vid]!!.relations.map { it.to }.plus(children(vid))
+
+  fun adj(vid: String, relName: String): List<Vid> =
+    vertices[vid]!!.relations.filter { it.name == relName }.map { it.to }
 }
 
 

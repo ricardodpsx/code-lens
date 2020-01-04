@@ -2,14 +2,11 @@ let babelParser = require('@babel/parser');
 
 const fs = require("fs")
 
-
-
 const getTree = (content) => {
   const rawAst = babelParser.parse(content, {
     sourceType: 'module',
     plugins: ['jsx', 'classProperties', 'flow'],
   });
-
 
   return rawAst
 };
@@ -25,5 +22,3 @@ while (process.argv[2 + i]) {
   }
   i++
 }
-
-

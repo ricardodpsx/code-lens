@@ -3,7 +3,7 @@ import Paper from "@material-ui/core/Paper/Paper";
 import TextField from "@material-ui/core/TextField/TextField";
 import DirectoryTree from "./DirectoryTree";
 import FileViewer from "./fileViewer/FileViewer";
-import CodeEntityData from "./CodeData";
+import CodeEntityData, {CodeEntityInfo} from "./CodeData";
 import Metrics from "./Metrics";
 import React, {useEffect, useState} from "react";
 import {loadFile, loadGraph, loadMetrics} from "../CodeLensApi";
@@ -17,7 +17,7 @@ import MetricNameSelect from "./MetricNameSelect";
 import EvolutionOfFrequency from "../CodeEvolution/EvolutionOfFrequency";
 import {makeStyles} from "@material-ui/core";
 import {fileAncestor} from "./treeUtils";
-
+import {debounce} from "lodash"
 
 const useStyles = makeStyles(theme => ({
   control: {
@@ -46,13 +46,14 @@ function TabPanel(props) {
 
 function SearchResults({query, codeTree, results, onResultSelected}) {
 
-  if (query == "" || !codeTree || !results || !results.length) return <div>No results</div>
+  if (!codeTree || !results || !results.length) return <div>No results</div>
 
 
   return results.map(r => {
     if (!codeTree[r]) return null;
 
     let f = fileAncestor(codeTree, r)
+
 
     return <div key={r}>
       <a href=''
@@ -64,7 +65,7 @@ function SearchResults({query, codeTree, results, onResultSelected}) {
         {codeTree[f] && codeTree[f].data.path}
 
       </a> <br/>
-      {codeTree[r].data.firstLine}...
+      <CodeEntityInfo vid={r} codeTree={codeTree}/>
       <hr/>
     </div>
   })
@@ -92,22 +93,23 @@ export function CodeExplorer() {
 
   const [codeViewerTab, setCodeViewerTab] = useState(0);
 
-  useEffect(() => {
-    loadGraph(query, (g) => {
-      setGraph(g);
-      setResults(g.results)
-      setCodeViewerTab(0)
-    })
-  }, [query])
+  let dLoadGraph = debounce(() => loadGraph(query, (g) => {
+    setGraph(g);
+    setResults(g.results)
+    setCodeViewerTab(0)
+  }), 20)
+
+  let dLoadMetrics = debounce(() => {
+    if (selectedMetric) loadMetrics(selectedMetric, query, setMetricData)
+  }, 20)
+
+  useEffect(dLoadGraph, [query])
 
   useEffect(() => {
     if (selectedFile) loadFile(selectedFile, setFileNode)
   }, [selectedFile])
 
-  useEffect(() => {
-    if (selectedMetric) loadMetrics(selectedMetric, query, setMetricData)
-  }, [selectedMetric, query])
-
+  useEffect(dLoadMetrics, [selectedMetric, query])
 
 
   return (
@@ -118,7 +120,9 @@ export function CodeExplorer() {
               id="search"
               fullWidth
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={e =>
+                 setQuery(e.target.value)
+              }
               label="search"
               margin="normal"
               variant="outlined"
@@ -132,7 +136,6 @@ export function CodeExplorer() {
            <SmellList
               onSmellSelection={smell => setQuery(smell.query)}
            />
-
            <DirectoryTree
               query={query}
               results={results}
@@ -156,7 +159,6 @@ export function CodeExplorer() {
            <TabPanel value={codeViewerTab} index={0}>
 
              <Paper>
-
                <Tabs value={activeTab} onChange={(event, newValue) => setActiveTab(newValue)}>
                  <Tab label="List"/>
                  <Tab label="Frequency"/>
@@ -166,12 +168,13 @@ export function CodeExplorer() {
                <TabPanel value={activeTab} index={0}>
                  <SearchResults
                     query={query}
-                    results={results} codeTree={codeTree} onResultSelected={r => {
-                   selectNode(r)
-                   let f = fileAncestor(codeTree, r)
-                   selectFileNode(codeTree[f].data)
-                   setCodeViewerTab(1)
-                 }}
+                    results={results} codeTree={codeTree}
+                    onResultSelected={r => {
+                      selectNode(r)
+                      let f = fileAncestor(codeTree, r)
+                      selectFileNode(codeTree[f].data)
+                      setCodeViewerTab(1)
+                    }}
                  />
                </TabPanel>
                <TabPanel value={activeTab} index={1}>
@@ -183,7 +186,10 @@ export function CodeExplorer() {
                     query={query}
                     rows={metricData}
                     selectedMetric={selectedMetric}
-                    onDataSelected={(data) => setResults(data.nodes)}
+                    onDataSelected={(data) => {
+                      console.info(data)
+                      setResults(data.nodes)
+                    }}
                  />
                </TabPanel>
                <TabPanel value={activeTab} index={2}>

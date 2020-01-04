@@ -1,13 +1,18 @@
-package co.elpache.codelens
+package co.elpache.codelens.extensions
 
+import co.elpache.codelens.Commit
+import co.elpache.codelens.GitRepository
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.vDataOf
+import co.elpachecode.codelens.cssSelector.SelectorFunction
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.TreeMap
+
+val repo = GitRepository("../code-examples", "")
 
 fun gitInit() {
   //Todo: This is wrong
@@ -15,27 +20,40 @@ fun gitInit() {
 }
 
 val gitIntegrations = LanguageIntegration(
-  applyMetrics = ::applyGitMetrics
+  applyMetrics = ::applyGitMetrics,
+  onBaseCodeLoad = {
+    SelectorFunction.addFunction("percentOfChanges", "file") { params, node ->
+      percentOfChanges(
+        repo.logOf(
+          node.data.getString("path")
+        ), (params.firstOrNull() ?: "7").toLong()
+      )
+    }
+  }
 )
 
 fun applyGitMetrics(ctx: ContextNode) {
   //Todo: Need factory configurations
-  val repo = GitRepository("../code-examples", "")
-
-  ctx.find("file").forEach { f ->
+  ctx.find("*[path]").forEach { f ->
     val commits = repo.logOf(f.data.getString("path"))
+    f.data["commits"] = commits.size
     commits.forEach { c ->
       f.tree.addIfAbsent(
         c.id, vDataOf(
           "type" to "commit",
           "id" to c.id,
           "author" to c.commitTime,
-          "time" to c.commitTime
+          "time" to c.commitTime,
+          "messsage" to c.message
         )
+
       )
-      f.tree.addChild(f.vid, c.id)
+      ctx.tree.addRelation("file", c.id, f.vid)
+      ctx.tree.addRelation("commit", f.vid, c.id)
     }
   }
+
+  ctx.find("commit[{$>file|count()} as filesAffected]")
 }
 
 fun LocalDateTime.toEpochSecond() =
@@ -58,9 +76,7 @@ fun percentOfChanges(commits: List<Commit>, lastNDays: Long): Double {
       changed[it] = true
     }
   }
-
-
-  return changed.filter { it.value }.size.toDouble() / lastNDays
+  return String.format("%.3f", changed.filter { it.value }.size.toDouble() / lastNDays).toDouble()
 }
 
 fun today(minus: Long = 0) =

@@ -4,56 +4,31 @@ import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
 import java.io.File
+import java.util.LinkedList
 
 
-fun codeNodeBase(
-  type: String,
-  start: Int,
-  end: Int,
-  astType: String,
-  name: String?,
-  firstLine: String
-): VData {
-  return vDataOf(
-    "type" to type,
-    "start" to start,
-    "end" to end,
-    "astType" to astType,
-    "name" to name,
-    "firstLine" to firstLine
-  )
-}
+class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "raw", basePath) {
+  override fun parseFile(): String = ""
 
-class DefaultFileLoader(val file: File, val basePath: File) : NodeLoader {
-  val codeTree = CodeTree()
+  override val contents: String get() = "<Excluded>"
+
   override fun load(): CodeTree {
+    val codeTree = CodeTree()
     codeTree.addNode(file.path, fileData())
     codeTree.rootVid = file.path
     return codeTree;
   }
-
-  fun fileData(): VData {
-    return vDataOf(
-      "fileName" to file.name,
-      "name" to file.nameWithoutExtension,
-      "extension" to file.extension,
-      "type" to "file",
-      "lang" to "raw",
-      "path" to file.relativeTo(basePath).toString()
-    )
-  }
 }
 
-abstract class FileLoader(val file: File, val lang: String, val basePath: File) : NodeLoader {
+abstract class FileLoader<T>(val file: File, val lang: String, val basePath: File) : NodeLoader {
   val type = "file"
   val fileName = file.name
   val name: String = file.nameWithoutExtension
   val startOffset: Int = 0
   val endOffset: Int = file.length().toInt()
-  fun contents() = file.readText(Charsets.UTF_8)
+  open val contents by lazy { file.readText(Charsets.UTF_8) }
 
   fun fileData(): VData {
-    val code = file.readText(Charsets.UTF_8)
     return vDataOf(
       "fileName" to file.name,
       "name" to file.nameWithoutExtension,
@@ -62,24 +37,48 @@ abstract class FileLoader(val file: File, val lang: String, val basePath: File) 
       "lang" to lang,
       "path" to file.relativeTo(basePath).toString(),
       "start" to 0,
-      "end" to code.length,
-      "code" to code
+      "end" to contents.length,
+      "code" to contents
     )
   }
 
-//  companion object {
-//    fun loadFile(path: String, parent: VData?, visitor: (node: VData, parent: VData?) -> Unit, basePath: File) {
-//      val file = File(path)
-//      try {
-//        //Todo: There is a duplicated use of languageSupportRegistry
-//        languageSupportRegistry.entries.forEach {
-//          if (path.evaluate(it.key.toRegex())) {
-//            it.value.fileLoaderBuilder!!(file, basePath).traverse(visitor, parent)
-//          }
-//        }
-//      } catch (e: Exception) {
-//        throw RuntimeException("Problem loading file ${file.path}", e)
-//      }
-//    }
-//  }
+  open fun getValues(node: T): Map<String, Any> = mapOf()
+
+  open fun getChildren(node: T): Map<String, T> = mapOf()
+
+  abstract fun parseFile(): T
+
+  private fun isInt(key: String) = key.matches("[0-9]+".toRegex())
+
+  override fun load(): CodeTree {
+    data class Item(val node: T, val parent: VData, val key: String)
+
+    val codeTree = CodeTree()
+    val prefix = file.path.replace("-", "_").replace("/", "-")
+    val fileNode = codeTree.addRoot(prefix, fileData())
+
+    val list = LinkedList<Item>()
+    list.addLast(Item(node = parseFile(), parent = fileNode, key = "body"))
+
+    var i = 0
+    while (list.isNotEmpty()) {
+      val (unprocessedNode, parent, key) = list.removeFirst()
+
+      val node = codeTree.addNode("${prefix}-$i")
+      node.putAll(getValues(unprocessedNode))
+
+      codeTree.addChild(parent.vid, node.vid)
+
+      getChildren(unprocessedNode).forEach {
+        list.add(Item(it.value, node, it.key))
+      }
+
+      if (isInt(key)) node["index"] = key.toInt()
+      else node["type"] = key
+
+      i++
+    }
+    return codeTree
+  }
+
 }

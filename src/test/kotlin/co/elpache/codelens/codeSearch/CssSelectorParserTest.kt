@@ -1,11 +1,14 @@
 package codelens.cssSelector
 
+import co.elpachecode.codelens.cssSelector.AliasExpression
 import co.elpachecode.codelens.cssSelector.BinnaryExpression
 import co.elpachecode.codelens.cssSelector.Expression
 import co.elpachecode.codelens.cssSelector.LiteralExpression
 import co.elpachecode.codelens.cssSelector.NameExpression
 import co.elpachecode.codelens.cssSelector.Query
+import co.elpachecode.codelens.cssSelector.Relation
 import co.elpachecode.codelens.cssSelector.RelationType
+import co.elpachecode.codelens.cssSelector.SelectorFunction
 import co.elpachecode.codelens.cssSelector.parseQuery
 import co.elpachecode.codelens.cssSelector.parseSetQuery
 import org.assertj.core.api.Assertions.assertThat
@@ -20,6 +23,7 @@ class CssSelectorParserTest {
     val root = parseQuery("class annotationEntry")
 
     assertThat(root.selectors[0].name).isEqualTo("class")
+    assertThat(root.selectors[0].relation).isEqualTo(Relation("children", RelationType.FOLLOW_RELATION))
     assertThat(root.selectors[1].name).isEqualTo("annotationEntry")
   }
 
@@ -85,7 +89,7 @@ class CssSelectorParserTest {
   fun supportDirectDescendantRelations() {
     val type = parseQuery("class>method").selectors
     assertThat(type[0].name).isEqualTo("class")
-    assertThat(type[0].relationType == RelationType.DIRECT_DESCENDANT).isTrue()
+    assertThat(type[0].relation.type == RelationType.DIRECT_RELATION).isTrue()
     assertThat(type[1].name).isEqualTo("method")
   }
 
@@ -116,7 +120,7 @@ class CssSelectorParserTest {
 
   @Test
   fun `Can parse aggregators`() {
-    val selector = parseQuery("fun | count")
+    val selector = parseQuery("fun | count()")
     assertThat(selector.aggregator!!.name).isEqualTo("count")
   }
 
@@ -130,7 +134,7 @@ class CssSelectorParserTest {
 
   @Test
   fun `Can have Set queries to set new parameters into nodes`() {
-    val query = parseSetQuery("SET {c d} numOfArguments = {a b | count}")
+    val query = parseSetQuery("SET {c d} numOfArguments = {a b | count()}")
     val setter = query.paramSetters.first()
     val nodesToSet = query.nodesToSet
 
@@ -147,5 +151,37 @@ class CssSelectorParserTest {
   }
 
 
+  @Test
+  fun `Can have functions`() {
+    val f = parseQuery("element[fun(1)]").selectors.first().expr
+
+    assertThat((f as SelectorFunction).name).isEqualTo("fun")
+    assertThat((f.params[0] as LiteralExpression).value).isEqualTo(1)
+  }
+
+  @Test
+  fun `Can have no arg functions`() {
+    val f = parseQuery("element[fun()]").selectors.first().expr
+
+    assertThat((f as SelectorFunction).name).isEqualTo("fun")
+    assertThat(f.params).isEmpty()
+  }
+
+
+  @Test
+  fun `Can have aliasing expressions`() {
+    val f = parseQuery("element[fun() as myResult]").selectors.first().expr as AliasExpression
+
+    assertThat(f.name).isEqualTo("myResult")
+    assertThat((f.expr as SelectorFunction).name).isEqualTo("fun")
+  }
+
+  @Test
+  fun `Can have relationship expressions`() {
+    val f = parseQuery("a -friends> b").selectors.first()
+
+    assertThat(f.relation.name).isEqualTo("friends")
+    assertThat(f.relation.type).isEqualTo(RelationType.DIRECT_RELATION)
+  }
 }
 

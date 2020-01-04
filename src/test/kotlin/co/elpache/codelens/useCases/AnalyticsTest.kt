@@ -64,8 +64,8 @@ class AnalyticsTest {
     val results = uc.getParamDistribution("fun", "lines")
 
     assertThat(results.rows).containsExactly(
-      ParamFrequencyRow(4, 2, listOf("5", "6")),
-      ParamFrequencyRow(6, 3, listOf("3", "4", "7"))
+      ParamFrequencyRow(4.0, 2, listOf("5", "6")),
+      ParamFrequencyRow(6.0, 3, listOf("3", "4", "7"))
     )
   }
 
@@ -88,7 +88,7 @@ class AnalyticsTest {
       )
     )
 
-    val statistics = uc.getMetricEvolution("fun", "lines")
+    val statistics = uc.getMetricStatistics("fun", "lines")
 
     assertThat(statistics.median).isCloseTo(3.5, Offset.offset(0.01))
     assertThat(statistics.max).isCloseTo(10.0, Offset.offset(0.01))

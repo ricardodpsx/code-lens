@@ -33,31 +33,38 @@
 -[x] Add Rules/Threshold #evolution (Same as smells)
 -[x] Unequality selectors #search fun
 -[x] Aggregators on the search language (count, sum)
+-[x] Support aliasing #language
+-[x] Support double #language
+-[x] Support parenthesys grouping #language
+-[x] Add commit metrics
 -[ ] On packages, see Dependencies etc #cleanCode
--[ ] Progress bar when loading history etc, maybe just an indexer with status
 -[ ] Baseline
--[ ] Memory control (Register how many Ram is being used by the cache etc)
--[ ] Add commit metrics
 -[ ] Mean, Media, Max, min for charts
 -[ ] Is my commit making things worse?
 -[ ] Params select should make sense
--[ ] Preset Clean Code queries: File Total Size, Function parameters, function sizes.
 -[ ] UX (Results, Evolution, selected file)
 -[ ] Slots/Buckets for charts #charts
 -[ ] Reload button
--[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
--[ ] Reliability: When db is down the app should keep working
 -[ ] Config and setup (Load a new project etc)
 -[ ] Duplicated code #metrics
--[ ] Replace H2 by file cache
 -[ ] Either use sampling or smarter code saving (It could go up really quickly)
 -[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent
 -[ ] Cyclomatic Complexity #metrics (use https://github.com/escomplex/)
 -[ ] Just tree visualization (The JSON as it is?)
 -[ ] Commits with bug
 -[ ] Commit user story
+-[ ] Should we separate runTimeData from vertice data? (Right now you can fuck the state of the graph really bad!)
+-[ ] Helper or documentation of existing PseudElements and SelectorFunctions
+-[ ] Parametrize Smells
+-[ ] Progress bar when loading history etc, maybe just an indexer with status
+-[ ] Commit component (To show associated files and folders)
+-[ ] Commit extract user story as an attribute
+-[ ] Memory control (Register how many Ram is being used by the cache etc)
+-[ ] Reliability: When db is down the app should keep working
+-[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
 
 IceBox:
+-[ ] Replace H2 by file cache?
 -[ ] Use concurrent queue + blocking loadCommit so that commit preloading can give priority to user requested commits
 -[ ] Evolution Metrics, see details of the commits and code that are affecting the metrics
 -[ ] Problems with comments parsing in Kotlin

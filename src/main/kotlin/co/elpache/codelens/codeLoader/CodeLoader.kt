@@ -12,19 +12,12 @@ class CodeLoader {
 
   fun expandFullCodeTree(node: FolderLoader): CodeTree {
     val tree = node.load()
-
     applyMetrics(tree)
     return tree
   }
 
-
   val ids: HashSet<Vid> = HashSet()
 
-  private fun _expandTreeNode(tree: CodeTree, node: FolderLoader): CodeLoader {
-    return this
-  }
-
-  //Todo: This should be pluggable
   private fun applyMetrics(tree: CodeTree): CodeLoader {
     languageSupportRegistry.forEach { it.value.applyMetrics(tree.finder()) }
     return this

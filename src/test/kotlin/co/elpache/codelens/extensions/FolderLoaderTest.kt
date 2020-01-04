@@ -1,4 +1,4 @@
-package co.elpache.codelens.languages
+package co.elpache.codelens.extensions
 
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.finder

@@ -4,6 +4,7 @@ import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.vDataOf
+import co.elpachecode.codelens.cssSelector.SelectorFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -84,12 +85,12 @@ class CssSearchTest {
 
   @Test
   fun `Aggregator search`() {
-    assertThat(tree.finder().findValue("a b | count")).isEqualTo(3)
+    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(3)
   }
 
   @Test
   fun `Can set metrics into nodes with SET sintax`() {
-    val res = treeWithFunctions.finder().setQuery("SET {fun} paramCount = {param|count}")
+    val res = treeWithFunctions.finder().setQuery("SET {fun} paramCount = {param|count()}")
 
     assertThat(res.vids()).containsExactly("1.1", "2.1")
 
@@ -103,7 +104,6 @@ class CssSearchTest {
     assertThat(res.vids()).containsExactly("1.1")
   }
 
-
   @Test
   fun `Test direct descendant search`() {
     assertThat(search("a>b")).containsExactlyInAnyOrder("1.1", "1.2")
@@ -111,10 +111,9 @@ class CssSearchTest {
     assertThat(search("a>d")).containsExactlyInAnyOrder("1.3.1")
   }
 
-
   @Test
   fun `Mixing selectors`() {
-    assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")
+    assertThat(search("a c > e")).containsExactlyInAnyOrder("1.1.1.1")
   }
 
   @Test
@@ -135,6 +134,12 @@ class CssSearchTest {
     assertThat(search("a *[lines]")).containsExactlyInAnyOrder("1.1.1", "1.1.2")
   }
 
+  @Test
+  fun `Search by relations`() {
+    assertThat(search("b>e")).isEmpty()
+    tree.addRelation("friends", "1.2", "1.1.1.1")
+    assertThat(search("b>e")).containsExactlyInAnyOrder("1.1.1.1")
+  }
 
   @Test
   fun `Pseudo elements search`() {
@@ -145,8 +150,24 @@ class CssSearchTest {
   }
 
   @Test
+  fun `Pseudoelements run`() {
+    tree.vertices["1.1"]!!.data[":childDs"] = "$ d"
+
+    assertThat(tree.finder().find("b :childDs").map { it.vid })
+      .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
+  }
+
+  @Test
   fun `Pseudo elements search error`() {
     assertThat(tree.finder().find("d :unregistered").map { it.vid }).isEmpty()
+  }
 
+  @Test
+  fun `Evaluate functions`() {
+    SelectorFunction.addFunction("sayMyName", "d") { _, _ ->
+      "DeeDee"
+    }
+
+    assertThat(tree.finder().find("d[sayMyName() as myName]").first().data["myName"]).isEqualTo("DeeDee")
   }
 }

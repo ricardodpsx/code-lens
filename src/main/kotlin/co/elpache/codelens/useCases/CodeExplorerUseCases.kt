@@ -24,10 +24,10 @@ data class NodeContentsResults(
   val ast: Map<String, Any>
 )
 
-data class ParamFrequencyRow(val paramValue: Int, val frequency: Int, val nodes: List<Vid>)
+data class ParamFrequencyRow(val paramValue: Double, val frequency: Int, val nodes: List<Vid>)
 data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
-class CodeExplorerUseCases(private val factory: Factory = Factory()) {
+class CodeExplorerUseCases(factory: Factory = Factory()) {
   init {
     Factory.initializeLanguageRegistry()
   }
@@ -67,8 +67,8 @@ class CodeExplorerUseCases(private val factory: Factory = Factory()) {
     )
 
 
-  fun getMetricEvolution(query: String, param: String): DescriptiveStatistics {
-    return statistics(find(query).paramsValues(param))
+  fun getMetricStatistics(query: String, param: String): DescriptiveStatistics {
+    return statistics(find(query).paramsValues(param).map { it.first to it.second.toInt() })
   }
 
   fun loadNodeContents(vid: String) =

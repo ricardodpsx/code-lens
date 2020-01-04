@@ -100,17 +100,4 @@ configurations {
     }
 }
 
-generateGrammarSource {
-    doLast {
-        println "Copying generated grammar lexer/parser files to main directory."
-
-//        delete {
-//            "src/main/java/some"
-//        }
-//        copy {
-//            from "${buildDir}/generated-src/antlr/main"
-//            into "src/main/java"
-//        }
-
-    }
-}
+generateGrammarSource.enabled = false

@@ -3,10 +3,9 @@ package co.elpache.codelens.useCases;
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.createCodeSmellsUseCases
 import co.elpache.codelens.tree.vDataOf
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
-import org.junit.Test;
+import org.junit.Test
 
 class CodeSmellsTest {
 
@@ -38,24 +37,25 @@ class CodeSmellsTest {
   }
 
 
+  //Needs
   @Test
   fun `can get code smell list`() {
     val smellPresets = uc.getSmellPresets()
 
-    Assertions.assertThat(smellPresets).isNotNull
-    Assertions.assertThat(smellPresets["longParameterList"]?.isStinky).isTrue()
+    assertThat(smellPresets).isNotNull
+    assertThat(smellPresets["longParameterList"]?.isStinky).isTrue()
   }
 
   @Test
   fun `can get long parameter list functions`() {
     val results = uc.executeCodeSmell("longParameterList")
 
-    Assertions.assertThat(results.analyticsResults.rows).containsExactly(
-      ParamFrequencyRow(5, 2, listOf("5", "6"))
+    assertThat(results.analyticsResults.rows).containsExactly(
+      ParamFrequencyRow(5.0, 2, listOf("5", "6"))
     )
-    Assertions.assertThat(results.isStinky).isTrue()
+    assertThat(results.isStinky).isTrue()
 
-    Assertions.assertThat(results.smellResults.results).containsExactly("5", "6")
+    assertThat(results.smellResults.results).containsExactly("5", "6")
     //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
   }
 

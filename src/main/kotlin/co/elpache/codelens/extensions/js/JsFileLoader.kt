@@ -1,15 +1,12 @@
-package co.elpache.codelens.languages.js
+package co.elpache.codelens.extensions.js
 
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeLoader.ignorePatterns
 import co.elpache.codelens.codeLoader.languageSupportRegistry
-import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
-import java.util.LinkedList
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.toList
 
@@ -25,50 +22,30 @@ val jsLanguageIntegration = LanguageIntegration(
 
 val parsedCache = ConcurrentHashMap<String, JsonNode>()
 
-class JsFileLoader(file: File, basePath: File) : FileLoader(file, "js", basePath) {
+class JsFileLoader(file: File, basePath: File) : FileLoader<JsonNode>(file, "js", basePath) {
 
-  override fun load(): CodeTree {
-    val parsed = parseFile(file).at("/program/body")
-    val codeTree = CodeTree()
+  override fun getValues(node: JsonNode): Map<String, String> =
+    if (node.isArray)
+      node.asSequence().withIndex()
+        .filter { it.value.isValueNode }
+        .associateBy({ it.index.toString() }, { it.value.asText() })
+    else
+      node.fields().asSequence()
+        .filter { it.value.isValueNode }
+        .associateBy({ it.key }, { it.value.asText("") })
 
-    val fileNode = codeTree.addNode(file.path, fileData())
+  override fun getChildren(node: JsonNode): Map<String, JsonNode> =
+    if (node.isArray)
+      node.asSequence().withIndex()
+        .filterNot { it.value.isValueNode }
+        .associateBy({ it.index.toString() }, { it.value })
+    else
+      node.fields().asSequence()
+        .filterNot { it.value.isValueNode }
+        .associateBy({ it.key.toString() }, { it.value })
 
-    data class Item(val jsonNode: JsonNode, val parent: VData, val key: String? = null, val index: Int? = null)
+  override fun parseFile(): JsonNode = parseFile(file).at("/program/body")
 
-    val list = LinkedList<Item>()
-    list.addLast(Item(jsonNode = parsed, parent = fileNode, key = "body"))
-
-    var i = 0
-    while (list.isNotEmpty()) {
-      val (jsonNode, parent, key, index) = list.removeFirst()
-
-      val node = codeTree.addNode("${file.path}-$i")
-
-      codeTree.addChild(parent.vid, node.vid)
-
-      if (jsonNode.isArray)
-        jsonNode.asSequence().withIndex().forEach {
-          if (it.value.isValueNode)
-            parent[it.index.toString()] = it.value.asText()
-          else
-            list.addLast(Item(it.value, node, index = it.index))
-        }
-
-      jsonNode.fields().forEach {
-        if (it.value.isValueNode)
-          node[it.key] = it.value.asText()
-        else list.addLast(Item(it.value, node, key = it.key))
-      }
-
-      if (index != null) node["index"] = index
-      if (key != null) node["type"] = key
-
-      i++
-    }
-    //Todo: Make the rootVid the first added node by default
-    codeTree.rootVid = fileNode.vid
-    return codeTree
-  }
 }
 
 

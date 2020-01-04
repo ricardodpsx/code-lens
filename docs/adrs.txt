@@ -1,0 +1,5 @@
+04/01/2020 - The selector "x y" means any "children" descendants of x of type y
+             The selector "x>y" means any x adjascent's vertex of type y notice that here it could be any relationship
+             while in "x y" the relationship is especifically children, that desition is made for stability reasons.
+             with the relation children you can assume that you will get a well defined number of nodes, while with other relationships you can end up
+             loading the whole graph.

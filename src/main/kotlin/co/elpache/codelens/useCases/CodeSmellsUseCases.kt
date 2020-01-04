@@ -32,13 +32,22 @@ class CodeSmellsUseCases(private val codeExplorerUseCases: CodeExplorerUseCases)
     ),
     "longFunction" to SmellsPreset("Long Function", "", "fun[lines>6]", "lines", false),
     "longMethodList" to SmellsPreset("Long Method List", "", "class[methods>4]", "methods", false),
-    "nestedCode" to SmellsPreset("Nested Code", "", "fun[depth>3]", "depth", false)
+    "nestedCode" to SmellsPreset("Nested Code", "", "fun[depth>3]", "depth", false),
+    "divergentChange" to SmellsPreset(
+      "Divergent Change", "",
+      "file[(percentOfChanges(30) as percentOfChanges)>0.1]", "percentOfChanges", false
+    ),
+    "shoutgunSurgery" to SmellsPreset(
+      "Shoutgun Surgery", "",
+      "commit[filesAffected>20]", "filesAffected", false
+    )
   )
 
   private fun findSmellByName(name: String): SmellsPreset {
     return smellsPresets[name]!!
   }
 
+  //TODO: This is having side effects
   fun getSmellPresets(): Map<String, SmellsPreset> {
     return smellsPresets.mapValues { presetValue ->
       SmellsPreset(

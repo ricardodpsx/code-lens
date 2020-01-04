@@ -1,8 +1,8 @@
 package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.Commit
-import co.elpache.codelens.percentOfChanges
-import co.elpache.codelens.today
+import co.elpache.codelens.extensions.percentOfChanges
+import co.elpache.codelens.extensions.today
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Percentage
 import org.junit.Test
