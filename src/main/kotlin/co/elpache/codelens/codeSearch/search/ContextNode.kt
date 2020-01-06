@@ -74,7 +74,6 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   fun printTree() = println(asString())
 
   fun asString() = tree.subTree(vid).asString()
-
 }
 
 class EmptySearchNode : ContextNode("--Empty--", CodeTree()) {

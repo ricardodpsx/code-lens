@@ -5,7 +5,6 @@ import org.nield.kotlinstatistics.countBy
 import org.nield.kotlinstatistics.descriptiveStatistics
 import org.nield.kotlinstatistics.median
 
-
 fun frequency(values: List<Pair<Vid, Double>>): List<ParamFrequencyRow> {
   val vidsByParam = HashMap<Double, List<Vid>>()
 
@@ -30,7 +29,6 @@ data class DescriptiveStatistics(
   val max: Double,
   val quartiles: List<Double>
 )
-
 
 fun statistics(values: List<Pair<Vid, Int>>) =
   with(values.map { it.second }) {

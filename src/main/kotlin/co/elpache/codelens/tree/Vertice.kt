@@ -68,9 +68,7 @@ data class Edge(
 data class Vertice(
   val vid: Vid,
   val data: VData,
-  var parent: Vid? = null,
-  val children: TreeSet<Vid> = TreeSet(),
   val relations: TreeSet<Edge> = TreeSet()
 ) {
-  fun clone() = this.copy(parent = parent, children = TreeSet(children), relations = TreeSet(relations))
+  fun clone() = this.copy(relations = TreeSet(relations))
 }

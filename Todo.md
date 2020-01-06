@@ -30,41 +30,47 @@
      -[x] UI
 -[x] Basic sintax highlighting
 -[x] Performance experience for History
--[x] Add Rules/Threshold #evolution (Same as smells)
 -[x] Unequality selectors #search fun
 -[x] Aggregators on the search language (count, sum)
 -[x] Support aliasing #language
 -[x] Support double #language
 -[x] Support parenthesys grouping #language
 -[x] Add commit metrics
--[ ] On packages, see Dependencies etc #cleanCode
--[ ] Baseline
--[ ] Mean, Media, Max, min for charts
--[ ] Is my commit making things worse?
+-[ ] UX Consistency
+    -[ ] Smells should show more information
+    -[ ] When selecting a result from charts it should take you to the Result list
+    -[ ] Evolution Tabs don't make sense where they are 
+    -[ ] When selecting a node inside a file it should not jump bad
+-[ ] Relate file nodes by dependencies
+-[ ] Graph visualisation (The JSON as it is?)
+-[ ] Add/Edit Smells/Rules
 -[ ] Params select should make sense
--[ ] UX (Results, Evolution, selected file)
--[ ] Slots/Buckets for charts #charts
--[ ] Reload button
 -[ ] Config and setup (Load a new project etc)
--[ ] Duplicated code #metrics
--[ ] Either use sampling or smarter code saving (It could go up really quickly)
--[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent
--[ ] Cyclomatic Complexity #metrics (use https://github.com/escomplex/)
--[ ] Just tree visualization (The JSON as it is?)
--[ ] Commits with bug
--[ ] Commit user story
--[ ] Should we separate runTimeData from vertice data? (Right now you can fuck the state of the graph really bad!)
+-[ ] Slots/Buckets for charts #charts
+-[ ] Is my commit making things worse?
 -[ ] Helper or documentation of existing PseudElements and SelectorFunctions
--[ ] Parametrize Smells
+-[ ] Commit extract user story or bug an attribute
+-[ ] Either use sampling or smarter code saving (It could go up really quickly)
+-[ ] Reload button
+-[ ] add Protected attributes in the "as" command
+
+-[ ] Should be easy to add new graphs, idea have a table function like "fun | asTable('x', 'y')"
+-[ ] Mean, Media, Max, min for charts
+
+
+-[ ] Baseline
+-[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent
+-[ ] Should we separate runTimeData from vertice data? (Right now you can fuck the state of the graph really bad!)
 -[ ] Progress bar when loading history etc, maybe just an indexer with status
 -[ ] Commit component (To show associated files and folders)
--[ ] Commit extract user story as an attribute
 -[ ] Memory control (Register how many Ram is being used by the cache etc)
 -[ ] Reliability: When db is down the app should keep working
 -[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
 
 IceBox:
+-[ ] Cyclomatic Complexity #metrics (use https://github.com/escomplex/)
 -[ ] Replace H2 by file cache?
+-[ ] Duplicated code #metrics
 -[ ] Use concurrent queue + blocking loadCommit so that commit preloading can give priority to user requested commits
 -[ ] Evolution Metrics, see details of the commits and code that are affecting the metrics
 -[ ] Problems with comments parsing in Kotlin

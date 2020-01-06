@@ -37,7 +37,7 @@ const val QUOTED_STRING = "^([\"'])(?:(?=(\\\\?))\\2.)*?\\1"
  * com.*.repository.AnyClass.kt
  */
 fun matches(text: String, wildCardPattern: String): Boolean {
-  var pattern = wildCardPattern.toLowerCase()
+  val pattern = wildCardPattern.toLowerCase()
     .replace(".", "\\.")
     .replace("**", "[late]")
     .replace("*", "[^.]+")

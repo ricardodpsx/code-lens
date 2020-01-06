@@ -58,7 +58,7 @@ data class Query(
   val aggregator: SelectorFunction? = null
 ) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    val res = PathFinder(ContextNode(context.vid, context.tree)).find(this)
+    val res = PathFinder(context).find(this)
     return if (aggregator != null) res.size else res
   }
 }

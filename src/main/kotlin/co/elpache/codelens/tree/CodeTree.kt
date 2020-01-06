@@ -43,11 +43,11 @@ open class CodeTree {
     return this;
   }
 
-  fun children(vid: Vid) = vertices[vid]!!.children
+  fun children(vid: Vid) = adj(vid, "children")
 
   fun addChild(from: Vid, to: Vid): CodeTree {
-    vertices[from]!!.children.add(to)
-    vertices[to]!!.parent = from
+    addRelation("children", from, to)
+    addRelation("parent", to, from)
     return this
 
   }
@@ -55,8 +55,8 @@ open class CodeTree {
   fun addChild(from: Vid, to: Vid, node: VData): CodeTree {
     assert(from != to)
     addIfAbsent(to, node)
-    vertices[to]!!.parent = from
-    vertices[from]!!.children.add(to)
+    addRelation("children", from, to)
+    addRelation("parent", to, from)
     return this
   }
 
@@ -130,17 +130,17 @@ open class CodeTree {
     return vertices.map {
       it.key to mapOf(
         "data" to it.value.data.minus("code"),
-        "parent" to it.value.parent,
-        "children" to it.value.children.toList()
+        "parent" to adj(it.key, "parent").getOrNull(0),
+        "children" to adj(it.key, "children").toList()
       )
     }.toMap().plus("rootVid" to rootVid!!).toMap()
   }
 
   fun v(vid: Vid): VData = vertice(vid).data
 
-  fun parentNode(b: Vid) = if (vertice(b).parent != null) v(vertice(b).parent!!) else null
+  fun parentNode(b: Vid) = parent(b)?.let { v(parent(b)!!) }
 
-  fun parent(b: Vid) = vertice(b).parent
+  fun parent(b: Vid) = adj(b, "parent").getOrNull(0)
 
   private fun vertice(vid: Vid) = vertices[vid] ?: error("Vertice $vid not found")
 

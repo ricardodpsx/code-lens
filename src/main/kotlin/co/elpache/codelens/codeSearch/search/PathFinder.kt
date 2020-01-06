@@ -28,7 +28,8 @@ class PathFinder(private val ctx: ContextNode) {
     )
   }
 
-  private fun find(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(descendants(), selectors)
+  private fun find(selectors: List<TypeSelector>) =
+    findMatchingPathsFromSubSet(descendants(), selectors)
 
   private fun findNext(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(
     ctx.adj(), selectors
