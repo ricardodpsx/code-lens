@@ -1,8 +1,9 @@
 import React from "react";
-//import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
 import "./FileViewer.css"
 import CodeEntity from "./CodeEntity";
-import {slice} from "../treeUtils";
+import {slice} from "../../lib/treeUtils";
+import {connect} from "react-redux";
+import {selectNodeInFile} from "../../appModel";
 
 
 function TextParts({text, nodeData}) {
@@ -34,12 +35,11 @@ function CodeText({slicedText, ast, results, onNodeSelected}) {
 }
 
 
-function FileViewer({ast, text, results, onNodeSelected, selectedNode}) {
+function FileViewer({ast, text, results}) {
   if (!ast) return null
   let slicedText = slice(text, ast, ast.rootVid, results);
   let file = ast[ast.rootVid].data
 
-  setTimeout(() => document.location.hash = `#code-entity-${selectedNode}`, 200)
 
   return (<div style={{height: 400, overflow: 'auto'}}>
       <pre className={`code file-${file.lang}`}>
@@ -47,9 +47,13 @@ function FileViewer({ast, text, results, onNodeSelected, selectedNode}) {
            ast={ast}
            results={results}
            slicedText={slicedText}
-           onNodeSelected={onNodeSelected}/>
+           onNodeSelected={selectNodeInFile}/>
       </pre>
     </div>)
 }
 
-export default FileViewer;
+
+export default connect(
+   ({selectedFile, query: {results}}) =>
+      ({...selectedFile, results})
+)(FileViewer);

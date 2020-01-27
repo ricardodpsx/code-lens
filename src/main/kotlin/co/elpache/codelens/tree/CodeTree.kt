@@ -31,7 +31,6 @@ open class CodeTree {
   }
 
   fun addNode(vid: String, data: VData = vDataOf()): VData {
-    val vid = vid
     addIfAbsent(vid, data)
     data["vid"] = vid
     return data

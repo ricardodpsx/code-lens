@@ -44,7 +44,7 @@ class PreloadingIT {
     //Giving some time to the preload commits to finish
 
     val loadTime = measureTimeMillis {
-      //Should only load pre-loaded commits
+      //Should only doLoad pre-loaded commits
       assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
     }
 

@@ -1,16 +1,16 @@
 import React from 'react';
-import {slice} from '../treeUtils'
+import {slice} from '../../lib/treeUtils'
 
 
 it('Can slice the ast text', () => {
 
   let g = {
-    '0': {"children": ["1", "2", "4"], "data": {"startOffset": 0, "endOffset": 15}},
-    '1': {"children": ["3", "5"], "data": {"startOffset": 7, "endOffset": 14}},
-    '2': {"children": [], "data": {"startOffset": 1, "endOffset": 6}},
-    '3': {"children": [], "data": {"startOffset": 8, "endOffset": 13}},
-    '5': {"children": [], "data": {"startOffset": 6, "endOffset": 7}},
-    '4': {children: [], data: {startOffset: 0, endOffset: 1}}
+    '0': {"children": ["1", "2", "4"], "data": {"start": 0, "end": 15}},
+    '1': {"children": ["3", "5"], "data": {"start": 7, "end": 14}},
+    '2': {"children": [], "data": {"start": 1, "end": 6}},
+    '3': {"children": [], "data": {"start": 8, "end": 13}},
+    '5': {"children": [], "data": {"start": 6, "end": 7}},
+    '4': {children: [], data: {start: 0, end: 1}}
   }
 
   expect(slice("{hello (world)}", g, '0'))
@@ -34,7 +34,7 @@ it('Can slice the ast text (Regression)', () => {
     "ast": {
       "16231": {
         "data": {
-          "endOffset": 67,
+          "end": 67,
           "fileName": "functions.kt",
           "functions": 1,
           "textLines": 8,
@@ -42,7 +42,7 @@ it('Can slice the ast text (Regression)', () => {
           "bindings": 0,
           "language": "kotlin",
           "type": "file",
-          "startOffset": 0,
+          "start": 0,
           "name": "functions",
           "astType": "file",
           "lang": "kotlin",
@@ -51,8 +51,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16232": {
         "data": {
-          "endOffset": 0,
-          "startOffset": 0,
+          "end": 0,
+          "start": 0,
           "name": "<root>",
           "astType": "packageDirective",
           "type": "packageDirective",
@@ -61,8 +61,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16233": {
         "data": {
-          "endOffset": 0,
-          "startOffset": 0,
+          "end": 0,
+          "start": 0,
           "astType": "importList",
           "type": "importList",
           "firstLine": ""
@@ -70,8 +70,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16234": {
         "data": {
-          "endOffset": 63,
-          "startOffset": 0,
+          "end": 63,
+          "start": 0,
           "depth": 0,
           "textLines": 4,
           "name": "functionWith2Lines",
@@ -84,23 +84,23 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16235": {
         "data": {
-          "endOffset": 24,
-          "startOffset": 22,
+          "end": 24,
+          "start": 22,
           "astType": "valueParameterList",
           "type": "params",
           "firstLine": "()"
         }, "parent": "16234", "children": []
       },
       "16236": {
-        "data": {"endOffset": 63, "startOffset": 25, "astType": "block", "type": "block", "firstLine": "{"},
+        "data": {"end": 63, "start": 25, "astType": "block", "type": "block", "firstLine": "{"},
         "parent": "16234",
         "children": ["16237", "16243"]
       },
       "16237": {
         "data": {
           "args": 1,
-          "endOffset": 43,
-          "startOffset": 31,
+          "end": 43,
+          "start": 31,
           "name": "println(\"a\")",
           "astType": "callExpression",
           "type": "call",
@@ -109,8 +109,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16238": {
         "data": {
-          "endOffset": 38,
-          "startOffset": 31,
+          "end": 38,
+          "start": 31,
           "name": "println",
           "astType": "referenceExpression",
           "type": "referenceExpression",
@@ -119,8 +119,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16239": {
         "data": {
-          "endOffset": 43,
-          "startOffset": 38,
+          "end": 43,
+          "start": 38,
           "astType": "valueArgumentList",
           "type": "args",
           "firstLine": "(\"a\")"
@@ -128,8 +128,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16240": {
         "data": {
-          "endOffset": 42,
-          "startOffset": 39,
+          "end": 42,
+          "start": 39,
           "astType": "valueArgument",
           "type": "arg",
           "firstLine": "\"a\""
@@ -137,8 +137,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16241": {
         "data": {
-          "endOffset": 42,
-          "startOffset": 39,
+          "end": 42,
+          "start": 39,
           "name": "\"a\"",
           "astType": "stringTemplate",
           "type": "string",
@@ -147,8 +147,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16242": {
         "data": {
-          "endOffset": 41,
-          "startOffset": 40,
+          "end": 41,
+          "start": 40,
           "astType": "literalStringTemplateEntry",
           "type": "literalStringTemplateEntry",
           "firstLine": "a"
@@ -157,8 +157,8 @@ it('Can slice the ast text (Regression)', () => {
       "16243": {
         "data": {
           "args": 1,
-          "endOffset": 60,
-          "startOffset": 48,
+          "end": 60,
+          "start": 48,
           "name": "println(\"b\")",
           "astType": "callExpression",
           "type": "call",
@@ -167,8 +167,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16244": {
         "data": {
-          "endOffset": 55,
-          "startOffset": 48,
+          "end": 55,
+          "start": 48,
           "name": "println",
           "astType": "referenceExpression",
           "type": "referenceExpression",
@@ -177,8 +177,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16245": {
         "data": {
-          "endOffset": 60,
-          "startOffset": 55,
+          "end": 60,
+          "start": 55,
           "astType": "valueArgumentList",
           "type": "args",
           "firstLine": "(\"b\")"
@@ -186,8 +186,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16246": {
         "data": {
-          "endOffset": 59,
-          "startOffset": 56,
+          "end": 59,
+          "start": 56,
           "astType": "valueArgument",
           "type": "arg",
           "firstLine": "\"b\""
@@ -195,8 +195,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16247": {
         "data": {
-          "endOffset": 59,
-          "startOffset": 56,
+          "end": 59,
+          "start": 56,
           "name": "\"b\"",
           "astType": "stringTemplate",
           "type": "string",
@@ -205,8 +205,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16248": {
         "data": {
-          "endOffset": 58,
-          "startOffset": 57,
+          "end": 58,
+          "start": 57,
           "astType": "literalStringTemplateEntry",
           "type": "literalStringTemplateEntry",
           "firstLine": "b"
@@ -214,8 +214,8 @@ it('Can slice the ast text (Regression)', () => {
       },
       "16249": {
         "data": {
-          "endOffset": 67,
-          "startOffset": 63,
+          "end": 67,
+          "start": 63,
           "astType": "whiteSpace",
           "type": "whiteSpace",
           "firstLine": ""

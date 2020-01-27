@@ -18,7 +18,7 @@ export default ({
         tickPadding: 5,
         tickRotation: 30,
         legend: xLabel,
-        legendPosition: 'right',
+        legendPosition: 'end',
         legendOffset: 32
 
       }}

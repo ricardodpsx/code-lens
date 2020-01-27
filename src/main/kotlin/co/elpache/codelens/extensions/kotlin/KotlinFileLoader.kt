@@ -2,7 +2,6 @@ package co.elpache.codelens.extensions.kotlin
 
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
-import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
@@ -30,13 +29,10 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffsetSkippingComments
 import java.io.File
 
 
-fun kotlinInit() {
-  languageSupportRegistry[".*\\.kt"] = kotlinLanguageIntegration
-}
-
 val kotlinLanguageIntegration = LanguageIntegration(
   fileLoaderBuilder = ::KotlinFileLoader,
-  applyMetrics = ::applyKotlinMetrics
+  applyMetrics = ::applyKotlinMetrics,
+  filePattern = ".*\\.kt"
 )
 
 class KotlinFileLoader(file: File, basePath: File) : FileLoader<PsiElement>(file, "kotlin", basePath) {

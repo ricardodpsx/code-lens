@@ -3,21 +3,17 @@ package co.elpache.codelens.extensions.js
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeLoader.ignorePatterns
-import co.elpache.codelens.codeLoader.languageSupportRegistry
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.toList
 
-fun jsInit() {
-  languageSupportRegistry[".*\\.js"] = jsLanguageIntegration
-}
-
 val jsLanguageIntegration = LanguageIntegration(
   fileLoaderBuilder = ::JsFileLoader,
   applyMetrics = ::applyJsMetrics,
-  onBaseCodeLoad = ::preloadParsedFiles
+  onBaseCodeLoad = ::preloadParsedFiles,
+  filePattern = ".*\\.js"
 )
 
 val parsedCache = ConcurrentHashMap<String, JsonNode>()

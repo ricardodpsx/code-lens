@@ -38,10 +38,12 @@
 -[x] Add commit metrics
 -[ ] UX Consistency
     -[ ] Smells should show more information
-    -[ ] When selecting a result from charts it should take you to the Result list
-    -[ ] Evolution Tabs don't make sense where they are 
-    -[ ] When selecting a node inside a file it should not jump bad
--[ ] Relate file nodes by dependencies
+    -[x] When selecting a result from charts it should take you to the Result list
+    -[x] Evolution Tabs don't make sense where they are 
+    -[x] When selecting a node inside a file it should not jump bad
+-[ ] Either use sampling or smarter code saving (It could go up really quickly)
+-[ ] Mean, Media, Max, min for charts    
+-[ ] Relate file nodes by dependencies for the visualization graph
 -[ ] Graph visualisation (The JSON as it is?)
 -[ ] Add/Edit Smells/Rules
 -[ ] Params select should make sense
@@ -50,13 +52,13 @@
 -[ ] Is my commit making things worse?
 -[ ] Helper or documentation of existing PseudElements and SelectorFunctions
 -[ ] Commit extract user story or bug an attribute
--[ ] Either use sampling or smarter code saving (It could go up really quickly)
 -[ ] Reload button
 -[ ] add Protected attributes in the "as" command
-
+-[ ] Pagination/Limit results 
+-[ ] Nice snipets on the result list depending on the node type
 -[ ] Should be easy to add new graphs, idea have a table function like "fun | asTable('x', 'y')"
--[ ] Mean, Media, Max, min for charts
 
+-[ ] Bug with classes highlighting
 
 -[ ] Baseline
 -[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent

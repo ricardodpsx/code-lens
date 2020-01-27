@@ -1,6 +1,5 @@
 package co.elpache.codelens.codeLoader
 
-import co.elpache.codelens.Factory
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.vDataOf
@@ -11,21 +10,20 @@ import java.util.LinkedList
 val ignorePatterns = listOf("(.*node_modules.*|\\.git)")
 
 
-open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
+open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() {
   val file = dir
 
   private val logger = KotlinLogging.logger {}
 
   companion object {
-    fun load(src: String): FolderLoader {
-      Factory.initializeLanguageRegistry()
+    fun loadDir(src: String): FolderLoader {
       val dir = File(src)
       if (dir.isAbsolute)
         return FolderLoader(dir, File(src))
 
       val c = FolderLoader(File(src), File(src))
 
-      languageSupportRegistry.values.forEach {
+      languageSupportRegistry.forEach {
         it.onBaseCodeLoad(c.dir)
       }
 
@@ -34,8 +32,8 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
   }
 
   //Todo: long method
-  override fun load(): CodeTree {
-    languageSupportRegistry.values.forEach {
+  override fun doLoad(): CodeTree {
+    languageSupportRegistry.forEach {
       it.onBaseCodeLoad(dir)
     }
 
@@ -67,12 +65,12 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader {
             codeTree.addChild(parent.vid, node.vid)
 
         } else {
-          val loader = languageSupportRegistry.entries.find {
-            cur.path.matches(it.key.toRegex())
-          }?.value?.fileLoaderBuilder
+          val loader = languageSupportRegistry.find {
+            cur.path.matches(it.filePattern.toRegex())
+          }?.fileLoaderBuilder
 
           if (loader != null)
-            codeTree.addSubTree(loader(cur, basePath).load(), parent!!.vid)
+            codeTree.addSubTree(loader(cur, basePath).doLoad(), parent!!.vid)
         }
 
       } catch (e: Exception) {

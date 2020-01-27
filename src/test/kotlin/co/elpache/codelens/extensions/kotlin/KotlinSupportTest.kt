@@ -1,14 +1,14 @@
 package codelens
 
-import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.selectCode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-private val codeBase =
-  CodeLoader().expandFullCodeTree(FolderLoader.load("../code-examples/kotlin/subpackage"))
+private val codeBase = FolderLoader.loadDir("../code-examples/kotlin/subpackage")
+  .extensions(kotlinLanguageIntegration).load()
 
 //Todo: Change tests to be more independent using utils graph
 class KotlinSupportTest {

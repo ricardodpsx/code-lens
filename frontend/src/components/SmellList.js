@@ -1,17 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {loadSmells} from "../CodeLensApi";
+import {loadSmells} from "../api";
 import Paper from "@material-ui/core/Paper/Paper";
 import List from "@material-ui/core/List/List";
 import ListItem from "@material-ui/core/ListItem/ListItem";
-import {useStyles} from "../baseStyles";
+import {useStyles} from "./layout/baseStyles";
 import Divider from "@material-ui/core/Divider/Divider";
 import ErrorIcon from '@material-ui/icons/Error';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { green, red } from '@material-ui/core/colors';
+import {green, red} from '@material-ui/core/colors';
+import {setQuery} from "../appModel";
 
 
-export default function SmellList({onSmellSelection}) {
+export default function SmellList() {
   const classes = useStyles();
 
   let [smellList, setSmellList] = useState([])
@@ -27,8 +28,7 @@ export default function SmellList({onSmellSelection}) {
            {Object.values(smellList).map(smell =>
               <div key={smell.title}>
                 <ListItem className={classes.listItem} button
-                          onClick={e => onSmellSelection(smell)}
-                >
+                          onClick={e => setQuery(smell.query)}>
                   {smell.title} {renderSmellSemaphore(smell.stinky)}</ListItem> <Divider/>
               </div>
            )}

@@ -28,7 +28,6 @@ class GitCommitsIT {
   fun setup() {
     //Todo: The git log should be independent of the repository configuration
     factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
-    Factory.initializeLanguageRegistry()
   }
 
   @Test

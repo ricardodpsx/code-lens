@@ -3,7 +3,6 @@ package co.elpache.codelens.extensions
 import co.elpache.codelens.Commit
 import co.elpache.codelens.GitRepository
 import co.elpache.codelens.codeLoader.LanguageIntegration
-import co.elpache.codelens.codeLoader.languageSupportRegistry
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.vDataOf
 import co.elpachecode.codelens.cssSelector.SelectorFunction
@@ -13,11 +12,6 @@ import java.time.OffsetDateTime
 import java.util.TreeMap
 
 val repo = GitRepository("../code-examples", "")
-
-fun gitInit() {
-  //Todo: This is wrong
-  languageSupportRegistry["no-matter"] = gitIntegrations
-}
 
 val gitIntegrations = LanguageIntegration(
   applyMetrics = ::applyGitMetrics,
@@ -29,7 +23,8 @@ val gitIntegrations = LanguageIntegration(
         ), (params.firstOrNull() ?: "7").toLong()
       )
     }
-  }
+  },
+  filePattern = ".*"
 )
 
 fun applyGitMetrics(ctx: ContextNode) {

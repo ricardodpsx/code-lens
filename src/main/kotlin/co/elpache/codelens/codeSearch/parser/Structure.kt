@@ -172,7 +172,7 @@ data class AttributeSelector(
 data class AliasExpression(val name: String, val expr: Expression) : Expression {
   override fun evaluate(context: ContextNode): Any? {
     if (context.data.containsKey(name))
-      logger.warn { "Trying to set an alias for an existing element" }
+      logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
       context.data.put(name, it)

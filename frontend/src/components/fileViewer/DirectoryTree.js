@@ -4,10 +4,12 @@ import '../App.css';
 import 'rc-tree/assets/index.css';
 import Tree, {TreeNode} from 'rc-tree';
 import Paper from "@material-ui/core/Paper/Paper";
-import {useStyles} from "../baseStyles";
+import {useStyles} from "../layout/baseStyles";
 import Link from "@material-ui/core/Link/Link";
-import {Title} from "../common";
-import {ancestors} from "./treeUtils";
+import {Title} from "../layout/Title";
+import {allVertices, ancestors} from "../../lib/treeUtils";
+import {connect} from "react-redux";
+import {selectFile} from "../../appModel";
 
 const STYLE = `
 .collapse {
@@ -31,14 +33,14 @@ function expand(g, v) {
 }
 
 
-function DirectoryTree({results, graph, onFileSelect, selectedFile}) {
-
-  if (!graph || results.length === 0) return null
+function DirectoryTree({codeTree, selectedFile}) {
 
   const classes = useStyles();
 
-  let selectedFileAncestors = selectedFile ? ancestors(graph, selectedFile) : []
-  const [expandedKeys, setExpandedKeys] = useState([graph.rootVid])
+  let selectedFileAncestors = selectedFile ? ancestors(codeTree, selectedFile) : []
+  const [expandedKeys, setExpandedKeys] = useState([codeTree.rootVid])
+
+  let allKeys = allVertices(codeTree).filter(v => v.type === "dir").map(v => v.vid)
 
   useEffect(() => {
     setExpandedKeys(expandedKeys.concat(selectedFileAncestors))
@@ -57,11 +59,9 @@ function DirectoryTree({results, graph, onFileSelect, selectedFile}) {
     if(keys.length !== 1) return true;
 
     setExpandedKeys(expandedKeys.concat(selectedFileAncestors))
-    onFileSelect({vid: keys[0], name: graph[keys[0]].name, data: graph[keys[0]].data})
+    selectFile(keys[0])
     return true
   }
-
-  let [allExpanded, doExpandAll] = useState(false)
 
   return (
      <div className={classes.root}>
@@ -72,20 +72,18 @@ function DirectoryTree({results, graph, onFileSelect, selectedFile}) {
          <style dangerouslySetInnerHTML={{__html: STYLE}}/>
          <Link href="#" color="primary" variant="body2" onClick={e => {
            e.preventDefault();
-           doExpandAll(true)
+           setExpandedKeys(allKeys)
          }}>expand</Link>&nbsp;
          | &nbsp;<Link href="#" color="primary" variant="body2" onClick={e => {
          e.preventDefault();
-         doExpandAll(false)
+         setExpandedKeys([])
        }}>collapse</Link>
-
          <Tree
             onExpand={onExpand}
             onSelect={handleSelect}
             selectedKeys={[selectedFile]}
-            expandedKeys={expandedKeys}
-            //openAnimation={animation}
-         >{expand(graph, graph.rootVid)}
+            expandedKeys={expandedKeys}>
+           {expand(codeTree, codeTree.rootVid)}
          </Tree>
 
        </Paper>
@@ -94,6 +92,7 @@ function DirectoryTree({results, graph, onFileSelect, selectedFile}) {
 
 }
 
+let mapStateToProps = ({selectedFile: {fileVid}, query: {results, codeTree} = {}}) =>
+   ({selectedFile: fileVid, results, codeTree})
 
-
-export default DirectoryTree;
+export default connect(mapStateToProps)(DirectoryTree);

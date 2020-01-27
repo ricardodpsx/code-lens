@@ -2,11 +2,10 @@ package co.elpache.codelens
 
 import co.elpache.codelens.app.database.AstRecord
 import co.elpache.codelens.app.database.AstRepository
-import co.elpache.codelens.codeLoader.CodeLoader
 import co.elpache.codelens.codeLoader.FolderLoader
-import co.elpache.codelens.extensions.gitInit
-import co.elpache.codelens.extensions.js.jsInit
-import co.elpache.codelens.extensions.kotlin.kotlinInit
+import co.elpache.codelens.extensions.gitIntegrations
+import co.elpache.codelens.extensions.js.jsLanguageIntegration
+import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.tree.CodeTree
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -29,15 +28,6 @@ class Factory(
 
   private val logger = KotlinLogging.logger {}
 
-  companion object {
-    fun initializeLanguageRegistry() {
-      jsInit()
-      kotlinInit()
-      gitInit()
-    }
-
-  }
-
   //Todo: Move to property files or command line args
   val repo = GitRepository(path, repoUrl)
 
@@ -45,8 +35,10 @@ class Factory(
 
     logger.info { "loading current base code" }
 
-    val codeTree = CodeLoader()
-      .expandFullCodeTree(FolderLoader.load(currentCodePath))
+    val codeTree = FolderLoader
+      .loadDir(currentCodePath)
+      .extensions(jsLanguageIntegration, kotlinLanguageIntegration, gitIntegrations)
+      .load()
 
     logger.info { "Done loading current base code" }
 
@@ -71,7 +63,7 @@ class Factory(
         fromCache(it.id) {
           logger.info { "Preloading ${it.id}" }
           repo.goTo(it.id)
-          CodeLoader().expandFullCodeTree(FolderLoader.load(path))
+          FolderLoader.loadDir(path).load()
         }
       }
   }

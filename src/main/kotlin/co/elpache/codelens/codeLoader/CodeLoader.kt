@@ -2,24 +2,24 @@ package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.Vid
 
-interface NodeLoader {
-  fun load(): CodeTree
-}
+abstract class NodeLoader {
+  abstract fun doLoad(): CodeTree
 
-class CodeLoader {
+  companion object {
+    var languageSupportRegistry = listOf<LanguageIntegration>()
+  }
 
-  fun expandFullCodeTree(node: FolderLoader): CodeTree {
-    val tree = node.load()
-    applyMetrics(tree)
+  fun extensions(vararg extensions: LanguageIntegration): NodeLoader {
+    languageSupportRegistry = extensions.toList()
+    return this
+  }
+
+  fun load(): CodeTree {
+    val tree = doLoad()
+    languageSupportRegistry.forEach { it.applyMetrics(tree.finder()) }
     return tree
   }
 
-  val ids: HashSet<Vid> = HashSet()
 
-  private fun applyMetrics(tree: CodeTree): CodeLoader {
-    languageSupportRegistry.forEach { it.value.applyMetrics(tree.finder()) }
-    return this
-  }
 }

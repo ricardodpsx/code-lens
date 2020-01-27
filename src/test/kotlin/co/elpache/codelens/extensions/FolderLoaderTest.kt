@@ -2,12 +2,16 @@ package co.elpache.codelens.extensions
 
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.extensions.js.jsLanguageIntegration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
 
 class FolderLoaderTest {
-  val tree = FolderLoader(File("../code-examples/js/"), File("../code-examples/")).load()
+
+  val tree = FolderLoader(File("../code-examples/js/"), File("../code-examples/"))
+    .extensions(jsLanguageIntegration)
+    .doLoad()
 
 
   @Test

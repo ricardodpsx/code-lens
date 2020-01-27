@@ -8,8 +8,12 @@ export function ancestors(graph, v) {
   return [graph[v].parent].concat(ancestors(graph, graph[v].parent))
 }
 
+export function allVertices(graph) {
+  return Object.keys(graph).filter(k => k !== "rootVid").map(k => graph[k].data)
+}
+
 export function fileAncestor(graph, v) {
-  if (graph[v].data.type == "file") return v
+  if (graph[v].data.type === "file") return v
   let a = ancestors(graph, v)
   return a.find(f => graph[f].data.type === "file")
 }
@@ -20,37 +24,33 @@ export function slice(text, graph, v = graph.rootVid) {
   let c = 0
   let starts = []
   let ends = []
-  let items = []
   Object.keys(graph).forEach(cVid =>{
     if(graph[cVid].data) {
       graph[cVid].data.vid = cVid
       if (graph[cVid].data.start < graph[cVid].data.end) {
         starts.push(graph[cVid].data)
-        //ends.push(graph[cVid].data)
       }
     }
   })
 
   starts.sort((a, b) => {
     let x = a.start - b.start
-    return x == 0 ? b.end - a.end : x
+    return x === 0 ? b.end - a.end : x
   })
-  //ends.sort((a, b) => a.endOffset - b.endOffset)
 
 
 //Work in progress
   return sliceRec(text)
 
   function sliceRec(text) {
-    let out = ""
     let stack = [{children: []}]
 
     while(c < text.length) {
 
-      if (ends.length > 0 && c == _.last(ends).end) {
+      if (ends.length > 0 && c === _.last(ends).end) {
         stack.pop()
         ends.pop()
-      } else if (starts[0] && c == starts[0].start) {
+      } else if (starts[0] && c === starts[0].start) {
         let n = starts.shift()
         ends.push(n)
         let e = {vid: n.vid, children: []}

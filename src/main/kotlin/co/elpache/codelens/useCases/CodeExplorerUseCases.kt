@@ -28,10 +28,6 @@ data class ParamFrequencyRow(val paramValue: Double, val frequency: Int, val nod
 data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
 class CodeExplorerUseCases(factory: Factory = Factory()) {
-  init {
-    Factory.initializeLanguageRegistry()
-  }
-
   val codeTreee = factory.createBaseCode()
 
   fun find(query: String) = codeTreee.finder().find(query)

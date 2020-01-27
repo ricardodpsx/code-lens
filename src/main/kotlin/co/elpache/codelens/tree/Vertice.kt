@@ -37,12 +37,14 @@ class VData : HashMap<String, Any>() {
   operator fun set(key: String, value: Any) {
     if (value.toString().isBlank()) return
 
+    //Todo: Adding should be explicit
     //Avoiding overriding of fields
     if (containsKey(key))
       super.put(key, listOf(super.get(key).toString().trim(), value.toString().trim()).joinToString(" "))
     else
       super.put(key, value)
   }
+
 
   fun getString(key: String): String = (this[key] as? String) ?: ""
   fun getInt(key: String): Int = this[key].toString().toIntOrNull() ?: 0

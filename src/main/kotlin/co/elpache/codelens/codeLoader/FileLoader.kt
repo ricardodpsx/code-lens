@@ -12,7 +12,7 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
 
   override val contents: String get() = "<Excluded>"
 
-  override fun load(): CodeTree {
+  override fun doLoad(): CodeTree {
     val codeTree = CodeTree()
     codeTree.addNode(file.path, fileData())
     codeTree.rootVid = file.path
@@ -20,7 +20,7 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
   }
 }
 
-abstract class FileLoader<T>(val file: File, val lang: String, val basePath: File) : NodeLoader {
+abstract class FileLoader<T>(val file: File, val lang: String, val basePath: File) : NodeLoader() {
   val type = "file"
   val fileName = file.name
   val name: String = file.nameWithoutExtension
@@ -50,7 +50,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
 
   private fun isInt(key: String) = key.matches("[0-9]+".toRegex())
 
-  override fun load(): CodeTree {
+  override fun doLoad(): CodeTree {
     data class Item(val node: T, val parent: VData, val key: String)
 
     val codeTree = CodeTree()
