@@ -16,15 +16,16 @@ import org.springframework.test.context.junit4.SpringRunner
 @RunWith(SpringRunner::class)
 @SpringBootTest(classes = [CodeLensApp::class])
 @ActiveProfiles(profiles = ["test"])
-class AnalyticsIT {
+class EvolutionUseCasesIT {
 
   @Autowired
   lateinit var applicationContext: ApplicationContext
 
 
+
   @Test
   fun `Can see change in a function`() {
-    var factory: Factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
+    var factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
 
     factory.preloadCommits(createCommits("d37fb4b", "a1e3958"))
 
@@ -40,7 +41,7 @@ class AnalyticsIT {
 
   @Test
   fun `Can see change of methods in a class`() {
-    var factory: Factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
+    var factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
 
     factory.preloadCommits(createCommits("e3b714c", "e323c18"))
 

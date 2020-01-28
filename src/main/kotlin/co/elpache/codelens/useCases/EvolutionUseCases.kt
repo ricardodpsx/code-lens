@@ -13,17 +13,17 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
 
   private val logger = KotlinLogging.logger {}
 
+  val repo by lazy { factory.repo }
 
   data class ParamEvolutionRow(
     val commit: Commit,
     val statistics: DescriptiveStatistics
   )
 
-  fun collectHistory(query: String, param: String, maxCommits: Int) =
-    collectHistory(query, param, factory.repo.lastCommits(maxCommits))
+  fun collectHistory(query: String, param: String, days: Int) =
+    collectHistory(query, param, repo.perDaySampling(days))
 
   fun collectHistory(query: String, param: String, commits: List<Commit>): List<ParamEvolutionRow> {
-
     logger.info { "Starting collecting history of $commits" }
     val history = ArrayList<ParamEvolutionRow>()
     factory.loadCodeFromCommits(commits)
@@ -44,29 +44,13 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
     return history
   }
 
-  fun collectFakeHistory(query: String, param: String, maxCommits: Int): Map<String, DescriptiveStatistics> {
-    val commits = factory.repo.lastCommits(maxCommits)
-    val history = HashMap<String, DescriptiveStatistics>()
-    /*commits.forEach {
-      codeBase = factory.createBaseCode(it)
-      history[it] = statistics(paramValues(param, selectBy(query), codeBase), codeBase)
-    }*/
-    val commitOneStats =
-      DescriptiveStatistics(1.0, 1.0, 1.0, 1.0, 1.0, listOf(1.0, 1.0, 1.0))
-    val commitTwoStats =
-      DescriptiveStatistics(3.0, 3.0, 3.0, 3.0, 3.0, listOf(3.0, 3.0, 3.0))
-    val totalStats = DescriptiveStatistics(2.0, 2.0, 2.0, 1.0, 3.0, listOf(2.0, 2.0, 2.0))
-
-    return mapOf("commit1" to commitOneStats, "commit2" to commitTwoStats, "Avg" to totalStats)
-  }
-
   fun preloadCommits(maxCommits: Int) {
-    factory.preloadCommits(factory.repo.lastCommits(maxCommits))
+    factory.preloadCommits(repo.perDaySampling(maxCommits))
   }
 
 
   fun collectFrequency(query: String, maxCommits: Int): List<EvolutionOfFrequency> =
-    collectFrequency(query, factory.repo.lastCommits(maxCommits))
+    collectFrequency(query, repo.perDaySampling(maxCommits))
 
   data class EvolutionOfFrequency(val commit: Commit, val frequency: Int)
 

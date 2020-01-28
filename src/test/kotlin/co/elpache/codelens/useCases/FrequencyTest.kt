@@ -12,7 +12,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
 import org.junit.Test
 
-class AnalyticsTest {
+class FrequencyTest {
   @Test
   fun `Can get Int Params`() {
     val uc = createCodeExplorerUseCases(
