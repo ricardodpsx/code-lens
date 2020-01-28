@@ -24,6 +24,9 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   }
 
   operator fun get(key: String) = tree.v(vid)[key]
+  operator fun set(key: String, value: Any?) {
+    if (value != null) tree.v(vid)[key] = value
+  }
 
   open fun findValue(css: String): Any? {
     return parseQuery(css).evaluate(this)

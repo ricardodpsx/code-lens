@@ -14,7 +14,7 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
 
   override fun doLoad(): CodeTree {
     val codeTree = CodeTree()
-    codeTree.addNode(file.path, fileData())
+    codeTree.addIfAbsent(fileData().addAll("vid" to file.path))
     codeTree.rootVid = file.path
     return codeTree;
   }
@@ -55,7 +55,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
 
     val codeTree = CodeTree()
     val prefix = file.path.replace("-", "_").replace("/", "-")
-    val fileNode = codeTree.addRoot(prefix, fileData())
+    val fileNode = codeTree.addRoot(fileData().addAll("vid" to prefix))
 
     val list = LinkedList<Item>()
     list.addLast(Item(node = parseFile(), parent = fileNode, key = "body"))
@@ -64,10 +64,10 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
     while (list.isNotEmpty()) {
       val (unprocessedNode, parent, key) = list.removeFirst()
 
-      val node = codeTree.addNode("${prefix}-$i")
+      val node = codeTree.addIfAbsent(vDataOf("vid" to "${prefix}-$i"))
       node.putAll(getValues(unprocessedNode))
 
-      codeTree.addChild(parent.vid, node.vid)
+      codeTree.addChild(parent.vid, node)
 
       getChildren(unprocessedNode).forEach {
         list.add(Item(it.value, node, it.key))

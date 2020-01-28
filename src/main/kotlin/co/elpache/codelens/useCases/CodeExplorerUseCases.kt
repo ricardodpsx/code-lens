@@ -6,6 +6,7 @@ import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.paramsValues
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.tree.CodeTree
+import co.elpache.codelens.tree.VData
 import co.elpache.codelens.tree.Vid
 
 data class SearchResults(
@@ -78,11 +79,20 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
       find(query)
         .map { it.data.keys }
         .flatten()
-        .filter { !listOf("name", "type").contains(it) }
+        .filterNot { listOf("name", "type", "vid").contains(it) }
+        .filterNot { it.startsWith(":") }
         .distinct()
     } catch (e: Exception) {
       arrayListOf<String>()
     }
+
+
+  fun search(query: String): List<VData> {
+    return codeTreee.finder().find(query)
+      .map {
+        it.data
+      }
+  }
 
 }
 

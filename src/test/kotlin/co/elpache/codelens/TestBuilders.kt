@@ -29,7 +29,7 @@ private fun getMockFactory(codeTree: CodeTree): Factory {
 
 fun codeTree(vid: String, node: VData, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree.addIfAbsent(vid, node)
+  tree.addIfAbsent(node.addAll("vid" to vid))
   tree.rootVid = vid
   expands.forEach {
     join(tree, it)
@@ -42,7 +42,7 @@ fun createCommits(vararg commits: String) = commits.map { createCommit(it) }
 
 fun tree(vid: String, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree = tree.addIfAbsent(vid, vDataOf("value" to vid))
+  tree.addIfAbsent(vDataOf("vid" to vid, "value" to vid))
   tree.rootVid = vid
   expands.forEach {
     join(tree, it)

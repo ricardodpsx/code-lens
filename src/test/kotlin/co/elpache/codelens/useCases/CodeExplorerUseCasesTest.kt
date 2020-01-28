@@ -8,7 +8,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 
-class CodeLoaderTest {
+class CodeExplorerUseCasesTest {
 
   @Test
   fun `Can Select items by type (Regression)`() {

@@ -61,8 +61,8 @@ class CodeTreeTest {
   fun testCodeTreeAsGraph() {
     val ct = CodeTree()
 
-    ct.addIfAbsent("a", vDataOf("value" to "Giovanny"))
-    ct.addIfAbsent("b", vDataOf("value" to "Candela"))
+    ct.addIfAbsent(vDataOf("vid" to "a", "value" to "Giovanny"))
+    ct.addIfAbsent(vDataOf("vid" to "b", "value" to "Candela"))
 
     ct.addChild("a", "b")
 

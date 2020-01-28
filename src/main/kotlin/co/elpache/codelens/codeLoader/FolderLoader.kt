@@ -48,9 +48,11 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
       val (cur, parent) = queue.removeFirst()
       try {
         if (cur.isDirectory) {
-          val node = codeTree.addNode(
-            cur.path,
-            vDataOf("fileName" to cur.name, "type" to "dir", "name" to cur.name)
+          val node = codeTree.addIfAbsent(
+            vDataOf(
+              "vid" to cur.path,
+              "fileName" to cur.name, "type" to "dir", "name" to cur.name
+            )
           )
 
           cur.listFiles()

@@ -15,18 +15,18 @@ fun applyJsMetrics(code: ContextNode) {
     with(fileNode) {
       find("*").forEach {
         it.find("$>Identifier").firstOrNull()?.let { id ->
-          it.data["name"] = id.data.getString("name")
+          it["name"] = id.data.getString("name")
         }
 
         setSimplerType(it)
-        it.data["firstLine"] = it.code.firstLine()
+        it["firstLine"] = it.code.firstLine()
       }
 
       find("fun").forEach {
-        it.data["textLines"] = it.code.split("\n").size
-        it.data["lines"] = it.code.relevantCodeLines() - 1
-        it.data["depth"] = depth(it.tree, it.vid) - 1
-        it.data[":params"] = "$>params>param"
+        it["textLines"] = it.code.split("\n").size
+        it["lines"] = it.code.relevantCodeLines() - 1
+        it["depth"] = depth(it.tree, it.vid) - 1
+        it[":params"] = "$>params>param"
       }
 
       setQuery("SET {call} args = {$>args>arg | count()}")
@@ -36,15 +36,15 @@ fun applyJsMetrics(code: ContextNode) {
       setQuery("SET {class} methods = {$ fun[kind='method' || kind='get' || kind='constructor'] | count()}")
 
       find("class").forEach {
-        it.data["lines"] = it.code.relevantCodeLines()
+        it["lines"] = it.code.relevantCodeLines()
       }
     }
 
-    fileNode.data["lines"] = fileNode.code.relevantCodeLines()
-    fileNode.data["textLines"] = fileNode.code.split("\n").size
-    fileNode.data["functions"] = fileNode.find("$>body>fun").size
-    fileNode.data["classes"] = fileNode.find("$>body>class").size
-    fileNode.data["bindings"] = fileNode.find("$>body>binding").size
+    fileNode["lines"] = fileNode.code.relevantCodeLines()
+    fileNode["textLines"] = fileNode.code.split("\n").size
+    fileNode["functions"] = fileNode.find("$>body>fun").size
+    fileNode["classes"] = fileNode.find("$>body>class").size
+    fileNode["bindings"] = fileNode.find("$>body>binding").size
   }
 }
 
@@ -73,14 +73,14 @@ fun setSimplerType(node: ContextNode) {
   )
 
   simplerTypes.forEach {
-    if (node.data.isA(it.key)) node.data["type"] = it.value
+    if (node.data.isA(it.key)) node["type"] = it.value
   }
 
   if (node.parent != null && node.parent!!.isA("params"))
-    node.data["type"] = "param"
+    node["type"] = "param"
 
   if (node.parent != null && node.parent!!.isA("args"))
-    node.data["type"] = "arg"
+    node["type"] = "arg"
 
 }
 

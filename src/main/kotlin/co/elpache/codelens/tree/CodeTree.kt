@@ -24,22 +24,16 @@ open class CodeTree {
 
   fun root(): VData = v(rootVid())
 
-  fun addRoot(vid: String, data: VData = vDataOf()): VData {
-    addNode(vid, data)
-    rootVid = vid
+  fun addRoot(data: VData = vDataOf()): VData {
+    addIfAbsent(data)
+    rootVid = data.vid
     return data
   }
 
-  fun addNode(vid: String, data: VData = vDataOf()): VData {
-    addIfAbsent(vid, data)
-    data["vid"] = vid
+  fun addIfAbsent(data: VData): VData {
+    if (contains(data.vid)) return data
+    vertices[data.vid] = Vertice(data.vid, data)
     return data
-  }
-
-  fun addIfAbsent(id: String, data: VData): CodeTree {
-    if (contains(id)) return this
-    vertices[id] = Vertice(id, data)
-    return this;
   }
 
   fun children(vid: Vid) = adj(vid, "children")
@@ -51,11 +45,11 @@ open class CodeTree {
 
   }
 
-  fun addChild(from: Vid, to: Vid, node: VData): CodeTree {
-    assert(from != to)
-    addIfAbsent(to, node)
-    addRelation("children", from, to)
-    addRelation("parent", to, from)
+  fun addChild(from: Vid, node: VData): CodeTree {
+    assert(from != node.vid)
+    addIfAbsent(node)
+    addRelation("children", from, node.vid)
+    addRelation("parent", node.vid, from)
     return this
   }
 
@@ -117,8 +111,8 @@ open class CodeTree {
     children.forEach { vid ->
       ancestors(vid).reversed()
         .windowed(2, partialWindows = true).forEach {
-          resTree = resTree.addIfAbsent(it[0], v(it[0]))
-          if (it.size == 2) resTree = resTree.addChild(it[0], it[1], v(it[1]))
+          resTree.addIfAbsent(v(it[0]))
+          if (it.size == 2) resTree = resTree.addChild(it[0], v(it[1]))
         }
     }
     resTree.rootVid = rootVid
@@ -128,7 +122,7 @@ open class CodeTree {
   fun toMap(): Map<String, Any> {
     return vertices.map {
       it.key to mapOf(
-        "data" to it.value.data.minus("code"),
+        "data" to v(it.key).minus("code"),
         "parent" to adj(it.key, "parent").getOrNull(0),
         "children" to adj(it.key, "children").toList()
       )

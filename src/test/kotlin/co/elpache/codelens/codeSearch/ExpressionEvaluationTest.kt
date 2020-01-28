@@ -72,7 +72,7 @@ class ExpressionEvaluationTest {
 
   private fun mockContext(vararg pair: Pair<String, Any>): ContextNode {
     val tree = CodeTree()
-    tree.addIfAbsent("1", vDataOf().addAll(*pair))
+    tree.addIfAbsent(vDataOf("vid" to "1").addAll(*pair))
     return ContextNode("1", tree)
   }
 
