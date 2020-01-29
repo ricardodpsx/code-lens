@@ -3,8 +3,6 @@ package co.elpache.codelens.extensions.kotlin
 import co.elpache.codelens.codeLoader.FileLoader
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.firstLine
-import co.elpache.codelens.tree.VData
-import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.underscoreToCamel
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -45,15 +43,15 @@ class KotlinFileLoader(file: File, basePath: File) : FileLoader<PsiElement>(file
   override fun parseFile() = parseFile(file.readText())
 }
 
-internal fun toVertice(c: PsiElement): VData {
+internal fun toVertice(c: PsiElement): Map<String, Any> {
   val astType = c.node.elementType.toString().underscoreToCamel()
 
-  return vDataOf(
+  return mapOf(
     "type" to simplifyType(astType),
     "start" to c.startOffsetSkippingComments,
     "end" to c.endOffset,
     "astType" to astType,
-    "name" to getName(c),
+    "name" to (getName(c) ?: ""),
     "firstLine" to c.text.firstLine()
   )
 }

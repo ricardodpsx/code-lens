@@ -5,28 +5,32 @@ import java.util.TreeSet
 typealias Vid = String
 
 
-fun HashMap<String, Any>.toVData(): VData {
-  val vData = VData()
+fun Map<String, Any>.toVData(): Vertice {
+  val vData = Vertice()
   this.entries.forEach {
     vData[it.key] = it.value
   }
   return vData
 }
 
-fun vDataOf(vararg pair: Pair<String, Any?>): VData {
-  val vData = VData()
+fun vDataOf(vararg pair: Pair<String, Any?>): Vertice {
+  val vData = Vertice()
   pair.forEach {
     if (it.second != null)
-      vData.put(it.first, it.second!!)
+      vData.data.put(it.first, it.second!!)
   }
   return vData
 }
 
-class VData : HashMap<String, Any>() {
-  val fileNode: String get() = this["fileNode"] as Vid
-  val type: String get() = this.getOrDefault("type", "").toString()
-  val vid: String get() = this["vid"] as String
+class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet<Edge> = TreeSet()) {
 
+  fun clone(): Vertice {
+    return Vertice(data)
+  }
+
+  val type: String get() = data.getOrDefault("type", "").toString()
+  val vid: String get() = data["vid"] as String
+  fun contains(value: String) = data.contains(value)
   fun isA(str: String): Boolean {
     return type.split(" ").map { it.trim().toLowerCase() }.any { str.toLowerCase() == it }
   }
@@ -34,29 +38,42 @@ class VData : HashMap<String, Any>() {
   val start: Int get() = this.getInt("start")
   val end: Int get() = this.getInt("end")
 
+  fun minus(key: String) = data.minus(key)
+  fun plus(vararg pairs: Pair<String, Any>) = data.plus(pairs)
+
+  fun params() = data.keys
+    .filterNot { listOf("name", "type", "vid").contains(it) }
+    .filterNot { it.startsWith(":") }
+
+  fun putAll(other: Map<String, Any>) = data.putAll(other)
+  fun putAll(vertice: Vertice) = data.putAll(vertice.data)
+
   operator fun set(key: String, value: Any) {
     if (value.toString().isBlank()) return
 
     //Todo: Adding should be explicit
     //Avoiding overriding of fields
-    if (containsKey(key))
-      super.put(key, listOf(super.get(key).toString().trim(), value.toString().trim()).joinToString(" "))
+    if (data.containsKey(key))
+      data.put(key, listOf(data.get(key).toString().trim(), value.toString().trim()).joinToString(" "))
     else
-      super.put(key, value)
+      data.put(key, value)
   }
 
+  operator fun get(key: String) = data[key]
+  fun getString(key: String): String = (data[key] as? String) ?: ""
+  fun getInt(key: String): Int = data[key].toString().toIntOrNull() ?: 0
 
-  fun getString(key: String): String = (this[key] as? String) ?: ""
-  fun getInt(key: String): Int = this[key].toString().toIntOrNull() ?: 0
+  fun getDouble(key: String): Double = data[key].toString().toDoubleOrNull() ?: 0.0
 
-  fun getDouble(key: String): Double = this[key].toString().toDoubleOrNull() ?: 0.0
-
-  fun addAll(vararg pairs: Pair<String, Any?>): VData {
+  fun addAll(vararg pairs: Pair<String, Any?>): Vertice {
     pairs.filter { it.second != null }.forEach {
       this[it.first] = it.second!!
     }
     return this
   }
+
+  fun containsKey(key: String) = data.containsKey(key)
+  fun toMap() = data.toMap()
 }
 
 data class Edge(
@@ -67,10 +84,3 @@ data class Edge(
     "$name-$to".compareTo(other = "${other.name}-${other.to}")
 }
 
-data class Vertice(
-  val vid: Vid,
-  val data: VData,
-  val relations: TreeSet<Edge> = TreeSet()
-) {
-  fun clone() = this.copy(relations = TreeSet(relations))
-}

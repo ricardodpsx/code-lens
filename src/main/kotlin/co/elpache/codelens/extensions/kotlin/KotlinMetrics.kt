@@ -8,33 +8,33 @@ import kotlin.math.max
 
 fun applyKotlinMetrics(ctx: ContextNode) {
   ctx.find("file[lang='kotlin']").forEach { fileNode ->
-    fileNode.data["lines"] = fileNode.code.relevantCodeLines()
-    fileNode.data["textLines"] = fileNode.code.split("\n").size
-    fileNode.data["functions"] = fileNode.find("fun").size
-    fileNode.data["classes"] = fileNode.find("class").size
-    fileNode.data["bindings"] = fileNode.find("binding").size
+    fileNode.vertice["lines"] = fileNode.code.relevantCodeLines()
+    fileNode.vertice["textLines"] = fileNode.code.split("\n").size
+    fileNode.vertice["functions"] = fileNode.find("fun").size
+    fileNode.vertice["classes"] = fileNode.find("class").size
+    fileNode.vertice["bindings"] = fileNode.find("binding").size
 
     with(fileNode) {
       find("call").forEach {
-        it.data["args"] = it.find("$>args>arg").size
+        it.vertice["args"] = it.find("$>args>arg").size
       }
 
       find("fun").forEach {
-        it.data["textLines"] = it.code.split("\n").size
-        it.data["lines"] = it.code.relevantCodeLines() - 1
-        it.data["depth"] = depth(it.tree, it.vid) - 1
-        it.data[":params"] = "$>params>param"
-        it.data["params"] = it.find("$>params>param").size
+        it.vertice["textLines"] = it.code.split("\n").size
+        it.vertice["lines"] = it.code.relevantCodeLines() - 1
+        it.vertice["depth"] = depth(it.tree, it.vid) - 1
+        it.vertice[":params"] = "$>params>param"
+        it.vertice["params"] = it.find("$>params>param").size
       }
 
       find("class").forEach {
-        it.data["lines"] = it.code.relevantCodeLines()
+        it.vertice["lines"] = it.code.relevantCodeLines()
 
         val body = it.find("$>ClassBody").firstNode()
-        it.data["constructors"] = body.find("$>fun[astType*='Constructor']").size
-        it.data["methods"] = body.find("$>fun").size
-        it.data["properties"] = body.find("$>binding").size
-        it.data["lines"] = it.code.relevantCodeLines()
+        it.vertice["constructors"] = body.find("$>fun[astType*='Constructor']").size
+        it.vertice["methods"] = body.find("$>fun").size
+        it.vertice["properties"] = body.find("$>binding").size
+        it.vertice["lines"] = it.code.relevantCodeLines()
       }
     }
   }

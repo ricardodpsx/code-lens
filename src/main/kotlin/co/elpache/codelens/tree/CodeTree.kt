@@ -6,33 +6,24 @@ import java.util.TreeMap
 
 open class CodeTree {
 
-  val vertices: TreeMap<Vid, Vertice>
-
-  constructor(vertices: Map<Vid, Vertice>) {
-    this.vertices = TreeMap()
-    this.vertices.putAll(vertices.map { it.key to it.value.clone() })
-  }
-
-  constructor() {
-    this.vertices = TreeMap()
-  }
+  val vertices: TreeMap<Vid, Vertice> = TreeMap()
 
   var rootVid: Vid? = null
 
   fun rootVid() = rootVid ?: error("RootNode not Set, Did you forgot to add a root node?")
 
 
-  fun root(): VData = v(rootVid())
+  fun root(): Vertice = v(rootVid())
 
-  fun addRoot(data: VData = vDataOf()): VData {
+  fun addRoot(data: Vertice = vDataOf()): Vertice {
     addIfAbsent(data)
     rootVid = data.vid
     return data
   }
 
-  fun addIfAbsent(data: VData): VData {
+  fun addIfAbsent(data: Vertice): Vertice {
     if (contains(data.vid)) return data
-    vertices[data.vid] = Vertice(data.vid, data)
+    vertices[data.vid] = data.clone()
     return data
   }
 
@@ -45,7 +36,7 @@ open class CodeTree {
 
   }
 
-  fun addChild(from: Vid, node: VData): CodeTree {
+  fun addChild(from: Vid, node: Vertice): CodeTree {
     assert(from != node.vid)
     addIfAbsent(node)
     addRelation("children", from, node.vid)
@@ -122,14 +113,14 @@ open class CodeTree {
   fun toMap(): Map<String, Any> {
     return vertices.map {
       it.key to mapOf(
-        "data" to v(it.key).minus("code"),
+        "vertice" to v(it.key).minus("code"),
         "parent" to adj(it.key, "parent").getOrNull(0),
         "children" to adj(it.key, "children").toList()
       )
     }.toMap().plus("rootVid" to rootVid!!).toMap()
   }
 
-  fun v(vid: Vid): VData = vertice(vid).data
+  fun v(vid: Vid): Vertice = vertice(vid)
 
   fun parentNode(b: Vid) = parent(b)?.let { v(parent(b)!!) }
 

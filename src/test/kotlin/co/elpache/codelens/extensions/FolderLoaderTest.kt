@@ -17,10 +17,10 @@ class FolderLoaderTest {
   @Test
   fun `can load folders`() {
 
-    assertThat(tree.vertices.map { it.value.data }).extracting("name")
+    assertThat(tree.vertices.map { it.value.toMap() }).extracting("name")
       .contains("fixtures", "api-server", "frontend", "language")
 
-    assertThat(tree.finder().find("#frontend #src dir").map { it.data }).extracting("name")
+    assertThat(tree.finder().find("#frontend #src dir").map { it.vertice.toMap() }).extracting("name")
       .contains("api", "components", "reducer")
 
   }
@@ -28,10 +28,10 @@ class FolderLoaderTest {
   @Test
   fun `can load Files`() {
 
-    assertThat(tree.vertices.map { it.value.data }).extracting("fileName")
+    assertThat(tree.vertices.map { it.value.toMap() }).extracting("fileName")
       .contains("index.js", "registerServiceWorker.js")
 
-    assertThat(tree.finder().find("#frontend #src #api file").map { it.data }).extracting("name")
+    assertThat(tree.finder().find("#frontend #src #api file").map { it.vertice.toMap() }).extracting("name")
       .contains("rest", "postsApi")
   }
 }

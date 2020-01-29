@@ -19,7 +19,7 @@ val gitIntegrations = LanguageIntegration(
     SelectorFunction.addFunction("percentOfChanges", "file") { params, node ->
       percentOfChanges(
         repo.logOf(
-          node.data.getString("path")
+          node.vertice.getString("path")
         ), (params.firstOrNull() ?: "7").toLong()
       )
     }
@@ -30,8 +30,8 @@ val gitIntegrations = LanguageIntegration(
 fun applyGitMetrics(ctx: ContextNode) {
   //Todo: Need factory configurations
   ctx.find("*[path]").forEach { f ->
-    val commits = repo.logOf(f.data.getString("path"))
-    f.data["commits"] = commits.size
+    val commits = repo.logOf(f.vertice.getString("path"))
+    f.vertice["commits"] = commits.size
     commits.forEach { c ->
       f.tree.addIfAbsent(
         vDataOf(

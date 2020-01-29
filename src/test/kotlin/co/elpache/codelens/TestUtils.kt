@@ -1,7 +1,7 @@
 package co.elpache.codelens
 
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import org.assertj.core.api.Assertions.assertThat
 
 
@@ -16,7 +16,7 @@ fun compareTreeOutputs(a: CodeTree, b: String) =
 fun String.normalize () = this.replace(Regex("\t+"), " ").replace(Regex(" +")," ").trim();
 
 
-fun dfs(vid: String, tree: CodeTree, out: MutableList<VData>) {
+fun dfs(vid: String, tree: CodeTree, out: MutableList<Vertice>) {
   for (cVid in tree.children(vid)) {
     out.add(tree.v(cVid))
     dfs(cVid, tree, out)

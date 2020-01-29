@@ -6,7 +6,7 @@ import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.paramsValues
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 
 data class SearchResults(
@@ -77,20 +77,18 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
   fun getPossibleIntParams(query: String) =
     try {
       find(query)
-        .map { it.data.keys }
+        .map { it.vertice.params() }
         .flatten()
-        .filterNot { listOf("name", "type", "vid").contains(it) }
-        .filterNot { it.startsWith(":") }
         .distinct()
     } catch (e: Exception) {
       arrayListOf<String>()
     }
 
 
-  fun search(query: String): List<VData> {
+  fun search(query: String): List<Vertice> {
     return codeTreee.finder().find(query)
       .map {
-        it.data
+        it.vertice
       }
   }
 

@@ -13,8 +13,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
 
   val search = { css: String ->
-    val res = tree.finder().find(css)
-    res.map { it.data }
+    tree.finder().find(css).map { it.vertice.toMap() }
   }
 
   val getValue = { funName: String, metric: String -> search(funName).first { it.containsKey(metric) }[metric] }

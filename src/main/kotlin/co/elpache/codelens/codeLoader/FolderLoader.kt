@@ -1,7 +1,7 @@
 package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.vDataOf
 import mu.KotlinLogging
 import java.io.File
@@ -39,7 +39,7 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
 
     val codeTree = CodeTree()
 
-    data class Child(val node: File, val parent: VData?)
+    data class Child(val node: File, val parent: Vertice?)
 
     val queue = LinkedList<Child>()
     queue.addLast(Child(dir, null))

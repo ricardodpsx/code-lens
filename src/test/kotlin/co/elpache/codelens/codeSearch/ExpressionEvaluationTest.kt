@@ -57,7 +57,7 @@ class ExpressionEvaluationTest {
 
     aliasExpression.evaluate(context)
 
-    assertThat(context.data["aSum"]).isEqualTo(3.0)
+    assertThat(context.vertice["aSum"]).isEqualTo(3.0)
   }
 
   @Test
@@ -67,7 +67,7 @@ class ExpressionEvaluationTest {
 
     aliasExpression.evaluate(context)
 
-    assertThat(context.data["aSum"]).isEqualTo(4.0)
+    assertThat(context.vertice["aSum"]).isEqualTo(4.0)
   }
 
   private fun mockContext(vararg pair: Pair<String, Any>): ContextNode {

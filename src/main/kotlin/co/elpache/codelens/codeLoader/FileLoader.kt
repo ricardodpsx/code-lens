@@ -1,7 +1,7 @@
 package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.vDataOf
 import java.io.File
 import java.util.LinkedList
@@ -28,7 +28,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
   val endOffset: Int = file.length().toInt()
   open val contents by lazy { file.readText(Charsets.UTF_8) }
 
-  fun fileData(): VData {
+  fun fileData(): Vertice {
     return vDataOf(
       "fileName" to file.name,
       "name" to file.nameWithoutExtension,
@@ -51,7 +51,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
   private fun isInt(key: String) = key.matches("[0-9]+".toRegex())
 
   override fun doLoad(): CodeTree {
-    data class Item(val node: T, val parent: VData, val key: String)
+    data class Item(val node: T, val parent: Vertice, val key: String)
 
     val codeTree = CodeTree()
     val prefix = file.path.replace("-", "_").replace("/", "-")

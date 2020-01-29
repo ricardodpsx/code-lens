@@ -2,7 +2,7 @@ package co.elpache.codelens
 
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 import co.elpache.codelens.tree.vDataOf
 import co.elpache.codelens.useCases.CodeExplorerUseCases
@@ -27,7 +27,7 @@ private fun getMockFactory(codeTree: CodeTree): Factory {
 }
 
 
-fun codeTree(vid: String, node: VData, vararg expands: CodeTree): CodeTree {
+fun codeTree(vid: String, node: Vertice, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
   tree.addIfAbsent(node.addAll("vid" to vid))
   tree.rootVid = vid
@@ -52,7 +52,7 @@ fun tree(vid: String, vararg expands: CodeTree): CodeTree {
 
 
 fun inorder(codeTree: CodeTree): List<Vid> {
-  val out = mutableListOf<VData>()
+  val out = mutableListOf<Vertice>()
   out.add(codeTree.root())
   dfs(codeTree.rootVid(), codeTree, out)
   return out.map { it["value"] as String }
@@ -64,7 +64,7 @@ fun selectCode(
   tree: CodeTree,
   cssSelector: String
 ): List<Map<String, Any>> {
-  return tree.finder().find(cssSelector).map { it.data }
+  return tree.finder().find(cssSelector).map { it.vertice.toMap() }
 }
 
 

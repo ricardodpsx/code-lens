@@ -89,8 +89,8 @@ class CssSearchTest {
   }
 
   @Test
-  fun `Can set metrics into nodes with SET sintax`() {
-    val res = treeWithFunctions.finder().setQuery("SET {fun} paramCount = {param|count()}")
+  fun `Can set metrics into nodes with as`() {
+    val res = treeWithFunctions.finder().find("fun[{param|count()} as paramCount]")
 
     assertThat(res.vids()).containsExactly("1.1", "2.1")
 
@@ -143,7 +143,7 @@ class CssSearchTest {
 
   @Test
   fun `Pseudo elements search`() {
-    tree.vertices["1.1"]!!.data[":childDs"] = "$ d"
+    tree.v("1.1")[":childDs"] = "$ d"
 
     assertThat(tree.finder().find("b :childDs").map { it.vid })
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
@@ -151,7 +151,7 @@ class CssSearchTest {
 
   @Test
   fun `Pseudoelements run`() {
-    tree.vertices["1.1"]!!.data[":childDs"] = "$ d"
+    tree.v("1.1")[":childDs"] = "$ d"
 
     assertThat(tree.finder().find("b :childDs").map { it.vid })
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
@@ -168,6 +168,6 @@ class CssSearchTest {
       "DeeDee"
     }
 
-    assertThat(tree.finder().find("d[sayMyName() as myName]").first().data["myName"]).isEqualTo("DeeDee")
+    assertThat(tree.finder().find("d[sayMyName() as myName]").first().vertice["myName"]).isEqualTo("DeeDee")
   }
 }

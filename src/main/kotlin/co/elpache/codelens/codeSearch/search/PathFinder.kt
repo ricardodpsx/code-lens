@@ -38,7 +38,7 @@ class PathFinder(private val ctx: ContextNode) {
   private fun expandForPseudoElements(path: List<TypeSelector>, subset: List<ContextNode>):
       Pair<List<TypeSelector>, List<ContextNode>> {
     if (path.first().isPseudoElement()) {
-      val pseudoElementQuery = ctx.data.getString(path.first().name)
+      val pseudoElementQuery = ctx.vertice.getString(path.first().name)
       if (pseudoElementQuery.isNotBlank()) {
         val expandedSelectors = parseQuery(pseudoElementQuery).selectors.plus(path.drop(1))
         val ctxWithPseudoElementParent = listOf(ctx).plus(subset)

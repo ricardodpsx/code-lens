@@ -3,7 +3,7 @@ package co.elpache.codelens.extensions.js
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.VData
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
@@ -15,7 +15,7 @@ fun applyJsMetrics(code: ContextNode) {
     with(fileNode) {
       find("*").forEach {
         it.find("$>Identifier").firstOrNull()?.let { id ->
-          it["name"] = id.data.getString("name")
+          it["name"] = id.vertice.getString("name")
         }
 
         setSimplerType(it)
@@ -29,11 +29,11 @@ fun applyJsMetrics(code: ContextNode) {
         it[":params"] = "$>params>param"
       }
 
-      setQuery("SET {call} args = {$>args>arg | count()}")
-      setQuery("SET {fun} params = {$ :params | count()}")
-      setQuery("SET {class} properties = {$>binding | count()}")
-      setQuery("SET {class} constructors = {$ fun[kind='constructor'] | count()}")
-      setQuery("SET {class} methods = {$ fun[kind='method' || kind='get' || kind='constructor'] | count()}")
+      find("call[{$>args>arg | count()} as args]")
+      find("fun[{$ :params | count()} as params]")
+      find("class[{$>binding | count()} as properties]")
+      find("class[{$ fun[kind='constructor'] | count()} as constructors]")
+      find("class[{$ fun[kind='method' || kind='get' || kind='constructor'] | count()} as methods]")
 
       find("class").forEach {
         it["lines"] = it.code.relevantCodeLines()
@@ -73,7 +73,7 @@ fun setSimplerType(node: ContextNode) {
   )
 
   simplerTypes.forEach {
-    if (node.data.isA(it.key)) node["type"] = it.value
+    if (node.vertice.isA(it.key)) node["type"] = it.value
   }
 
   if (node.parent != null && node.parent!!.isA("params"))
@@ -92,7 +92,7 @@ private fun depth(tree: CodeTree, vid: Vid): Int {
   return (if (increasesNesting(tree.v(vid))) 1 else 0) + maxDepth
 }
 
-fun increasesNesting(item: VData) = listOf("fun", "if", "loop").any { item.isA(it) }
+fun increasesNesting(item: Vertice) = listOf("fun", "if", "loop").any { item.isA(it) }
 
 fun String.relevantCodeLines() =
   split("\n")

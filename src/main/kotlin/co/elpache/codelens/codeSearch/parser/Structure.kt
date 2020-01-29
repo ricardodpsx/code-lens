@@ -42,7 +42,7 @@ data class SelectorFunction(
 
   override fun evaluate(context: ContextNode): Any? =
     functionRegistry.firstOrNull {
-      name == it.name && context.data.isA(it.type)
+      name == it.name && context.vertice.isA(it.type)
     }?.let {
       try {
         it.function(params.map { param -> param.evaluate(context).toString() }, context)
@@ -131,7 +131,7 @@ data class LiteralExpression(val value: Any) : UnnaryExpression {
 
 data class NameExpression(val value: String) : UnnaryExpression {
   override fun evaluate(context: ContextNode): Any? {
-    return context.data[value]
+    return context.vertice[value]
   }
 }
 
@@ -151,7 +151,7 @@ data class TypeSelector(
   fun isPseudoElement() = name.startsWith(":")
 
   override fun evaluate(context: ContextNode): Boolean {
-    val values = context.data[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
+    val values = context.vertice[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
 
     if (name != "*" && values.none { it == name.toLowerCase() })
       return false
@@ -171,11 +171,11 @@ data class AttributeSelector(
 
 data class AliasExpression(val name: String, val expr: Expression) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    if (context.data.containsKey(name))
+    if (context.vertice.containsKey(name))
       logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
-      context.data.put(name, it)
+      context.vertice.addAll(name to it)
       it
     }
   }
