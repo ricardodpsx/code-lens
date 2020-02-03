@@ -15,7 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 
-class CssSelectorParserTest {
+class SelectorParserTest {
 
   @Test
   fun cssParserSimpleSelect() {

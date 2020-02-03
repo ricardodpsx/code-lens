@@ -14,21 +14,19 @@ class CodeExplorerUseCasesTest {
   fun `Can Select items by type (Regression)`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+        vDataOf("1","type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "fun"),
+          vDataOf("2","type" to "fun"),
           codeTree(
-            "3", vDataOf("type" to "fun"),
-            codeTree("4", vDataOf("type" to "fun"))
+            vDataOf("3","type" to "fun"),
+            codeTree(vDataOf("4","type" to "fun"))
           ),
-          codeTree("5", vDataOf("type" to "fun")),
-          codeTree("6", vDataOf("type" to "X"))
+          codeTree(vDataOf("5","type" to "fun")),
+          codeTree(vDataOf("6","type" to "X"))
         ),
         codeTree(
-          "7", vDataOf("type" to "fun"),
-          codeTree("8", vDataOf("type" to "X"))
+          vDataOf("7","type" to "fun"),
+          codeTree(vDataOf("8","type" to "X"))
         )
       )
     )

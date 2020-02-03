@@ -32,7 +32,7 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
           ParamEvolutionRow(
             it.key,
             statistics(
-              it.value.finder().find(query).paramsValues(param).map {
+              it.value.finder().find(query).paramsValues("vid", param).map {
                 it.first to it.second.toInt()
               }
             )

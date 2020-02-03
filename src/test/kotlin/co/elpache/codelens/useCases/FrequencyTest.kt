@@ -17,23 +17,23 @@ class FrequencyTest {
   fun `Can get Int Params`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+
+        vDataOf("1","type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
+
+          vDataOf("2","type" to "files"),
           codeTree(
-            "3",
-            vDataOf("type" to "fun", "lines" to 6, "depth" to 5)
+
+            vDataOf("3","type" to "fun", "lines" to 6, "depth" to 5)
           ),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 6)),
+          codeTree( vDataOf("4","type" to "fun", "lines" to 6)),
           codeTree(
-            "5",
-            vDataOf("type" to "fun", "lines" to 4, "complexity" to 9)
+
+            vDataOf("5","type" to "fun", "lines" to 4, "complexity" to 9)
           )
         ),
-        codeTree("6", vDataOf("type" to "fun", "lines" to 4)),
-        codeTree("7", vDataOf("type" to "fun"))
+        codeTree( vDataOf("6","type" to "fun", "lines" to 4)),
+        codeTree(vDataOf("7","type" to "fun"))
       )
     )
 
@@ -47,17 +47,17 @@ class FrequencyTest {
   fun `Can get Frequencies`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+
+        vDataOf("1","type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 6)),
-          codeTree("5", vDataOf("type" to "fun", "lines" to 4))
+
+          vDataOf("2","type" to "files"),
+          codeTree( vDataOf("3","type" to "fun", "lines" to 6)),
+          codeTree( vDataOf("4","type" to "fun", "lines" to 6)),
+          codeTree( vDataOf("5","type" to "fun", "lines" to 4))
         ),
-        codeTree("6", vDataOf("type" to "fun", "lines" to 4)),
-        codeTree("7", vDataOf("type" to "fun", "lines" to 6))
+        codeTree(vDataOf("6", "type" to "fun", "lines" to 4)),
+        codeTree( vDataOf("7","type" to "fun", "lines" to 6))
       )
     )
 
@@ -73,18 +73,17 @@ class FrequencyTest {
   fun `Can get evolution of a given metric`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+        vDataOf("1", "type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 1)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 3)),
-          codeTree("5", vDataOf("type" to "fun", "lines" to 5))
+
+          vDataOf("2", "type" to "files"),
+          codeTree( vDataOf("3","type" to "fun", "lines" to 1)),
+          codeTree( vDataOf("4","type" to "fun", "lines" to 3)),
+          codeTree( vDataOf("5","type" to "fun", "lines" to 5))
         ),
-        codeTree("6", vDataOf("type" to "fun", "lines" to 2)),
-        codeTree("7", vDataOf("type" to "fun", "lines" to 4)),
-        codeTree("8", vDataOf("type" to "fun", "lines" to 10))
+        codeTree( vDataOf("6","type" to "fun", "lines" to 2)),
+        codeTree( vDataOf("7","type" to "fun", "lines" to 4)),
+        codeTree( vDataOf("8","type" to "fun", "lines" to 10))
       )
     )
 
@@ -105,39 +104,38 @@ class FrequencyTest {
     //Todo: Can be more clear
     val comm1 =
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+
+        vDataOf("1",  "type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 3))
+
+          vDataOf("2","type" to "files"),
+          codeTree( vDataOf("3","type" to "fun", "lines" to 6)),
+          codeTree( vDataOf("4","type" to "fun", "lines" to 3))
         )
       )
 
     val comm2 =
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+
+        vDataOf("1", "type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 7)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 8)),
-          codeTree("5", vDataOf("type" to "fun", "lines" to 9))
+
+          vDataOf("2", "type" to "files"),
+          codeTree( vDataOf("3","type" to "fun", "lines" to 7)),
+          codeTree( vDataOf("4","type" to "fun", "lines" to 8)),
+          codeTree( vDataOf("5","type" to "fun", "lines" to 9))
         )
       )
 
     val current =
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+
+        vDataOf("1",   "type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "lines" to 6)),
-          codeTree("4", vDataOf("type" to "fun", "lines" to 4)),
-          codeTree("5", vDataOf("type" to "fun", "lines" to 9))
+          vDataOf("2",  "type" to "files"),
+          codeTree(vDataOf("3","type" to "fun", "lines" to 6)),
+          codeTree(vDataOf("4","type" to "fun", "lines" to 4)),
+          codeTree(vDataOf("5","type" to "fun", "lines" to 9))
         )
       )
     val factory = mockk<Factory>()

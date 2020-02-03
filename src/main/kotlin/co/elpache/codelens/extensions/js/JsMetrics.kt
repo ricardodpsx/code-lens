@@ -25,7 +25,7 @@ fun applyJsMetrics(code: ContextNode) {
       find("fun").forEach {
         it["textLines"] = it.code.split("\n").size
         it["lines"] = it.code.relevantCodeLines() - 1
-        it["depth"] = depth(it.tree, it.vid) - 1
+        it["depth"] = depth(it.tree, it["vid"].toString()) - 1
         it[":params"] = "$>params>param"
       }
 

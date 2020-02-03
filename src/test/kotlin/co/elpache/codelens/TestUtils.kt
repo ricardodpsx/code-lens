@@ -16,10 +16,4 @@ fun compareTreeOutputs(a: CodeTree, b: String) =
 fun String.normalize () = this.replace(Regex("\t+"), " ").replace(Regex(" +")," ").trim();
 
 
-fun dfs(vid: String, tree: CodeTree, out: MutableList<Vertice>) {
-  for (cVid in tree.children(vid)) {
-    out.add(tree.v(cVid))
-    dfs(cVid, tree, out)
-  }
-}
 

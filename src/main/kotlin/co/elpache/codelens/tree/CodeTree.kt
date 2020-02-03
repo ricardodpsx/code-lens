@@ -8,20 +8,13 @@ open class CodeTree {
 
   val vertices: TreeMap<Vid, Vertice> = TreeMap()
 
-  var rootVid: Vid? = null
+  private var rootVid: Vid? = null
 
   fun rootVid() = rootVid ?: error("RootNode not Set, Did you forgot to add a root node?")
 
 
-  fun root(): Vertice = v(rootVid())
-
-  fun addRoot(data: Vertice = vDataOf()): Vertice {
-    addIfAbsent(data)
-    rootVid = data.vid
-    return data
-  }
-
   fun addIfAbsent(data: Vertice): Vertice {
+    if(rootVid == null) rootVid = data.vid
     if (contains(data.vid)) return data
     vertices[data.vid] = data.clone()
     return data
@@ -150,6 +143,27 @@ open class CodeTree {
 
   fun adj(vid: String, relName: String): List<Vid> =
     vertices[vid]!!.relations.filter { it.name == relName }.map { it.to }
+
+
+  fun inorder(): List<Vid> {
+    val out = mutableListOf<Vertice>()
+    out.add(v(rootVid!!))
+    dfs(rootVid!!, out)
+    return out.map { it["value"] as String }
+  }
+
+  private fun dfs(vid: Vid, out: MutableList<Vertice>) {
+    for (cVid in children(vid)) {
+      out.add(v(cVid))
+      dfs(cVid, out)
+    }
+  }
+
+  fun join(child: CodeTree) {
+    assert(vertices.keys.intersect(child.vertices.keys).isEmpty()) { "Trees should be disjoint" }
+    vertices.putAll(child.vertices)
+    addChild(rootVid!!, child.rootVid!!)
+  }
 }
 
 

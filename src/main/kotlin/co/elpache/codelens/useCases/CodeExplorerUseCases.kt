@@ -3,7 +3,6 @@ package co.elpache.codelens.useCases
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.finder
-import co.elpache.codelens.codeSearch.search.paramsValues
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
@@ -36,7 +35,7 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {
-      val res = find(query).vids()
+      val res = find(query).map { it.vertice.vid }
       SearchResults(
         codeTreee.treeFromChildren(res),
         res
@@ -60,12 +59,14 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
   //This make it easy to answer questions like "how many functions have more than 5 params" etc
   fun getParamDistribution(query: String, param: String) =
     AnalyticsResults(
-      frequency(find(query).paramsValues(param))
+      frequency(find(query).filter { it[param] != null }
+        .map { it.vertice.vid to it.vertice.getDouble(param) })
     )
 
 
   fun getMetricStatistics(query: String, param: String): DescriptiveStatistics {
-    return statistics(find(query).paramsValues(param).map { it.first to it.second.toInt() })
+    return statistics(find(query).filter { it[param] != null }
+      .map { it.vertice.vid to it.vertice.getInt(param) })
   }
 
   fun loadNodeContents(vid: String) =

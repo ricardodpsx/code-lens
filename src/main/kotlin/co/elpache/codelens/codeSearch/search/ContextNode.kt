@@ -6,9 +6,10 @@ import co.elpache.codelens.tree.Vid
 import co.elpachecode.codelens.cssSelector.parseQuery
 
 fun CodeTree.finder() = ContextNode(rootVid(), this)
-fun Collection<ContextNode>.paramsValues(param: String): List<Pair<Vid, Double>> {
+
+fun Collection<ContextNode>.paramsValues(key: String, param: String): List<Pair<Vid, Double>> {
   return filter { it.vertice.contains(param) }
-    .map { Pair(it.vid, it.vertice.getDouble(param)) }
+    .map { Pair(it[key].toString(), it.vertice.getDouble(param)) }
 }
 
 open class ContextNode(val vid: Vid, val tree: CodeTree) {
@@ -54,11 +55,10 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
 
   override fun toString() = vertice.toString()
 
-  fun data(css: String) = find(css).map { it.vertice }
+  fun printTree() = println(tree.subTree(vid).asString())
+  fun containsKey(name: String) = vertice.containsKey(name)
+  fun toMap() = vertice.toMap()
 
-  fun printTree() = println(asString())
-
-  fun asString() = tree.subTree(vid).asString()
 }
 
 class EmptySearchNode : ContextNode("--Empty--", CodeTree()) {
@@ -70,4 +70,4 @@ class EmptySearchNode : ContextNode("--Empty--", CodeTree()) {
 }
 
 fun Collection<ContextNode>.firstNode() = firstOrNull() ?: EmptySearchNode()
-fun Collection<ContextNode>.vids() = map { it.vid }
+fun Collection<ContextNode>.vids() = map { it.vertice.vid }

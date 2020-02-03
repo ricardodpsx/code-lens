@@ -35,7 +35,7 @@ fun applyGitMetrics(ctx: ContextNode) {
     commits.forEach { c ->
       f.tree.addIfAbsent(
         vDataOf(
-          "vid" to c.id,
+          c.id,
           "type" to "commit",
           "id" to c.id,
           "author" to c.commitTime,

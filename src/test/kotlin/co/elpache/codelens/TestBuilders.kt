@@ -27,12 +27,11 @@ private fun getMockFactory(codeTree: CodeTree): Factory {
 }
 
 
-fun codeTree(vid: String, node: Vertice, vararg expands: CodeTree): CodeTree {
+fun codeTree(node: Vertice, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree.addIfAbsent(node.addAll("vid" to vid))
-  tree.rootVid = vid
+  tree.addIfAbsent(node)
   expands.forEach {
-    join(tree, it)
+    tree.join(it)
   }
   return tree
 }
@@ -42,22 +41,12 @@ fun createCommits(vararg commits: String) = commits.map { createCommit(it) }
 
 fun tree(vid: String, vararg expands: CodeTree): CodeTree {
   var tree = CodeTree()
-  tree.addIfAbsent(vDataOf("vid" to vid, "value" to vid))
-  tree.rootVid = vid
+  tree.addIfAbsent(vDataOf(vid, "value" to vid))
   expands.forEach {
-    join(tree, it)
+    tree.join(it)
   }
   return tree
 }
-
-
-fun inorder(codeTree: CodeTree): List<Vid> {
-  val out = mutableListOf<Vertice>()
-  out.add(codeTree.root())
-  dfs(codeTree.rootVid(), codeTree, out)
-  return out.map { it["value"] as String }
-}
-
 
 
 fun selectCode(
@@ -65,15 +54,6 @@ fun selectCode(
   cssSelector: String
 ): List<Map<String, Any>> {
   return tree.finder().find(cssSelector).map { it.vertice.toMap() }
-}
-
-
-fun join(parent: CodeTree, child: CodeTree) {
-  assert(parent.vertices.keys.intersect(child.vertices.keys).isEmpty()) { "Trees should be disjoint" }
-
-  parent.vertices.putAll(child.vertices)
-  parent.addChild(parent.rootVid(), child.rootVid())
-
 }
 
 fun createCommit(commit: String) = Commit(commit, "", 0)

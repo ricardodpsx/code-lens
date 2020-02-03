@@ -151,7 +151,7 @@ data class TypeSelector(
   fun isPseudoElement() = name.startsWith(":")
 
   override fun evaluate(context: ContextNode): Boolean {
-    val values = context.vertice[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
+    val values = context[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
 
     if (name != "*" && values.none { it == name.toLowerCase() })
       return false
@@ -171,11 +171,11 @@ data class AttributeSelector(
 
 data class AliasExpression(val name: String, val expr: Expression) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    if (context.vertice.containsKey(name))
+    if (context.containsKey(name))
       logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
-      context.vertice.addAll(name to it)
+      context[name] = it
       it
     }
   }

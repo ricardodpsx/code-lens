@@ -49,8 +49,7 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
       try {
         if (cur.isDirectory) {
           val node = codeTree.addIfAbsent(
-            vDataOf(
-              "vid" to cur.path,
+            vDataOf(cur.path,
               "fileName" to cur.name, "type" to "dir", "name" to cur.name
             )
           )
@@ -79,7 +78,6 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
         logger.warn(e) { "problem opening directory ${cur.absolutePath}" }
       }
     }
-    codeTree.rootVid = dir.path
     return codeTree
   }
 }

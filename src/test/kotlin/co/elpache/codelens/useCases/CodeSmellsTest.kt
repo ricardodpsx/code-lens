@@ -15,18 +15,16 @@ class CodeSmellsTest {
   fun setUp() {
     uc = createCodeSmellsUseCases(
       codeTree(
-        "1",
-        vDataOf("type" to "file"),
+        vDataOf("1","type" to "file"),
         codeTree(
-          "2",
-          vDataOf("type" to "files"),
-          codeTree("3", vDataOf("type" to "fun", "params" to 2)),
-          codeTree("4", vDataOf("type" to "fun", "params" to 2)),
-          codeTree("5", vDataOf("type" to "fun", "params" to 5))
+          vDataOf("2","type" to "files"),
+          codeTree(vDataOf("3","type" to "fun", "params" to 2)),
+          codeTree(vDataOf("4","type" to "fun", "params" to 2)),
+          codeTree(vDataOf("5","type" to "fun", "params" to 5))
         ),
-        codeTree("6", vDataOf("type" to "fun", "params" to 5)),
-        codeTree("7", vDataOf("type" to "fun", "params" to 2)),
-        codeTree("8", vDataOf("type" to "fun", "params" to 3))
+        codeTree(vDataOf("6","type" to "fun", "params" to 5)),
+        codeTree(vDataOf("7","type" to "fun", "params" to 2)),
+        codeTree(vDataOf("8","type" to "fun", "params" to 3))
       )
     )
   }

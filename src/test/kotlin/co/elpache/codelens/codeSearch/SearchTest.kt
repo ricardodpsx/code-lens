@@ -3,67 +3,79 @@ package co.elpache.codelens.codeSearch
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
+import co.elpache.codelens.tree.CodeTree
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.vDataOf
 import co.elpachecode.codelens.cssSelector.SelectorFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
-class CssSearchTest {
+class SearchTest {
   val tree =
     codeTree(
-      "1", vDataOf("type" to "a AA", "name" to "parent"),
+      vDataOf("1","type" to "a AA", "name" to "parent"),
       codeTree(
-        "1.1", vDataOf("type" to "b"),
+        vDataOf("1.1","type" to "b"),
         codeTree(
-          "1.1.1", vDataOf("type" to "c", "lines" to 3),
-          codeTree("1.1.1.1", vDataOf("type" to "e"))
+          vDataOf("1.1.1","type" to "c", "lines" to 3),
+          codeTree(vDataOf("1.1.1.1","type" to "e"))
         ),
         codeTree(
-          "1.1.2",
-          vDataOf("type" to "d", "lines" to 4),
-          codeTree("1.1.2.1", vDataOf("type" to "d"))
+
+          vDataOf("1.1.2","type" to "d", "lines" to 4),
+          codeTree(vDataOf("1.1.2.1","type" to "d"))
         ),
-        codeTree("1.1.3", vDataOf("type" to "b"))
+        codeTree(vDataOf("1.1.3","type" to "b"))
       ),
-      codeTree("1.2", vDataOf("type" to "b")),
+      codeTree(vDataOf("1.2","type" to "b")),
       codeTree(
-        "1.3",
-        vDataOf("type" to "a"),
-        codeTree("1.3.1", vDataOf("type" to "d"))
+
+        vDataOf("1.3", "type" to "a"),
+        codeTree(vDataOf("1.3.1","type" to "d"))
       )
     )
 
   val treeWithFunctions =
     codeTree(
-      "1", vDataOf("type" to "file", "name" to "code.kt"),
+      vDataOf("1","type" to "file", "name" to "code.kt"),
       codeTree(
-        "1.1", vDataOf("type" to "fun"),
+        vDataOf("1.1","type" to "fun"),
         codeTree(
-          "1.1.1", vDataOf("type" to "param"),
+          vDataOf("1.1.1","type" to "param"),
           codeTree(
-            "1.1.1.1", vDataOf("type" to "int")
+            vDataOf("1.1.1.1","type" to "int")
           )
         ),
         codeTree(
-          "1.1.2", vDataOf("type" to "param")
+          vDataOf("1.1.2","type" to "param")
         )
       ),
       codeTree(
-        "2.1", vDataOf("type" to "fun"),
+        vDataOf("2.1","type" to "fun"),
         codeTree(
-          "2.1.1", vDataOf("type" to "param")
+          vDataOf("2.1.1","type" to "param")
         )
       )
     )
 
-  private fun search(query: String) = tree.finder().find(query).map { it.vid }
+  private fun search(query: String) = tree.finder().find(query).map { it.vertice.vid }
 
   @Test
   fun `Test Single child`() {
     assertThat(search("a")).containsExactlyInAnyOrder("1", "1.3")
   }
 
+  @Test
+  fun `Search in a map`() {
+    val tree = CodeTree()
+    tree.addIfAbsent(vDataOf("1", "sum" to 2))
+    tree.addIfAbsent(vDataOf("2", "sum" to 3))
+    tree.addIfAbsent(vDataOf("3", "sum" to 4))
+    tree.addChild("1", "2")
+    tree.addChild("1", "3")
 
+    assertThat(tree.finder().find("*[sum=2]")[0].toMap()).isEqualTo(mapOf("vid" to "1", "sum" to 2))
+  }
   @Test
   fun `Test children search`() {
     println(tree.asString())
@@ -145,7 +157,7 @@ class CssSearchTest {
   fun `Pseudo elements search`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
-    assertThat(tree.finder().find("b :childDs").map { it.vid })
+    assertThat(tree.finder().find("b :childDs").vids())
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
   }
 
@@ -153,13 +165,13 @@ class CssSearchTest {
   fun `Pseudoelements run`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
-    assertThat(tree.finder().find("b :childDs").map { it.vid })
+    assertThat(tree.finder().find("b :childDs").vids())
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
   }
 
   @Test
   fun `Pseudo elements search error`() {
-    assertThat(tree.finder().find("d :unregistered").map { it.vid }).isEmpty()
+    assertThat(tree.finder().find("d :unregistered").vids()).isEmpty()
   }
 
   @Test

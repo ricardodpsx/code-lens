@@ -15,16 +15,9 @@ class PathFinder(private val ctx: ContextNode) {
     ContextNode(it, tree)
   }
 
-  private fun allNodes() =
-    //When searching from root it should look for all nodes
-    if (tree.rootVid == vid)
-      tree.vertices.map { ContextNode(it.key, tree) }
-    else
-      descendants()
-
   fun find(query: Query): List<ContextNode> {
     return findMatchingPathsFromSubSet(
-      listOf(ctx).plus(allNodes()).distinctBy { it.vid }, query.selectors
+      listOf(ctx).plus(descendants()).distinctBy { it.vid }, query.selectors
     )
   }
 
@@ -71,7 +64,7 @@ class PathFinder(private val ctx: ContextNode) {
           it.find(path.drop(1))
         else
           it.findNext(path.drop(1))
-      }.flatten().distinctBy { it.vid }
+      }.flatten().distinctBy { it.vid}
       .toList()
   }
 }

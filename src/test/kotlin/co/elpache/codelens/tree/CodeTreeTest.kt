@@ -1,6 +1,5 @@
 package co.elpache.codelens.tree
 
-import co.elpache.codelens.inorder
 import co.elpache.codelens.tree
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -35,7 +34,7 @@ class CodeTreeTest {
       tree("b.2")
     )
 
-    assertThat(inorder(a.addSubTree(b, "a.1"))).contains("a", "a.1", "a.2", "b", "b.1", "b.2")
+    assertThat(a.addSubTree(b, "a.1").inorder()).contains("a", "a.1", "a.2", "b", "b.1", "b.2")
   }
 
   @Test(expected = Error::class)
@@ -61,8 +60,8 @@ class CodeTreeTest {
   fun testCodeTreeAsGraph() {
     val ct = CodeTree()
 
-    ct.addIfAbsent(vDataOf("vid" to "a", "value" to "Giovanny"))
-    ct.addIfAbsent(vDataOf("vid" to "b", "value" to "Candela"))
+    ct.addIfAbsent(vDataOf("a", "value" to "Giovanny"))
+    ct.addIfAbsent(vDataOf("b", "value" to "Candela"))
 
     ct.addChild("a", "b")
 
@@ -90,7 +89,7 @@ class CodeTreeTest {
 
     val res = tree.subTree("b")
 
-    assertThat(inorder(res)).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
+    assertThat(res.inorder()).isEqualTo(listOf("b", "b_1", "b_2", "c_3"))
   }
 
   @Test
@@ -118,7 +117,7 @@ class CodeTreeTest {
 
 
     val res = tree.treeFromChildren(listOf("b_1", "b_3"))
-    assertThat(inorder(res)).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
+    assertThat(res.inorder()).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
   }
 
   @Test

@@ -22,7 +22,7 @@ fun applyKotlinMetrics(ctx: ContextNode) {
       find("fun").forEach {
         it.vertice["textLines"] = it.code.split("\n").size
         it.vertice["lines"] = it.code.relevantCodeLines() - 1
-        it.vertice["depth"] = depth(it.tree, it.vid) - 1
+        it.vertice["depth"] = depth(it.tree, it["vid"].toString()) - 1
         it.vertice[":params"] = "$>params>param"
         it.vertice["params"] = it.find("$>params>param").size
       }

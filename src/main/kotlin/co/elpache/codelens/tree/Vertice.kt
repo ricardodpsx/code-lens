@@ -13,8 +13,9 @@ fun Map<String, Any>.toVData(): Vertice {
   return vData
 }
 
-fun vDataOf(vararg pair: Pair<String, Any?>): Vertice {
+fun vDataOf(vid: String, vararg pair: Pair<String, Any?>): Vertice {
   val vData = Vertice()
+  vData["vid"] = vid
   pair.forEach {
     if (it.second != null)
       vData.data.put(it.first, it.second!!)
