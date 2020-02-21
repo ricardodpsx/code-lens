@@ -19,8 +19,7 @@ export default ({
         tickRotation: 30,
         legend: xLabel,
         legendPosition: 'end',
-        legendOffset: 32
-
+        legendOffset: 5
       }}
       onClick={({data}) => onDataSelected(data)}
       axisLeft={{

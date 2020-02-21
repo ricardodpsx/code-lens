@@ -2,7 +2,7 @@ package codelens.cssSelector
 
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import co.elpachecode.codelens.cssSelector.parseQuery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -72,7 +72,7 @@ class ExpressionEvaluationTest {
 
   private fun mockContext(vararg pair: Pair<String, Any>): ContextNode {
     val tree = CodeTree()
-    tree.addIfAbsent(vDataOf("1").addAll(*pair))
+    tree.addVertice(verticeOf("1").addAll(*pair))
     return ContextNode("1", tree)
   }
 

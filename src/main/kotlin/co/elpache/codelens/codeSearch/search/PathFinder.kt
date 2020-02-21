@@ -11,18 +11,14 @@ class PathFinder(private val ctx: ContextNode) {
   val tree = ctx.tree
   val vid = ctx.vid
 
-  private fun descendants() = tree.descendants(vid).map {
-    ContextNode(it, tree)
-  }
-
   fun find(query: Query): List<ContextNode> {
     return findMatchingPathsFromSubSet(
-      listOf(ctx).plus(descendants()).distinctBy { it.vid }, query.selectors
+      listOf(ctx).plus(ctx.descendants()).distinctBy { it.vid }, query.selectors
     )
   }
 
   private fun find(selectors: List<TypeSelector>) =
-    findMatchingPathsFromSubSet(descendants(), selectors)
+    findMatchingPathsFromSubSet(ctx.descendants(), selectors)
 
   private fun findNext(selectors: List<TypeSelector>) = findMatchingPathsFromSubSet(
     ctx.adj(), selectors
@@ -64,7 +60,7 @@ class PathFinder(private val ctx: ContextNode) {
           it.find(path.drop(1))
         else
           it.findNext(path.drop(1))
-      }.flatten().distinctBy { it.vid}
+      }.flatten().distinctBy { it.vid }
       .toList()
   }
 }

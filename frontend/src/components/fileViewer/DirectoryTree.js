@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import '../App.css';
+import {allVertices, ancestors, children, vdata, vertice} from '../../lib/treeUtils'
 /* eslint no-console:0, react/no-danger: 0 */
 import 'rc-tree/assets/index.css';
 import Tree, {TreeNode} from 'rc-tree';
@@ -7,7 +8,6 @@ import Paper from "@material-ui/core/Paper/Paper";
 import {useStyles} from "../layout/baseStyles";
 import Link from "@material-ui/core/Link/Link";
 import {Title} from "../layout/Title";
-import {allVertices, ancestors} from "../../lib/treeUtils";
 import {connect} from "react-redux";
 import {selectFile} from "../../appModel";
 
@@ -23,17 +23,19 @@ const STYLE = `
 `;
 
 function expand(g, v) {
-  if (!g[v] || g[v].data.type === "file") return
+  if (!g || !v) return
+  if (g && v && vertice(g, v).type === "file") return
 
-  return g[v].children.map(c =>
-    <TreeNode title={g[c].data.fileName} key={c} >
-      {g[c].children.length && expand(g, c)}
-    </TreeNode>
+  return children(g, v).map(c => {
+       return <TreeNode title={vdata(g, c).fileName} key={c}>
+         {children(g, c).length && expand(g, c)}
+       </TreeNode>
+     }
   )
 }
 
-
 function DirectoryTree({codeTree, selectedFile}) {
+  if (!codeTree) return null
 
   const classes = useStyles();
 
@@ -85,11 +87,9 @@ function DirectoryTree({codeTree, selectedFile}) {
             expandedKeys={expandedKeys}>
            {expand(codeTree, codeTree.rootVid)}
          </Tree>
-
        </Paper>
      </div>
   )
-
 }
 
 let mapStateToProps = ({selectedFile: {fileVid}, query: {results, codeTree} = {}}) =>

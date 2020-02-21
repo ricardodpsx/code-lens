@@ -39,13 +39,13 @@ class PreloadingIT {
   @Test
   fun `Preload commits in DB so that queries can be done faster later`() {
 
-    uc.preloadCommits(6)
+    uc.factory.preloadCommits(uc.repo.lastCommits(6))
 
     //Giving some time to the preload commits to finish
 
     val loadTime = measureTimeMillis {
-      //Should only doLoad pre-loaded commits
-      assertThat(uc.collectHistory("fun", "lines", 8).size).isEqualTo(6)
+      //Should only load pre-loaded commits
+      assertThat(uc.collectHistory("fun", "lines", uc.repo.lastCommits(20)).size).isEqualTo(6)
     }
 
     println("Load time ${loadTime / 1000.0} Secs")

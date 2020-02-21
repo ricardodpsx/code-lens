@@ -2,7 +2,7 @@ package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import mu.KotlinLogging
 import java.io.File
 import java.util.LinkedList
@@ -48,8 +48,9 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
       val (cur, parent) = queue.removeFirst()
       try {
         if (cur.isDirectory) {
-          val node = codeTree.addIfAbsent(
-            vDataOf(cur.path,
+          val node = codeTree.addVertice(
+            verticeOf(
+              cur.path,
               "fileName" to cur.name, "type" to "dir", "name" to cur.name
             )
           )

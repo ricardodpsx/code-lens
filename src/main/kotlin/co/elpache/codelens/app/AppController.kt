@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 
-@CrossOrigin(origins = ["http://localhost:3000"])
+@CrossOrigin(origins = ["*"])
 @RestController
 class AppController {
 
@@ -28,7 +28,8 @@ class AppController {
 
   @GetMapping("/")
   @ResponseBody
-  fun cssQuery(@RequestParam query: String) = codeExplorerUseCases.getSearchResultsWithParams(query)
+  fun cssQuery(@RequestParam query: String) =
+    codeExplorerUseCases.getSearchResultsWithParams(query)
 
 
   @GetMapping("/node/{vid}")

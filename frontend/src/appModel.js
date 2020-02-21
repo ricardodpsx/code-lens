@@ -1,6 +1,6 @@
 import {createApp, r} from "./lib/appModelBuilder";
 import {loadFile, loadFrequencyHistory, loadGraph, loadHistory, loadMetrics} from "./api";
-import {fileAncestor} from "./lib/treeUtils";
+import {fileAncestor, vdata, vertice} from "./lib/treeUtils";
 
 export let tabItems = {
   SearchResultsTab: "SearchResultsTab",
@@ -16,29 +16,27 @@ export let appModelDef = {
     selectTab: r((data) => ({activeTab: data})),
     $when: {
       query: {
-        updateResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
+        updateResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab),
+        filterResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
       }
     }
   },
   query: {
-    $default: {text: "", codeTree: {}, results: [], metricNames: [], selectedTreeNode: null},
+    $default: {text: "", codeTree: null, results: [], metricNames: [], selectedTreeNode: null},
     selectTreeNode: {
       reducer: selectedTreeNode => ({selectedTreeNode}),
       effects: (selectedTreeNode, {selectedFile: {selectFile}, query: {codeTree}}) => {
-        if (!codeTree[selectedTreeNode]) return;
+        if (!vertice(codeTree, selectedTreeNode)) return;
         let f = fileAncestor(codeTree, selectedTreeNode)
         if (f) selectFile(f)
       }
     },
-    updateResults: r((results) => ({results})),
-    updateCodeTree: codeTree => ({codeTree}),
-    updateMetricNames: metricNames => ({metricNames}),
+    updateResults: r((results) => results),
+    filterResults: r((results) => ({results})),
     setQuery: r(text => ({text}),
-       (text, {query: {updateResults, updateCodeTree, updateMetricNames}}) => loadGraph(text)
+       (text, {query: {updateResults}}) => loadGraph(text)
           .then(({results, codeTree, metricNames}) => {
-            updateResults(results)
-            updateCodeTree(codeTree)
-            updateMetricNames(metricNames)
+            updateResults({results, codeTree, metricNames})
           }))
   },
   selectedFile: {
@@ -55,7 +53,7 @@ export let appModelDef = {
     },
     selectFile: {
       reducer(fileVid, _, {query: {codeTree}}) {
-        return {fileVid, fileName: codeTree[fileVid].data.fileName}
+        return {fileVid, fileName: vdata(codeTree, fileVid).fileName, selectedNode: fileVid}
       },
       effects: [
         (fileVid, {selectedFile: {setFileContents}}) => loadFile(fileVid).then(setFileContents),
@@ -102,7 +100,7 @@ let {query, tabs, metrics, selectedFile, evolution} = model
 
 export {store, model}
 export let setQuery = query.setQuery
-export let updateResults = query.updateResults
+export let filterResults = query.filterResults
 export let selectTab = tabs.selectTab
 export let selectMetric = metrics.selectMetric
 export let selectFile = selectedFile.selectFile

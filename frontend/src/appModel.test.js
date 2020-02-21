@@ -14,7 +14,6 @@ describe("code explorer", () => {
     let {model: {query}} = createApp(appModelDef)
 
     it('can change the query', () => {
-
       query.setQuery("fun")
       expect(query.text).toEqual("fun")
     })
@@ -37,7 +36,7 @@ describe("code explorer", () => {
   describe("File Selection", () => {
     let {model: {query, selectedFile}} = createApp(appModelDef)
 
-    query.updateCodeTree({rootVid: "1", "1": {type: "file", data: {fileName: "aFile.js"}}})
+    query.updateResults({codeTree: {rootVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
     loadFile.mockResolvedValue({ast: {rootVid: "2"}, text: "file contents"})
 
     it("can be selected", () => {
@@ -47,7 +46,7 @@ describe("code explorer", () => {
     })
 
     it("Can load contents", async () => {
-      query.updateCodeTree({rootVid: "1", "1": {type: "file", data: {fileName: "aFile.js"}}})
+      query.updateResults({codeTree: {rootVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
 
       selectedFile.selectFile("1")
       await resolvePromises()
@@ -62,11 +61,16 @@ describe("code explorer", () => {
     let {model: {query, tabs}} = createApp(appModelDef)
 
     it("Switches to File contents when selecting a file node", async () => {
-      query.updateCodeTree({
-        rootVid: "1",
-        "1": {data: {type: "file", fileName: "aFile.js"}, children: ["2"]},
-        "2": {data: {type: "astNode"}, parent: ["1"]}
-      })
+      query.updateResults(
+         {
+           codeTree: {
+             rootVid: "1",
+             vertices: {
+               "1": {type: "file", data: {fileName: "aFile.js"}, relations: [{name: "children", to: "2"}]},
+               "2": {type: "astNode", relations: [{name: "parent", to: "1"}]}
+             }
+           }
+         })
 
       query.selectTreeNode("2")
       await resolvePromises()
@@ -83,7 +87,7 @@ describe("code explorer", () => {
     let {model: {query, metrics}} = createApp(appModelDef)
     it("Can select metrics", async () => {
       let metricData = [{paramValue: 4, frequency: 3, nodes: ["1"]}]
-      query.updateMetricNames(["a", "b"])
+      query.updateResults({metrics: ["a", "b"]})
       loadMetrics.mockResolvedValue(metricData)
 
       metrics.selectMetric("b")

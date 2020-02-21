@@ -4,8 +4,7 @@ import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.CodeTree
-import co.elpache.codelens.tree.Vertice
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import co.elpachecode.codelens.cssSelector.SelectorFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -13,47 +12,47 @@ import org.junit.Test
 class SearchTest {
   val tree =
     codeTree(
-      vDataOf("1","type" to "a AA", "name" to "parent"),
+      verticeOf("1", "type" to "a AA", "name" to "parent"),
       codeTree(
-        vDataOf("1.1","type" to "b"),
+        verticeOf("1.1", "type" to "b"),
         codeTree(
-          vDataOf("1.1.1","type" to "c", "lines" to 3),
-          codeTree(vDataOf("1.1.1.1","type" to "e"))
+          verticeOf("1.1.1", "type" to "c", "lines" to 3),
+          codeTree(verticeOf("1.1.1.1", "type" to "e"))
         ),
         codeTree(
 
-          vDataOf("1.1.2","type" to "d", "lines" to 4),
-          codeTree(vDataOf("1.1.2.1","type" to "d"))
+          verticeOf("1.1.2", "type" to "d", "lines" to 4),
+          codeTree(verticeOf("1.1.2.1", "type" to "d"))
         ),
-        codeTree(vDataOf("1.1.3","type" to "b"))
+        codeTree(verticeOf("1.1.3", "type" to "b"))
       ),
-      codeTree(vDataOf("1.2","type" to "b")),
+      codeTree(verticeOf("1.2", "type" to "b")),
       codeTree(
 
-        vDataOf("1.3", "type" to "a"),
-        codeTree(vDataOf("1.3.1","type" to "d"))
+        verticeOf("1.3", "type" to "a"),
+        codeTree(verticeOf("1.3.1", "type" to "d"))
       )
     )
 
   val treeWithFunctions =
     codeTree(
-      vDataOf("1","type" to "file", "name" to "code.kt"),
+      verticeOf("1", "type" to "file", "name" to "code.kt"),
       codeTree(
-        vDataOf("1.1","type" to "fun"),
+        verticeOf("1.1", "type" to "fun"),
         codeTree(
-          vDataOf("1.1.1","type" to "param"),
+          verticeOf("1.1.1", "type" to "param"),
           codeTree(
-            vDataOf("1.1.1.1","type" to "int")
+            verticeOf("1.1.1.1", "type" to "int")
           )
         ),
         codeTree(
-          vDataOf("1.1.2","type" to "param")
+          verticeOf("1.1.2", "type" to "param")
         )
       ),
       codeTree(
-        vDataOf("2.1","type" to "fun"),
+        verticeOf("2.1", "type" to "fun"),
         codeTree(
-          vDataOf("2.1.1","type" to "param")
+          verticeOf("2.1.1", "type" to "param")
         )
       )
     )
@@ -68,11 +67,9 @@ class SearchTest {
   @Test
   fun `Search in a map`() {
     val tree = CodeTree()
-    tree.addIfAbsent(vDataOf("1", "sum" to 2))
-    tree.addIfAbsent(vDataOf("2", "sum" to 3))
-    tree.addIfAbsent(vDataOf("3", "sum" to 4))
-    tree.addChild("1", "2")
-    tree.addChild("1", "3")
+    tree.addVertice(verticeOf("1", "sum" to 2))
+    tree.addVertice(verticeOf("2", "sum" to 3))
+    tree.addVertice(verticeOf("3", "sum" to 4))
 
     assertThat(tree.finder().find("*[sum=2]")[0].toMap()).isEqualTo(mapOf("vid" to "1", "sum" to 2))
   }

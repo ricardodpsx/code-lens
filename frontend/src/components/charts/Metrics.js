@@ -1,7 +1,7 @@
 import React from "react";
 import BarChart from "./BarChart";
 import {connect} from "react-redux";
-import {selectMetric, updateResults} from "../../appModel";
+import {filterResults, selectMetric} from "../../appModel";
 import MetricNameSelect from "./MetricNameSelect";
 
 function Metrics({data, selectedMetric}) {
@@ -14,7 +14,7 @@ function Metrics({data, selectedMetric}) {
        yLabel="Frequency"
        data={data}
        onDataSelected={data => {
-         updateResults(data.nodes)
+         filterResults(data.nodes)
        }}
     /></div>
 }

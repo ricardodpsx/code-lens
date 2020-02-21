@@ -60,8 +60,8 @@ class CodeTreeTest {
   fun testCodeTreeAsGraph() {
     val ct = CodeTree()
 
-    ct.addIfAbsent(vDataOf("a", "value" to "Giovanny"))
-    ct.addIfAbsent(vDataOf("b", "value" to "Candela"))
+    ct.addVertice(verticeOf("a", "value" to "Giovanny"))
+    ct.addVertice(verticeOf("b", "value" to "Candela"))
 
     ct.addChild("a", "b")
 
@@ -116,8 +116,8 @@ class CodeTreeTest {
     )
 
 
-    val res = tree.treeFromChildren(listOf("b_1", "b_3"))
-    assertThat(res.inorder()).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
+    val res = tree.treeFromChildren(listOf(verticeOf("b_1"), verticeOf("b_3")))
+    assertThat(res?.inorder()).isEqualTo(listOf("a", "b", "b_1", "e", "f", "b_3"))
   }
 
   @Test

@@ -1,6 +1,9 @@
 package co.elpache.codelens.app.database
 
 import co.elpache.codelens.app.CodeLensApp
+import co.elpache.codelens.codeTree
+import co.elpache.codelens.compareTreeOutputs
+import co.elpache.codelens.tree.verticeOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,14 +21,29 @@ class AstRepositoryIT {
   @Autowired
   lateinit var astRepository: AstRepository
 
+  @Autowired
+  lateinit var astStore: AstStore
+
   @Test
   fun astCanBeSaved() {
     astRepository.deleteAll()
 
-    astRepository.save(AstRecord("someCommit", "{}"))
+    val t = codeTree(
+      verticeOf("1"),
+      codeTree(verticeOf("2", "name" to "a")),
+      codeTree(verticeOf("3", "name" to "b"))
+    )
 
-//    assertThat(astRepository.findAll().count()).isEqualTo(1)
+    astStore.save("someCommit", t)
     assertThat(astRepository.findAll()).extracting("commit").contains("someCommit")
+
+    compareTreeOutputs(
+      astStore.load("someCommit")!!,
+      """{code=<Excluded>}
+ - {name=a}
+ - {name=b}
+"""
+    )
   }
 
 

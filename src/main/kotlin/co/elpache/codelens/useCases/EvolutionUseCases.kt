@@ -44,10 +44,9 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
     return history
   }
 
-  fun preloadCommits(maxCommits: Int) {
-    factory.preloadCommits(repo.perDaySampling(maxCommits))
+  fun preloadCommits(maxDaysBack: Int) {
+    factory.preloadCommits(repo.perDaySampling(maxDaysBack))
   }
-
 
   fun collectFrequency(query: String, maxCommits: Int): List<EvolutionOfFrequency> =
     collectFrequency(query, repo.perDaySampling(maxCommits))

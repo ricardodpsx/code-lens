@@ -1,16 +1,17 @@
 package co.elpache.codelens.useCases
 
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 import org.nield.kotlinstatistics.countBy
 import org.nield.kotlinstatistics.descriptiveStatistics
 import org.nield.kotlinstatistics.median
 
-fun frequency(values: List<Pair<Vid, Double>>): List<ParamFrequencyRow> {
-  val vidsByParam = HashMap<Double, List<Vid>>()
+fun frequency(values: List<Pair<Vertice, Double>>): List<ParamFrequencyRow> {
+  val vidsByParam = HashMap<Double, List<Vertice>>()
 
   values.forEach { p ->
     vidsByParam.computeIfAbsent(p.second) { listOf() }
-    vidsByParam.computeIfPresent(p.second) { a: Double, b: List<Vid> ->
+    vidsByParam.computeIfPresent(p.second) { a: Double, b: List<Vertice> ->
       b.plus(p.first)
     }
   }
@@ -30,6 +31,8 @@ data class DescriptiveStatistics(
   val quartiles: List<Double>
 )
 
+fun Double.round() = String.format("%.2f", this).toDouble()
+
 fun statistics(values: List<Pair<Vid, Int>>) =
   with(values.map { it.second }) {
     val ds = descriptiveStatistics
@@ -46,15 +49,15 @@ fun statistics(values: List<Pair<Vid, Int>>) =
     }
 
     DescriptiveStatistics(
-      mean = ds.mean,
-      median = median(),
-      std = ds.standardDeviation,
-      min = ds.min,
-      max = ds.max,
+      mean = ds.mean.round(),
+      median = median().round(),
+      std = ds.standardDeviation.round(),
+      min = ds.min.round(),
+      max = ds.max.round(),
       quartiles = listOf(
-        ds.percentile(25.0),
-        ds.percentile(50.0),
-        ds.percentile(75.0)
+        ds.percentile(25.0).round(),
+        ds.percentile(50.0).round(),
+        ds.percentile(75.0).round()
       )
     )
   }

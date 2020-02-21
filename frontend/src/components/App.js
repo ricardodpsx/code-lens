@@ -14,9 +14,16 @@ class App extends Component {
          <Router>
            <MainMenu/>
            <Switch>
-             <Route path="/">
-               <CodeExplorer/>
+             <Route path="/hello">
+               {/*<FileViewer />*/}
              </Route>
+
+             <Route path="/">
+
+               <CodeExplorer/>
+
+             </Route>
+
            </Switch>
          </Router>
        </Provider>);

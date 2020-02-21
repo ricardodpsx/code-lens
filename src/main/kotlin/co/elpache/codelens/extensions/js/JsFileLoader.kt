@@ -18,6 +18,7 @@ val jsLanguageIntegration = LanguageIntegration(
 
 val parsedCache = ConcurrentHashMap<String, JsonNode>()
 
+//Todo: Extract js especifics and make this a general JSON processor
 class JsFileLoader(file: File, basePath: File) : FileLoader<JsonNode>(file, "js", basePath) {
 
   override fun getValues(node: JsonNode): Map<String, String> =
@@ -28,6 +29,7 @@ class JsFileLoader(file: File, basePath: File) : FileLoader<JsonNode>(file, "js"
     else
       node.fields().asSequence()
         .filter { it.value.isValueNode }
+        .filter { it.key != "code" }
         .associateBy({ it.key }, { it.value.asText("") })
 
   override fun getChildren(node: JsonNode): Map<String, JsonNode> =

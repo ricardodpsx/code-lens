@@ -1,7 +1,7 @@
 import React from "react";
 import "./FileViewer.css"
 import CodeEntity from "./CodeEntity";
-import {slice} from "../../lib/treeUtils";
+import {root, slice, vdata} from "../../lib/treeUtils";
 import {connect} from "react-redux";
 import {selectNodeInFile} from "../../appModel";
 
@@ -20,7 +20,7 @@ function TextParts({text, nodeData}) {
 }
 
 function CodeText({slicedText, ast, results, onNodeSelected}) {
-  let nodeData = ast[slicedText.vid].data
+  let nodeData = vdata(ast, slicedText.vid)
   let nodeSelected = nodeData.type !== "file" && results.indexOf(slicedText.vid) !== -1
   return <CodeEntity vid={slicedText.vid}
                      key={slicedText.vid}
@@ -35,11 +35,10 @@ function CodeText({slicedText, ast, results, onNodeSelected}) {
 }
 
 
-function FileViewer({ast, text, results}) {
+export function FileViewer({ast, text, results}) {
   if (!ast) return null
-  let slicedText = slice(text, ast, ast.rootVid, results);
-  let file = ast[ast.rootVid].data
-
+  let slicedText = slice(text, ast);
+  let file = root(ast).data
 
   return (<div style={{height: 400, overflow: 'auto'}}>
       <pre className={`code file-${file.lang}`}>
@@ -49,11 +48,11 @@ function FileViewer({ast, text, results}) {
            slicedText={slicedText}
            onNodeSelected={selectNodeInFile}/>
       </pre>
-    </div>)
+  </div>)
 }
 
 
 export default connect(
    ({selectedFile, query: {results}}) =>
-      ({...selectedFile, results})
+      ({...selectedFile, results: results.map(r => r.vid)})
 )(FileViewer);

@@ -1,14 +1,11 @@
 package co.elpache.codelens
 
-import co.elpache.codelens.app.database.AstRecord
-import co.elpache.codelens.app.database.AstRepository
+import co.elpache.codelens.app.database.AstStore
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.extensions.gitIntegrations
 import co.elpache.codelens.extensions.js.jsLanguageIntegration
 import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.tree.CodeTree
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging
 import org.springframework.context.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
@@ -24,7 +21,6 @@ class Factory(
 ) {
 
   val astCache = ConcurrentHashMap<String, CodeTree>()
-
 
   private val logger = KotlinLogging.logger {}
 
@@ -45,14 +41,7 @@ class Factory(
     return codeTree
   }
 
-  fun getAstDatabase() = context!!.getBean(AstRepository::class.java)
-
-  fun createBaseCode(tree: CodeTree): CodeTree {
-    return tree
-  }
-
-  val mapper = ObjectMapper().registerModule(KotlinModule())
-
+  fun getAstStore() = context!!.getBean(AstStore::class.java)
 
   fun preloadCommits(commits: List<Commit>) {
 
@@ -87,15 +76,7 @@ class Factory(
       astCache[commit]
     }
 
-    val fromDb = {
-
-      val record = getAstDatabase().findByCommit(commit)
-      if (record != null) {
-        logger.info { "DB hit" }
-        createBaseCode(mapper.readValue(record.ast, CodeTree::class.java))
-      } else null
-    }
-
+    val fromDb = { getAstStore().load(commit) }
 
     var first = fromMemory()
 
@@ -104,7 +85,7 @@ class Factory(
     if (first == null) first = loadCallback()
 
     astCache[commit] = first
-    getAstDatabase().save(AstRecord(commit, mapper.writeValueAsString(first)))
+    getAstStore().save(commit, first)
 
     return first
   }

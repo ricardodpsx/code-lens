@@ -3,11 +3,10 @@ export function formatDate(commitTime) {
   let monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 
-  let date = new Date(commitTime * 1000)
+  let date = new Date(commitTime)
   var day = date.getDate();
   var monthIndex = date.getMonth();
-  var hour = date.getHours();
-  var min = date.getMinutes();
+  let year = date.getFullYear()
 
-  return `${hour}:${min} ${day}/${monthNames[monthIndex]}`;
+  return `${day}/${monthNames[monthIndex]}/${year}`;
 }

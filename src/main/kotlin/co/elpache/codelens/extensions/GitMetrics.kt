@@ -4,7 +4,7 @@ import co.elpache.codelens.Commit
 import co.elpache.codelens.GitRepository
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import co.elpachecode.codelens.cssSelector.SelectorFunction
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,8 +33,8 @@ fun applyGitMetrics(ctx: ContextNode) {
     val commits = repo.logOf(f.vertice.getString("path"))
     f.vertice["commits"] = commits.size
     commits.forEach { c ->
-      f.tree.addIfAbsent(
-        vDataOf(
+      f.tree.addVertice(
+        verticeOf(
           c.id,
           "type" to "commit",
           "id" to c.id,

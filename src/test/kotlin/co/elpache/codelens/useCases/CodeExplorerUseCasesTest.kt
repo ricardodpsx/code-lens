@@ -3,7 +3,7 @@ package co.elpache.codelens.useCases
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.compareTreeOutputs
 import co.elpache.codelens.createCodeExplorerUseCases
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -14,29 +14,29 @@ class CodeExplorerUseCasesTest {
   fun `Can Select items by type (Regression)`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        vDataOf("1","type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
-          vDataOf("2","type" to "fun"),
+          verticeOf("2", "type" to "fun"),
           codeTree(
-            vDataOf("3","type" to "fun"),
-            codeTree(vDataOf("4","type" to "fun"))
+            verticeOf("3", "type" to "fun"),
+            codeTree(verticeOf("4", "type" to "fun"))
           ),
-          codeTree(vDataOf("5","type" to "fun")),
-          codeTree(vDataOf("6","type" to "X"))
+          codeTree(verticeOf("5", "type" to "fun")),
+          codeTree(verticeOf("6", "type" to "X"))
         ),
         codeTree(
-          vDataOf("7","type" to "fun"),
-          codeTree(vDataOf("8","type" to "X"))
+          verticeOf("7", "type" to "fun"),
+          codeTree(verticeOf("8", "type" to "X"))
         )
       )
     )
 
     val (treeWithDescendants, results) = uc.selectCodeWithParents("X")
 
-    assertThat(results).containsExactlyInAnyOrder("8", "6")
+    assertThat(results).extracting("vid").containsExactlyInAnyOrder("8", "6")
 
     compareTreeOutputs(
-      treeWithDescendants,
+      treeWithDescendants!!,
       """
         {type=file, code=<Excluded>}
          - {type=fun}

@@ -18,6 +18,8 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
     val pseudoElementsRegistry = HashMap<String, String>()
   }
 
+  fun descendants() = tree.descendants(vid).map { ContextNode(it, tree) }
+
   open fun find(css: String): List<ContextNode> {
     return (parseQuery(css).evaluate(this) as List<ContextNode>)
   }
@@ -39,7 +41,6 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
         tree.v(vid).getString("code")
       else {
         val fileNode = tree.ancestors(vid).find { tree.v(it).isA("file") } as Vid
-
         val contents = tree.v(fileNode).getString("code")
         contents.substring(tree.v(vid).start, tree.v(vid).end)
       }
@@ -48,8 +49,7 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   open val vertice: Vertice get() = tree.v(vid)
   val parent: Vertice? get() = tree.parentNode(vid)
 
-  open val children: List<ContextNode>
-    get() = tree.children(vid).map { ContextNode(it, tree) }
+  open val children: List<ContextNode> get() = tree.children(vid).map { ContextNode(it, tree) }
 
   fun adj(): List<ContextNode> = tree.adj(vid).map { ContextNode(it, tree) }
 

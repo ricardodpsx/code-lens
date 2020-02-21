@@ -13,7 +13,7 @@ import java.util.Date
 
 
 data class Commit(val id: String, val message: String, val commitTime: Long, val author: String = "") {
-  fun date() = LocalDateTime.ofInstant(Instant.ofEpochMilli(commitTime), ZoneId.systemDefault())
+  val date: LocalDateTime get() = LocalDateTime.ofInstant(Instant.ofEpochMilli(commitTime), ZoneId.systemDefault())
 }
 
 /**
@@ -27,8 +27,8 @@ class GitRepository(path: String, val remoteUrl: String, val branch: String = "r
 
   fun perDaySampling(days: Int): List<Commit> {
     return logs().groupBy {
-      "${it.date().dayOfMonth}/${it.date().monthValue}/${it.date().year}"
-    }.map { it.value.first() }.take(days)
+      "${it.date.dayOfMonth}/${it.date.monthValue}/${it.date.year}"
+    }.map { it.value.first() }.take(days).sortedBy { it.commitTime }
   }
 
   fun init(): GitRepository {

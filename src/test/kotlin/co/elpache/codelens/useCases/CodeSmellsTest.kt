@@ -2,7 +2,7 @@ package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.createCodeSmellsUseCases
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -15,16 +15,16 @@ class CodeSmellsTest {
   fun setUp() {
     uc = createCodeSmellsUseCases(
       codeTree(
-        vDataOf("1","type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
-          vDataOf("2","type" to "files"),
-          codeTree(vDataOf("3","type" to "fun", "params" to 2)),
-          codeTree(vDataOf("4","type" to "fun", "params" to 2)),
-          codeTree(vDataOf("5","type" to "fun", "params" to 5))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "params" to 2)),
+          codeTree(verticeOf("4", "type" to "fun", "params" to 2)),
+          codeTree(verticeOf("5", "type" to "fun", "params" to 5))
         ),
-        codeTree(vDataOf("6","type" to "fun", "params" to 5)),
-        codeTree(vDataOf("7","type" to "fun", "params" to 2)),
-        codeTree(vDataOf("8","type" to "fun", "params" to 3))
+        codeTree(verticeOf("6", "type" to "fun", "params" to 5)),
+        codeTree(verticeOf("7", "type" to "fun", "params" to 2)),
+        codeTree(verticeOf("8", "type" to "fun", "params" to 3))
       )
     )
   }
@@ -48,13 +48,15 @@ class CodeSmellsTest {
   fun `can get long parameter list functions`() {
     val results = uc.executeCodeSmell("longParameterList")
 
-    assertThat(results.analyticsResults.rows).containsExactly(
-      ParamFrequencyRow(5.0, 2, listOf("5", "6"))
-    )
+    assertThat(results.analyticsResults.rows.find {
+      it.paramValue == 5.0 && it.frequency == 2
+    }?.nodes)
+      .extracting("vid")
+      .containsExactly("5", "6")
+
     assertThat(results.isStinky).isTrue()
 
-    assertThat(results.smellResults.results).containsExactly("5", "6")
-    //Assertions.assertThat(results.smellScore).isEqualTo(0.66)
+    assertThat(results.smellResults.results).extracting("vid").containsExactly("5", "6")
   }
 
 

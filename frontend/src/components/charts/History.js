@@ -9,17 +9,14 @@ import {Title} from "../layout/Title";
 
 
 function History({selectedParam, history}) {
-
   return (<div>
     <Title title={`Evolution of Metric "${selectedParam}"`}/>
     <MetricNameSelect selectedMetric={selectedParam} onSelectMetric={selectEvolutionParam}/>
     <BarChart
-       xField="commit"
+       xField="date"
        yField="value"
-       data={history.map(it => ({commit: formatDate(it.commit.commitTime), value: it.statistics.mean}))}/>
+       data={history.map(it => ({date: formatDate(it.commit.commitTime), value: it.statistics.mean}))}/>
   </div>);
-
-
 }
 
 export default connect(({evolution: {selectedParam, history}}) => ({selectedParam, history}))(History);

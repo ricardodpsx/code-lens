@@ -13,7 +13,7 @@ fun Map<String, Any>.toVData(): Vertice {
   return vData
 }
 
-fun vDataOf(vid: String, vararg pair: Pair<String, Any?>): Vertice {
+fun verticeOf(vid: String, vararg pair: Pair<String, Any?>): Vertice {
   val vData = Vertice()
   vData["vid"] = vid
   pair.forEach {
@@ -30,7 +30,9 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
   }
 
   val type: String get() = data.getOrDefault("type", "").toString()
+
   val vid: String get() = data["vid"] as String
+
   fun contains(value: String) = data.contains(value)
   fun isA(str: String): Boolean {
     return type.split(" ").map { it.trim().toLowerCase() }.any { str.toLowerCase() == it }
@@ -46,18 +48,19 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
     .filterNot { listOf("name", "type", "vid").contains(it) }
     .filterNot { it.startsWith(":") }
 
-  fun putAll(other: Map<String, Any>) = data.putAll(other)
-  fun putAll(vertice: Vertice) = data.putAll(vertice.data)
 
   operator fun set(key: String, value: Any) {
-    if (value.toString().isBlank()) return
+    data[key] = value
+  }
 
-    //Todo: Adding should be explicit
-    //Avoiding overriding of fields
+  fun addType(value: String) {
+    val key = "type"
+    if (value.isBlank()) return
+
     if (data.containsKey(key))
-      data.put(key, listOf(data.get(key).toString().trim(), value.toString().trim()).joinToString(" "))
+      data[key] = listOf(data[key].toString().trim(), value.trim()).joinToString(" ")
     else
-      data.put(key, value)
+      data[key] = value
   }
 
   operator fun get(key: String) = data[key]
@@ -66,15 +69,23 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
 
   fun getDouble(key: String): Double = data[key].toString().toDoubleOrNull() ?: 0.0
 
+  fun addAll(m: Map<String, Any?>): Vertice {
+    m.filterValues { it != null }.forEach {
+      data[it.key] = it.value!!
+    }
+    return this
+  }
+
+
   fun addAll(vararg pairs: Pair<String, Any?>): Vertice {
     pairs.filter { it.second != null }.forEach {
-      this[it.first] = it.second!!
+      data[it.first] = it.second!!
     }
     return this
   }
 
   fun containsKey(key: String) = data.containsKey(key)
-  fun toMap() = data.toMap()
+  fun toMap() = data
 }
 
 data class Edge(

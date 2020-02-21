@@ -5,7 +5,7 @@ import co.elpache.codelens.codeTree
 import co.elpache.codelens.createCodeExplorerUseCases
 import co.elpache.codelens.createCommit
 import co.elpache.codelens.createCommits
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
@@ -18,22 +18,22 @@ class FrequencyTest {
     val uc = createCodeExplorerUseCases(
       codeTree(
 
-        vDataOf("1","type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
 
-          vDataOf("2","type" to "files"),
+          verticeOf("2", "type" to "files"),
           codeTree(
 
-            vDataOf("3","type" to "fun", "lines" to 6, "depth" to 5)
+            verticeOf("3", "type" to "fun", "lines" to 6, "depth" to 5)
           ),
-          codeTree( vDataOf("4","type" to "fun", "lines" to 6)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 6)),
           codeTree(
 
-            vDataOf("5","type" to "fun", "lines" to 4, "complexity" to 9)
+            verticeOf("5", "type" to "fun", "lines" to 4, "complexity" to 9)
           )
         ),
-        codeTree( vDataOf("6","type" to "fun", "lines" to 4)),
-        codeTree(vDataOf("7","type" to "fun"))
+        codeTree(verticeOf("6", "type" to "fun", "lines" to 4)),
+        codeTree(verticeOf("7", "type" to "fun"))
       )
     )
 
@@ -48,42 +48,45 @@ class FrequencyTest {
     val uc = createCodeExplorerUseCases(
       codeTree(
 
-        vDataOf("1","type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
 
-          vDataOf("2","type" to "files"),
-          codeTree( vDataOf("3","type" to "fun", "lines" to 6)),
-          codeTree( vDataOf("4","type" to "fun", "lines" to 6)),
-          codeTree( vDataOf("5","type" to "fun", "lines" to 4))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "lines" to 6)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 6)),
+          codeTree(verticeOf("5", "type" to "fun", "lines" to 4))
         ),
-        codeTree(vDataOf("6", "type" to "fun", "lines" to 4)),
-        codeTree( vDataOf("7","type" to "fun", "lines" to 6))
+        codeTree(verticeOf("6", "type" to "fun", "lines" to 4)),
+        codeTree(verticeOf("7", "type" to "fun", "lines" to 6))
       )
     )
 
     val results = uc.getParamDistribution("fun", "lines")
 
-    assertThat(results.rows).containsExactly(
-      ParamFrequencyRow(4.0, 2, listOf("5", "6")),
-      ParamFrequencyRow(6.0, 3, listOf("3", "4", "7"))
-    )
+    assertThat(results.rows).extracting("paramValue").containsExactly(4.0, 6.0)
+    assertThat(results.rows.find { it.paramValue == 4.0 }!!.nodes).extracting("vid").contains("5", "6")
+    assertThat(results.rows.find { it.paramValue == 6.0 }!!.nodes).extracting("vid").contains("3", "4", "7")
+
+//      ParamFrequencyRow(4.0, 2, listOf("5", "6")),
+//      ParamFrequencyRow(6.0, 3, listOf("3", "4", "7"))
+//    )
   }
 
   @Test
   fun `Can get evolution of a given metric`() {
     val uc = createCodeExplorerUseCases(
       codeTree(
-        vDataOf("1", "type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
 
-          vDataOf("2", "type" to "files"),
-          codeTree( vDataOf("3","type" to "fun", "lines" to 1)),
-          codeTree( vDataOf("4","type" to "fun", "lines" to 3)),
-          codeTree( vDataOf("5","type" to "fun", "lines" to 5))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "lines" to 1)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 3)),
+          codeTree(verticeOf("5", "type" to "fun", "lines" to 5))
         ),
-        codeTree( vDataOf("6","type" to "fun", "lines" to 2)),
-        codeTree( vDataOf("7","type" to "fun", "lines" to 4)),
-        codeTree( vDataOf("8","type" to "fun", "lines" to 10))
+        codeTree(verticeOf("6", "type" to "fun", "lines" to 2)),
+        codeTree(verticeOf("7", "type" to "fun", "lines" to 4)),
+        codeTree(verticeOf("8", "type" to "fun", "lines" to 10))
       )
     )
 
@@ -105,37 +108,37 @@ class FrequencyTest {
     val comm1 =
       codeTree(
 
-        vDataOf("1",  "type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
 
-          vDataOf("2","type" to "files"),
-          codeTree( vDataOf("3","type" to "fun", "lines" to 6)),
-          codeTree( vDataOf("4","type" to "fun", "lines" to 3))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "lines" to 6)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 3))
         )
       )
 
     val comm2 =
       codeTree(
 
-        vDataOf("1", "type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
 
-          vDataOf("2", "type" to "files"),
-          codeTree( vDataOf("3","type" to "fun", "lines" to 7)),
-          codeTree( vDataOf("4","type" to "fun", "lines" to 8)),
-          codeTree( vDataOf("5","type" to "fun", "lines" to 9))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "lines" to 7)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 8)),
+          codeTree(verticeOf("5", "type" to "fun", "lines" to 9))
         )
       )
 
     val current =
       codeTree(
 
-        vDataOf("1",   "type" to "file"),
+        verticeOf("1", "type" to "file"),
         codeTree(
-          vDataOf("2",  "type" to "files"),
-          codeTree(vDataOf("3","type" to "fun", "lines" to 6)),
-          codeTree(vDataOf("4","type" to "fun", "lines" to 4)),
-          codeTree(vDataOf("5","type" to "fun", "lines" to 9))
+          verticeOf("2", "type" to "files"),
+          codeTree(verticeOf("3", "type" to "fun", "lines" to 6)),
+          codeTree(verticeOf("4", "type" to "fun", "lines" to 4)),
+          codeTree(verticeOf("5", "type" to "fun", "lines" to 9))
         )
       )
     val factory = mockk<Factory>()

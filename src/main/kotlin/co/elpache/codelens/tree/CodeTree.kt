@@ -8,13 +8,12 @@ open class CodeTree {
 
   val vertices: TreeMap<Vid, Vertice> = TreeMap()
 
-  private var rootVid: Vid? = null
+  var rootVid: Vid? = null
 
   fun rootVid() = rootVid ?: error("RootNode not Set, Did you forgot to add a root node?")
 
-
-  fun addIfAbsent(data: Vertice): Vertice {
-    if(rootVid == null) rootVid = data.vid
+  fun addVertice(data: Vertice): Vertice {
+    if (rootVid == null) rootVid = data.vid
     if (contains(data.vid)) return data
     vertices[data.vid] = data.clone()
     return data
@@ -26,12 +25,11 @@ open class CodeTree {
     addRelation("children", from, to)
     addRelation("parent", to, from)
     return this
-
   }
 
   fun addChild(from: Vid, node: Vertice): CodeTree {
     assert(from != node.vid)
-    addIfAbsent(node)
+    addVertice(node)
     addRelation("children", from, node.vid)
     addRelation("parent", node.vid, from)
     return this
@@ -89,28 +87,18 @@ open class CodeTree {
   }
 
 
-  fun treeFromChildren(children: List<Vid>): CodeTree {
+  fun treeFromChildren(children: List<Vertice>): CodeTree? {
+    if (children.isEmpty()) return null
     var resTree = CodeTree()
-
-    children.forEach { vid ->
-      ancestors(vid).reversed()
+    children.forEach { v ->
+      ancestors(v.vid).reversed()
         .windowed(2, partialWindows = true).forEach {
-          resTree.addIfAbsent(v(it[0]))
+          resTree.addVertice(v(it[0]))
           if (it.size == 2) resTree = resTree.addChild(it[0], v(it[1]))
         }
     }
     resTree.rootVid = rootVid
     return resTree
-  }
-
-  fun toMap(): Map<String, Any> {
-    return vertices.map {
-      it.key to mapOf(
-        "vertice" to v(it.key).minus("code"),
-        "parent" to adj(it.key, "parent").getOrNull(0),
-        "children" to adj(it.key, "children").toList()
-      )
-    }.toMap().plus("rootVid" to rootVid!!).toMap()
   }
 
   fun v(vid: Vid): Vertice = vertice(vid)
@@ -160,10 +148,11 @@ open class CodeTree {
   }
 
   fun join(child: CodeTree) {
-    assert(vertices.keys.intersect(child.vertices.keys).isEmpty()) { "Trees should be disjoint" }
+    assert(vertices.keys.intersect(child.vertices.keys.minus("rootVid")).isEmpty()) { "Trees should be disjoint" }
     vertices.putAll(child.vertices)
     addChild(rootVid!!, child.rootVid!!)
   }
+
 }
 
 

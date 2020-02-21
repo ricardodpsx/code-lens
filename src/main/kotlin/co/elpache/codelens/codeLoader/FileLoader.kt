@@ -2,7 +2,7 @@ package co.elpache.codelens.codeLoader
 
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
-import co.elpache.codelens.tree.vDataOf
+import co.elpache.codelens.tree.verticeOf
 import java.io.File
 import java.util.LinkedList
 
@@ -14,7 +14,7 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
 
   override fun doLoad(): CodeTree {
     val codeTree = CodeTree()
-    codeTree.addIfAbsent(fileData())
+    codeTree.addVertice(fileData())
     return codeTree;
   }
 }
@@ -28,7 +28,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
   open val contents by lazy { file.readText(Charsets.UTF_8) }
 
   fun fileData(): Vertice {
-    return vDataOf(
+    return verticeOf(
       file.path.toString(),
       "fileName" to file.name,
       "name" to file.nameWithoutExtension,
@@ -55,7 +55,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
 
     val codeTree = CodeTree()
     val prefix = file.path.replace("-", "_").replace("/", "-")
-    val fileNode = codeTree.addIfAbsent(fileData().addAll("vid" to prefix))
+    val fileNode = codeTree.addVertice(fileData().addAll("vid" to prefix))
 
     val list = LinkedList<Item>()
     list.addLast(Item(node = parseFile(), parent = fileNode, key = "body"))
@@ -64,8 +64,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
     while (list.isNotEmpty()) {
       val (unprocessedNode, parent, key) = list.removeFirst()
 
-      val node = codeTree.addIfAbsent(vDataOf("${prefix}-$i"))
-      node.putAll(getValues(unprocessedNode))
+      val node = codeTree.addVertice(data = verticeOf("${prefix}-$i").addAll(getValues(unprocessedNode)))
 
       codeTree.addChild(parent.vid, node)
 
@@ -74,10 +73,14 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
       }
 
       if (isInt(key)) node["index"] = key.toInt()
-      else node["type"] = key
+      else node.addType(key)
 
+      node["file"] = fileNode.getString("path")
+      node["fileVid"] = fileNode.vid
+      node["fileName"] = fileNode.getString("fileName")
       i++
     }
+
     return codeTree
   }
 

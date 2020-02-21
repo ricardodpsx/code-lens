@@ -175,7 +175,8 @@ data class AliasExpression(val name: String, val expr: Expression) : Expression 
       logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
-      context[name] = it
+      if (listOf("type", "start", "end", "vid").contains(name)) logger.warn { "Can not override $name" }
+      else context[name] = it
       it
     }
   }
