@@ -38,10 +38,8 @@ class PreloadingIT {
 
   @Test
   fun `Preload commits in DB so that queries can be done faster later`() {
-
+    uc.repo.init()
     uc.factory.preloadCommits(uc.repo.lastCommits(6))
-
-    //Giving some time to the preload commits to finish
 
     val loadTime = measureTimeMillis {
       //Should only load pre-loaded commits

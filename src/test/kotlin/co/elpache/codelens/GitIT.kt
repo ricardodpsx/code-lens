@@ -26,9 +26,9 @@ class GitIT {
   @Test
   fun `should sample commits`() {
     val repo = initRepository()
-    assertThat(repo.perDaySampling(3).map {
+    assertThat(repo.perDaySampling(10).map {
       "${it.date.dayOfMonth}/${it.date.month}/${it.date.year}"
-    }).containsExactly("20/OCTOBER/2019", "30/OCTOBER/2019", "27/DECEMBER/2019")
+    }).contains("20/OCTOBER/2019", "30/OCTOBER/2019", "27/DECEMBER/2019")
   }
 
   @Test

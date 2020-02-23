@@ -10,6 +10,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
@@ -22,8 +23,11 @@ class CodeLensApp {
   private val logger = KotlinLogging.logger {}
 
 
+  @Value("\${codelens.repo-tmp-dir}")
+  lateinit var repoTmpDir: String
+
   @Bean
-  fun factory(context: ApplicationContext) = Factory(context = context)
+  fun factory(context: ApplicationContext) = Factory(path = repoTmpDir, context = context)
 
   @Bean
   fun codeExplorerUseCases(factory: Factory): CodeExplorerUseCases {
@@ -48,10 +52,11 @@ class CodeLensApp {
   ): InitializingBean {
 
     return InitializingBean {
-      if (!env.activeProfiles.contains("test"))
+      if (!env.activeProfiles.contains("test")) {
         codeExplorerUseCases.codeTree.finder()
-      GlobalScope.launch {
-        ec.preloadCommits(40)
+        GlobalScope.launch {
+          ec.preloadCommits(40)
+        }
       }
     }
   }
