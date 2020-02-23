@@ -35,9 +35,12 @@ class AstStore {
     } else null
   }
 
-  //Todo: This doesn't belong here
   fun save(commit: String, codeTree: CodeTree) {
-    astRepository.save(AstRecord(commit, mapper.writeValueAsString(codeTree)))
+    try {
+      astRepository.save(AstRecord(commit, mapper.writeValueAsString(codeTree)))
+    } catch (e: Exception) {
+      logger.warn { "Could not save" }
+    }
   }
 
 }

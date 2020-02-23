@@ -2,7 +2,7 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Commit
 import co.elpache.codelens.Factory
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.codeSearch.search.paramsValues
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -32,8 +32,8 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
           ParamEvolutionRow(
             it.key,
             statistics(
-              it.value.finder().find(query).paramsValues("vid", param).map {
-                it.first to it.second.toInt()
+              it.value.find(query).paramsValues("vid", param).map {
+                it.first to it.second
               }
             )
           )
@@ -57,7 +57,7 @@ class EvolutionUseCases(val factory: Factory = Factory()) {
     val frequencies = ArrayList<EvolutionOfFrequency>()
     logger.info { "Starting collecting history of $commits" }
     factory.loadCodeFromCommits(commits).forEach {
-      frequencies.add(EvolutionOfFrequency(it.key, it.value.finder().find(query).size))
+      frequencies.add(EvolutionOfFrequency(it.key, it.value.find(query).size))
     }
     logger.info { "Finished collecting history of $commits" }
     return frequencies

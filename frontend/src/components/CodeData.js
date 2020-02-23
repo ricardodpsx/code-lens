@@ -2,14 +2,27 @@ import React from "react";
 import {parent, parents, vdata, vertice} from "../lib/treeUtils"
 import {connect} from "react-redux";
 import {selectNodeInFile} from "../appModel";
+import {groupBy, take} from "lodash"
 
-export function CodeEntityInfo({data = {}}) {
+export function CodeEntityInfo({vertice}) {
+  let data = vertice.data || {}
+
   return <div className="codeEntityInfo">
     {<i>{data.type}</i>}
     <br/>
     {Object.entries(data)
        .filter(([k, v]) => k != "code")
        .map(([k, v]) => <span key={k}><strong>{k}: </strong>{JSON.stringify(v)} | </span>)}
+
+    {
+      Object.entries(groupBy(Object.values(vertice.relations), 'name'))
+
+         .map(([k, v]) =>
+            <div><strong>{k}</strong>
+              <ul>{take(v, 10).map(t => <li>{t.to}</li>)}</ul>
+            </div>
+         )}
+
   </div>
 }
 

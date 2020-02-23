@@ -14,8 +14,15 @@ function History({selectedParam, history}) {
     <MetricNameSelect selectedMetric={selectedParam} onSelectMetric={selectEvolutionParam}/>
     <BarChart
        xField="date"
-       yField="value"
-       data={history.map(it => ({date: formatDate(it.commit.commitTime), value: it.statistics.mean}))}/>
+       yField={["25%", "50%", "75%", "90%"]}
+       yLabel={""}
+       data={history.map(it => ({
+         date: formatDate(it.commit.commitTime),
+         "25%": it.statistics.quartiles[0],
+         "50%": it.statistics.quartiles[1],
+         "75%": it.statistics.quartiles[2],
+         "90%": it.statistics.quartiles[3]
+       }))}/>
   </div>);
 }
 

@@ -11,7 +11,7 @@ abstract class NodeLoader {
   }
 
   fun extensions(vararg extensions: LanguageIntegration): NodeLoader {
-    languageSupportRegistry = extensions.toList()
+    languageSupportRegistry = extensions.toList().distinctBy { it }
     return this
   }
 

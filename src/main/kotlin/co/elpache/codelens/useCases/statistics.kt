@@ -33,7 +33,7 @@ data class DescriptiveStatistics(
 
 fun Double.round() = String.format("%.2f", this).toDouble()
 
-fun statistics(values: List<Pair<Vid, Int>>) =
+fun statistics(values: List<Pair<Vid, Double>>) =
   with(values.map { it.second }) {
     val ds = descriptiveStatistics
 
@@ -57,7 +57,8 @@ fun statistics(values: List<Pair<Vid, Int>>) =
       quartiles = listOf(
         ds.percentile(25.0).round(),
         ds.percentile(50.0).round(),
-        ds.percentile(75.0).round()
+        ds.percentile(75.0).round(),
+        ds.percentile(90.0).round()
       )
     )
   }

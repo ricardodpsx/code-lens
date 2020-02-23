@@ -19,6 +19,8 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
   }
 }
 
+fun fileId(path: String) = path.replace("-", "_").replace("/", "-")
+
 abstract class FileLoader<T>(val file: File, val lang: String, val basePath: File) : NodeLoader() {
   val type = "file"
   val fileName = file.name
@@ -48,13 +50,15 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
 
   abstract fun parseFile(): T
 
+  open fun postProcessNode(node: Vertice) {}
+
   private fun isInt(key: String) = key.matches("[0-9]+".toRegex())
 
   override fun doLoad(): CodeTree {
     data class Item(val node: T, val parent: Vertice, val key: String)
 
     val codeTree = CodeTree()
-    val prefix = file.path.replace("-", "_").replace("/", "-")
+    val prefix = fileId(file.path)
     val fileNode = codeTree.addVertice(fileData().addAll("vid" to prefix))
 
     val list = LinkedList<Item>()
@@ -64,7 +68,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
     while (list.isNotEmpty()) {
       val (unprocessedNode, parent, key) = list.removeFirst()
 
-      val node = codeTree.addVertice(data = verticeOf("${prefix}-$i").addAll(getValues(unprocessedNode)))
+      val node = codeTree.addVertice(verticeOf("${prefix}-$i").addAll(getValues(unprocessedNode)))
 
       codeTree.addChild(parent.vid, node)
 
@@ -75,13 +79,14 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
       if (isInt(key)) node["index"] = key.toInt()
       else node.addType(key)
 
-      node["file"] = fileNode.getString("path")
+      node["parentFile"] = fileNode.getString("path")
       node["fileVid"] = fileNode.vid
-      node["fileName"] = fileNode.getString("fileName")
+      node["parentFileName"] = fileNode.getString("fileName")
+
+      postProcessNode(node)
       i++
     }
 
     return codeTree
   }
-
 }

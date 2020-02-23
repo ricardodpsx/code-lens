@@ -52,7 +52,9 @@ class Factory(
         fromCache(it.id) {
           logger.info { "Preloading ${it.id}" }
           repo.goTo(it.id)
-          FolderLoader.loadDir(path).load()
+          FolderLoader.loadDir(path)
+            .extensions(jsLanguageIntegration, kotlinLanguageIntegration, gitIntegrations)
+            .load()
         }
       }
   }

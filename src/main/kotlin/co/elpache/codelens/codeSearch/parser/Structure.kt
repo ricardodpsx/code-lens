@@ -3,7 +3,8 @@
 package co.elpachecode.codelens.cssSelector
 
 import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.codeSearch.search.PathFinder
+import co.elpache.codelens.codeSearch.search.PathFinder2
+import co.elpache.codelens.tree.RESERVED_PARAMS
 import mu.KotlinLogging
 
 data class ParamSet(val paramName: String, val query: Query)
@@ -58,7 +59,7 @@ data class Query(
   val aggregator: SelectorFunction? = null
 ) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    val res = PathFinder(context).find(this)
+    val res = PathFinder2(context).find(this)
     return if (aggregator != null) res.size else res
   }
 }
@@ -175,7 +176,7 @@ data class AliasExpression(val name: String, val expr: Expression) : Expression 
       logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
-      if (listOf("type", "start", "end", "vid").contains(name)) logger.warn { "Can not override $name" }
+      if (RESERVED_PARAMS.contains(name)) logger.warn { "Can not override $name" }
       else context[name] = it
       it
     }

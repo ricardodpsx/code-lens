@@ -119,7 +119,6 @@ describe("code explorer", () => {
       expect(evolution.selectedParam).toEqual("a")
       expect(evolution.history).toEqual(evolutionOfParamData)
       expect(evolution.frequency).toEqual(frequencyOfQueryData)
-
     })
   })
 

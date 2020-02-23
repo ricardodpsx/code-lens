@@ -40,8 +40,8 @@ class GitCommitsExtensionIT {
       "f13056f78491cab196849f1965fec95264bb1d13"
     )
 
-    code.finder().printTree()
-    assertThat(code.finder().find("#changing>commit").map { it.vertice["id"] }).containsAll(commits.map { it.id })
+    assertThat(code.finder().find("#changing-commits>commit").map { it.vertice["id"] }).containsAll(commits.map { it.id })
   }
+
 
 }

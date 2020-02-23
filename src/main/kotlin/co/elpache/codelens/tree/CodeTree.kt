@@ -123,11 +123,12 @@ open class CodeTree {
   }
 
   fun addRelation(name: String, from: Vid, to: Vid) {
-    vertices[from]!!.relations.add(Edge(name, to))
+    if (adj(from, name).contains(to)) return
+    vertices[from]!!.relations.add(Edge(name, to, v(to).getString("name"), v(to).getString("type")))
   }
 
   fun adj(vid: String): List<Vid> =
-    vertices[vid]!!.relations.map { it.to }.plus(children(vid))
+    vertices[vid]!!.relations.map { it.to }
 
   fun adj(vid: String, relName: String): List<Vid> =
     vertices[vid]!!.relations.filter { it.name == relName }.map { it.to }

@@ -11,8 +11,8 @@ export function vertice(graph = {}, v) {
 }
 
 export function vdata(graph = {}, v) {
-  if (!graph || !v) return {}
-  return graph.vertices[v].data || {}
+  if (!vertice(graph, v)) return {}
+  return vertice(graph, v).data || {}
 }
 
 export function root(graph) {
@@ -27,16 +27,19 @@ export function adj(g, v) {
   return children(g, v).map(vid => vertice(g, vid))
 }
 
-export function children(g, v) {
-  return vertice(g, v).relations.filter(it => it.name === "children").map(it => it.to)
+export function children(g, vid) {
+  let v = vertice(g, vid)
+  if (!v) return []
+  return v.relations.filter(it => it.name === "children").map(it => it.to)
 }
 
 export function parent(g, v) {
+  if (!vertice(g, v)) return null
   return vertice(g, v).relations.filter(it => it.name === "parent").map(it => it.to)[0]
 }
 
 export function fileAncestor(graph, vid) {
-  if (!graph || !vid) return null
+  if (!vertice(graph, vid)) return null
   if (vertice(graph, vid).type === "file") return vid
   let a = ancestors(graph, vid)
   return a.find(f => vertice(graph, f).type === "file")

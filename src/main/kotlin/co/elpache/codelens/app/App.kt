@@ -2,6 +2,7 @@ package co.elpache.codelens.app
 
 
 import co.elpache.codelens.Factory
+import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.useCases.CodeExplorerUseCases
 import co.elpache.codelens.useCases.CodeSmellsUseCases
 import co.elpache.codelens.useCases.EvolutionUseCases
@@ -26,7 +27,7 @@ class CodeLensApp {
 
   @Bean
   fun codeExplorerUseCases(factory: Factory): CodeExplorerUseCases {
-    val ce = CodeExplorerUseCases(factory);
+    val ce = CodeExplorerUseCases(factory)
 
     return ce;
   }
@@ -40,14 +41,18 @@ class CodeLensApp {
   }
 
   @Bean
-  fun startupStuff(ec: EvolutionUseCases, env: Environment): InitializingBean {
+  fun startupStuff(
+    ec: EvolutionUseCases,
+    env: Environment,
+    codeExplorerUseCases: CodeExplorerUseCases
+  ): InitializingBean {
 
     return InitializingBean {
       if (!env.activeProfiles.contains("test"))
-
-        GlobalScope.launch {
-          ec.preloadCommits(40)
-        }
+        codeExplorerUseCases.codeTree.finder()
+      GlobalScope.launch {
+        ec.preloadCommits(40)
+      }
     }
   }
 

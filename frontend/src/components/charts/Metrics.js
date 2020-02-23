@@ -8,8 +8,9 @@ function Metrics({data, selectedMetric}) {
   return <div>
     <MetricNameSelect selectedMetric={selectedMetric} onSelectMetric={selectMetric}/>
     <BarChart
+
        xField="paramValue"
-       yField="frequency"
+       yField={["frequency"]}
        xLabel="Param Value"
        yLabel="Frequency"
        data={data}

@@ -48,7 +48,7 @@ function CodeExplorer({activeTab, tabItems: TabItems, selectedFile}) {
      <Grid container spacing={3} className={classes.control}>
        <Grid container item spacing={3}>
          <Grid item xs={6}>
-           <QuerySearch fullWidth label="search" margin="normal" variant="outlined"/>
+           <QuerySearch/>
          </Grid>
        </Grid>
        <Grid item xs={2}>

@@ -7,6 +7,16 @@ import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
 fun applyKotlinMetrics(ctx: ContextNode) {
+  val filesByPackage = HashMap<String, ArrayList<Vid>>()
+
+//  ctx.find("file[lang='kotlin']>packageDirective").forEach {
+//    val packageName = it.vertice.getString("name")
+//    filesByPackage.putIfAbsent(packageName, ArrayList())
+//    filesByPackage[packageName]?.add(
+//      it.vertice.getString("fileVid")
+//    )
+//  }
+
   ctx.find("file[lang='kotlin']").forEach { fileNode ->
     fileNode.vertice["lines"] = fileNode.code.relevantCodeLines()
     fileNode.vertice["textLines"] = fileNode.code.split("\n").size
@@ -15,6 +25,29 @@ fun applyKotlinMetrics(ctx: ContextNode) {
     fileNode.vertice["bindings"] = fileNode.find("binding").size
 
     with(fileNode) {
+
+      find("import").forEach {
+        val parts = it.vertice.getString("name").split(".")
+        val pack = parts.dropLast(1).joinToString(".")
+        val name = parts.last()
+
+        val found = ctx.find("file[{$>body>packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
+        if (found != null) {
+          tree.addRelation("imports", fileNode.vid, found.vid)
+        }
+      }
+
+
+//      find("import").forEach {
+//        val parts = it.vertice.getString("name").split(".")
+//        val pack = parts.dropLast(1).joinToString(".")
+//        val name = parts.last()
+//        val found = ctx.find("file[{packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
+//        if(found != null) {
+//          tree.addRelation("imports", fileNode.vid, found.vid)
+//        }
+//      }
+
       find("call").forEach {
         it.vertice["args"] = it.find("$>args>arg").size
       }

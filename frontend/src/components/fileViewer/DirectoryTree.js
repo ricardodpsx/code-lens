@@ -24,7 +24,7 @@ const STYLE = `
 
 function expand(g, v) {
   if (!g || !v) return
-  if (g && v && vertice(g, v).type === "file") return
+  if (vertice(g, v) && vertice(g, v).type === "file") return
 
   return children(g, v).map(c => {
        return <TreeNode title={vdata(g, c).fileName} key={c}>

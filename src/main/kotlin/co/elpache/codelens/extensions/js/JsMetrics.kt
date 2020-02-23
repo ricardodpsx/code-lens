@@ -1,36 +1,41 @@
 package co.elpache.codelens.extensions.js
 
+import co.elpache.codelens.codeLoader.fileId
 import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.firstLine
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
+import java.io.File
 import kotlin.math.max
 
 
 fun applyJsMetrics(code: ContextNode) {
 
+  //Todo: Somethings can be moved to nodePosprocess
   code.find("file[lang='js']").forEach { fileNode ->
 
     with(fileNode) {
-      find("*").forEach {
-        it.find("$>Identifier").firstOrNull()?.let { id ->
-          it["name"] = id.vertice.getString("name")
-        }
 
-        setSimplerType(it)
-        it["firstLine"] = it.code.firstLine()
+      find("params>*").forEach {
+        it.vertice.addType("param")
+      }
+
+      find("args>*").forEach {
+        it.vertice.addType("arg")
+      }
+
+      find("Identifier").forEach {
+        it.parent?.set("name", it.vertice.getString("name"))
       }
 
       find("fun").forEach {
         it["textLines"] = it.code.split("\n").size
         it["lines"] = it.code.relevantCodeLines() - 1
         it["depth"] = depth(it.tree, it["vid"].toString()) - 1
-        it[":params"] = "$>params>param"
       }
 
       find("call[{$>args>arg | count()} as args]")
-      find("fun[{$ :params | count()} as params]")
+      find("fun[{$>params>param | count()} as params]")
       find("class[{$>binding | count()} as properties]")
       find("class[{$ fun[kind='constructor'] | count()} as constructors]")
       find("class[{$ fun[kind='method' || kind='get' || kind='constructor'] | count()} as methods]")
@@ -38,6 +43,17 @@ fun applyJsMetrics(code: ContextNode) {
       find("class").forEach {
         it["lines"] = it.code.relevantCodeLines()
       }
+
+      find("import>string").map { it.vertice }.forEach { f ->
+        val relPath = File(f.getString("value"))
+        val fPath = File(tree.rootVid + "/" + fileNode.vertice.getString("path")).parentFile
+
+        val possiblePath = fileId(fPath.resolve("$relPath").normalize().toString())
+
+        if (tree.contains(possiblePath))
+          tree.addRelation("imports", fileNode.vid, possiblePath)
+      }
+
     }
 
     fileNode["lines"] = fileNode.code.relevantCodeLines()
@@ -46,42 +62,6 @@ fun applyJsMetrics(code: ContextNode) {
     fileNode["classes"] = fileNode.find("$>body>class").size
     fileNode["bindings"] = fileNode.find("$>body>binding").size
   }
-}
-
-//Todo: loops, args?
-fun setSimplerType(node: ContextNode) {
-  val simplerTypes = mapOf(
-    "CommentLine" to "comment",
-    "arguments" to "args",
-    "ClassDeclaration" to "class",
-    "ClassExpression" to "class",
-    "ClassMethod" to "fun",
-    "FunctionDeclaration" to "fun",
-    "BlockStatement" to "block",
-    "CallExpression" to "call",
-    "ImportDeclaration" to "import",
-    "BinaryExpression" to "expression",
-    "ArrowFunctionExpression" to "fun",
-    "IfStatement" to "if",
-    "ObjectExpression" to "object",
-    "NewExpression" to "call",
-    "AssignmentExpression" to "binding",
-    "VariableDeclaration" to "binding",
-    "NumericLiteral" to "number",
-    "StringLiteral" to "string",
-    "quasis" to "string"
-  )
-
-  simplerTypes.forEach {
-    if (node.vertice.isA(it.key)) node["type"] = it.value
-  }
-
-  if (node.parent != null && node.parent!!.isA("params"))
-    node["type"] = "param"
-
-  if (node.parent != null && node.parent!!.isA("args"))
-    node["type"] = "arg"
-
 }
 
 private fun depth(tree: CodeTree, vid: Vid): Int {

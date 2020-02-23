@@ -40,12 +40,12 @@ fun applyGitMetrics(ctx: ContextNode) {
           "id" to c.id,
           "author" to c.commitTime,
           "time" to c.commitTime,
-          "messsage" to c.message
+          "message" to c.message
         )
 
       )
-      ctx.tree.addRelation("file", c.id, f.vid)
-      ctx.tree.addRelation("commit", f.vid, c.id)
+      ctx.tree.addRelation("files", c.id, f.vid)
+      ctx.tree.addRelation("commits", f.vid, c.id)
     }
   }
 

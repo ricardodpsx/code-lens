@@ -13,10 +13,10 @@ function SearchResults({codeTree, results}) {
            selectTreeNode(r.vid)
            e.preventDefault();
          }}>
-        {r.data.file}
+        {r.data.parentFile || r.data.path}
 
       </a> <br/>
-      <CodeEntityInfo data={r.data}/>
+      <CodeEntityInfo vertice={r}/>
       <hr/>
     </div>
   })

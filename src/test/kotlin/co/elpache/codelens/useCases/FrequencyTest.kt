@@ -37,7 +37,14 @@ class FrequencyTest {
       )
     )
 
-    val results = uc.getPossibleIntParams("fun")
+    val results = uc.getPossibleIntParams(
+      listOf(
+        verticeOf("3", "type" to "fun", "lines" to 6, "depth" to 5),
+        verticeOf("4", "type" to "fun", "lines" to 6),
+        verticeOf("5", "type" to "fun", "lines" to 4, "complexity" to 9),
+        verticeOf("6", "type" to "fun", "lines" to 4)
+      )
+    )
 
     assertThat(results).containsExactlyInAnyOrder("depth", "complexity", "lines")
   }

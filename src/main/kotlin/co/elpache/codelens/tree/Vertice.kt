@@ -4,6 +4,7 @@ import java.util.TreeSet
 
 typealias Vid = String
 
+val RESERVED_PARAMS = listOf("name", "type", "vid", "start", "end", "index")
 
 fun Map<String, Any>.toVData(): Vertice {
   val vData = Vertice()
@@ -29,6 +30,8 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
     return Vertice(data)
   }
 
+  val rawType: String get() = type.split(" ").first()
+
   val type: String get() = data.getOrDefault("type", "").toString()
 
   val vid: String get() = data["vid"] as String
@@ -44,8 +47,10 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
   fun minus(key: String) = data.minus(key)
   fun plus(vararg pairs: Pair<String, Any>) = data.plus(pairs)
 
-  fun params() = data.keys
-    .filterNot { listOf("name", "type", "vid").contains(it) }
+  fun params() = data
+    .filter { it.value is Int || it.value is Double || it.value is Float }
+    .keys
+    .filterNot { RESERVED_PARAMS.contains(it) }
     .filterNot { it.startsWith(":") }
 
 
@@ -90,7 +95,9 @@ class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet
 
 data class Edge(
   val name: String,
-  val to: Vid
+  val to: Vid,
+  val toName: String?,
+  val toType: String
 ) : Comparable<Edge> {
   override fun compareTo(other: Edge): Int =
     "$name-$to".compareTo(other = "${other.name}-${other.to}")

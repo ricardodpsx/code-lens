@@ -1,6 +1,6 @@
 package co.elpache.codelens.useCases
 
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.tree.Vid
 
 data class SmellsResults(
@@ -61,7 +61,7 @@ class CodeSmellsUseCases(private val codeExplorerUseCases: CodeExplorerUseCases)
   }
 
   private fun isSmellStinky(query: String, param: String) =
-    codeExplorerUseCases.codeTreee.finder().find(query).isNotEmpty()
+    codeExplorerUseCases.codeTree.find(query).isNotEmpty()
 
   fun executeCodeSmell(smellName: String): SmellsResults {
     val smellPreset = findSmellByName(smellName)

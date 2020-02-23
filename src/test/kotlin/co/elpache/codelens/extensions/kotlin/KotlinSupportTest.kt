@@ -28,7 +28,7 @@ class KotlinSupportTest {
   fun `Can select by name`() {
     assertThat(selectCode(codeBase, "#ExampleClassB"))
       .extracting("name")
-      .containsExactlyInAnyOrder("ExampleClassB", "ExampleClassB")
+      .containsExactlyInAnyOrder("ExampleClassB")
   }
 
 
@@ -47,7 +47,7 @@ class KotlinSupportTest {
   @Test
   fun `Looking for nested functions`() {
     val list = selectCode(codeBase, "file[name*='ExampleClassB'] fun fun fun")
-    assertThat(list).extracting("name").containsExactlyInAnyOrder("b", "c")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("b")
   }
 
   @Test

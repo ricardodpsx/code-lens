@@ -7,6 +7,7 @@ import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.verticeOf
 import co.elpachecode.codelens.cssSelector.SelectorFunction
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Ignore
 import org.junit.Test
 
 class SearchTest {
@@ -20,7 +21,6 @@ class SearchTest {
           codeTree(verticeOf("1.1.1.1", "type" to "e"))
         ),
         codeTree(
-
           verticeOf("1.1.2", "type" to "d", "lines" to 4),
           codeTree(verticeOf("1.1.2.1", "type" to "d"))
         ),
@@ -61,7 +61,9 @@ class SearchTest {
 
   @Test
   fun `Test Single child`() {
-    assertThat(search("a")).containsExactlyInAnyOrder("1", "1.3")
+//    assertThat(search("a")).containsExactlyInAnyOrder("1", "1.3")
+    assertThat(search("a")).containsExactlyInAnyOrder("1")
+    assertThat(search("a a")).containsExactlyInAnyOrder("1.3")
   }
 
   @Test
@@ -76,14 +78,15 @@ class SearchTest {
   @Test
   fun `Test children search`() {
     println(tree.asString())
-    assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
+    assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2")
+    assertThat(search("a b b")).containsExactlyInAnyOrder("1.1.3")
 
     assertThat(search("a[name='parent'] d d")).containsExactlyInAnyOrder("1.1.2.1")
   }
 
   @Test
   fun `support multiple types`() {
-    assertThat(search("AA b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
+    assertThat(search("AA b")).containsExactlyInAnyOrder("1.1", "1.2")
   }
 
   @Test
@@ -94,7 +97,7 @@ class SearchTest {
 
   @Test
   fun `Aggregator search`() {
-    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(3)
+    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(2)
   }
 
   @Test
@@ -147,10 +150,11 @@ class SearchTest {
   fun `Search by relations`() {
     assertThat(search("b>e")).isEmpty()
     tree.addRelation("friends", "1.2", "1.1.1.1")
-    assertThat(search("b>e")).containsExactlyInAnyOrder("1.1.1.1")
+    assertThat(search("b-friends>e")).containsExactlyInAnyOrder("1.1.1.1")
   }
 
   @Test
+  @Ignore
   fun `Pseudo elements search`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
@@ -159,6 +163,7 @@ class SearchTest {
   }
 
   @Test
+  @Ignore
   fun `Pseudoelements run`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
@@ -167,6 +172,7 @@ class SearchTest {
   }
 
   @Test
+  @Ignore
   fun `Pseudo elements search error`() {
     assertThat(tree.finder().find("d :unregistered").vids()).isEmpty()
   }

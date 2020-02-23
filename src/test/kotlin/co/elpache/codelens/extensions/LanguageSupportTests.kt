@@ -1,15 +1,17 @@
 package codelens
 
 import co.elpache.codelens.codeLoader.FolderLoader
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.extensions.js.jsLanguageIntegration
-import org.assertj.core.api.Assertions
+import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import org.assertj.core.api.SoftAssertions
 import org.junit.After
 import org.junit.Test
 
 abstract class LanguageSupportTests(val ext: String, path: String) : SoftAssertions() {
-  val tree = FolderLoader.loadDir(path).extensions(jsLanguageIntegration).load()
+  val tree = FolderLoader.loadDir(path)
+    .extensions(jsLanguageIntegration, kotlinLanguageIntegration).load()
 
 
   val search = { css: String ->
@@ -25,8 +27,8 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
   @Test
   fun `Can get the code of a node`() {
-    tree.finder().find("#functions fun").first().printTree()
-    Assertions.assertThat(tree.finder().find("#functions fun").first().code).isNotBlank()
+    tree.find("#functions fun").first()
+    assertThat(tree.find("#functions fun").first().code).isNotEmpty
   }
 
   @Test
@@ -44,10 +46,6 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
       assertThat(it["type"]).isNotNull
       assertThat(it["depth"]).isNotNull
     }
-
-    assertThat(search("#functionWith3Params :params")).hasSize(3)
-    assertThat(search("#functionWith3Params :params")).extracting("name").containsExactly("x", "y", "z")
-
 
     assertThat(getValue("#functionWith2Lines", "lines") as Int).isEqualTo(2)
     assertThat(getValue("#functionWith3Params", "params") as Int).isEqualTo(3)
@@ -85,5 +83,12 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
     assertThat(getValue("#Rectangle4", "methods")).isEqualTo(3)
     assertThat(getValue("#Rectangle4", "constructors")).isEqualTo(1)
+  }
+
+  @Test
+  fun `can import`() {
+    val res = tree.find("#withImports").first()
+    assertThat(res.find("file-imports>file[name='functions']").first()["name"]).isEqualTo("functions")
+    assertThat(res.find("file[{$-imports>file[name='functions']}]").first()["name"]).isEqualTo("withImports")
   }
 }

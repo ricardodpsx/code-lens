@@ -2,7 +2,7 @@ package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
@@ -27,16 +27,18 @@ data class ParamFrequencyRow(val paramValue: Double, val frequency: Int, val nod
 data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
 class CodeExplorerUseCases(factory: Factory = Factory()) {
-  val codeTreee = factory.createBaseCode()
 
-  fun find(query: String) = codeTreee.finder().find(query)
+
+  val codeTree by lazy { factory.createBaseCode() }
+
+  fun find(query: String) = codeTree.find(query)
 
   fun selectCodeWithParents(query: Vid): SearchResults {
     //Todo: Refactor, make it handle parse exception specifically
     return try {
       val res = find(query).map { it.vertice }
       SearchResults(
-        codeTreee.treeFromChildren(res),
+        codeTree.treeFromChildren(res),
         res
       )
     } catch (e: Exception) {
@@ -49,7 +51,7 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
       SearchResultsWithParams(
         treeWithDescendants,
         results,
-        getPossibleIntParams(query)
+        getPossibleIntParams(results)
       )
     }
   }
@@ -66,19 +68,21 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
 
   fun getMetricStatistics(query: String, param: String): DescriptiveStatistics {
     return statistics(find(query).filter { it[param] != null }
-      .map { it.vertice.vid to it.vertice.getInt(param) })
+      .map { it.vertice.vid to it.vertice.getDouble(param) })
   }
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      ContextNode(vid, codeTreee).code,
-      codeTreee.subTree(vid)
+      ContextNode(vid, codeTree).code,
+      codeTree.subTree(vid)
     )
 
-  fun getPossibleIntParams(query: String) =
+  fun getPossibleIntParams(results: List<Vertice>) =
     try {
-      find(query)
-        .map { it.vertice.params() }
+      results
+        .map {
+          it.params()
+        }
         .flatten()
         .distinct()
     } catch (e: Exception) {
@@ -87,7 +91,7 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
 
 
   fun search(query: String): List<Vertice> {
-    return codeTreee.finder().find(query)
+    return codeTree.find(query)
       .map {
         it.vertice
       }

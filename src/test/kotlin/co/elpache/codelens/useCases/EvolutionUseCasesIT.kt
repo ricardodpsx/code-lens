@@ -21,11 +21,9 @@ class EvolutionUseCasesIT {
   @Autowired
   lateinit var applicationContext: ApplicationContext
 
-
-
   @Test
   fun `Can see change in a function`() {
-    var factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
+    var factory = Factory(path = "tmp-test", currentCodePath = "../code-examples/", context = applicationContext)
 
     factory.preloadCommits(createCommits("d37fb4b", "a1e3958"))
 
@@ -41,14 +39,14 @@ class EvolutionUseCasesIT {
 
   @Test
   fun `Can see change of methods in a class`() {
-    var factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
+    var factory = Factory(path = "tmp-test", currentCodePath = "../code-examples/", context = applicationContext)
 
     factory.preloadCommits(createCommits("e3b714c", "e323c18"))
 
     val uc = EvolutionUseCases(factory)
 
     val statistics = uc.collectHistory(
-      "#ExampleClass", "methods",
+      "class[name='ExampleClass']", "methods",
       createCommits("e3b714c", "e323c18")
     )
 

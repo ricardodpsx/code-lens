@@ -24,7 +24,7 @@
 -[x] Add  Root element selector #search
 -[x] JS Parser is too slow, probably because of the process up time for each file, Files can be grouped by folder #optimization
 -[x] Code "Starting with" search #search 
--[ ] Add history of a file node #evolution
+-[x] Add history of a file node #evolution
      We want to see if the code got better or worst in between commits
      -[x] Core support
      -[x] UI
@@ -41,14 +41,13 @@
     -[x] When selecting a result from charts it should take you to the Result list
     -[x] Evolution Tabs don't make sense where they are 
     -[x] When selecting a node inside a file it should not jump bad
--[ ] Either use sampling or smarter code saving (It could go up really quickly)
--[ ] Mean, Media, Max, min for charts    
+-[x] Either use sampling or smarter code saving (It could go up really quickly)
+-[x] Params select should make sense
+-[x] Mean, Media, Max, min for charts: Using percentiles.  
+-[ ] Graph visualisation (The JSON as it is?)  
 -[ ] Relate file nodes by dependencies for the visualization graph
--[ ] Graph visualisation (The JSON as it is?)
 -[ ] Add/Edit Smells/Rules
--[ ] Params select should make sense
 -[ ] Config and setup (Load a new project etc)
--[ ] Slots/Buckets for charts #charts
 -[ ] Is my commit making things worse?
 -[ ] Helper or documentation of existing PseudElements and SelectorFunctions
 -[ ] Commit extract user story or bug an attribute
@@ -57,9 +56,10 @@
 -[ ] Pagination/Limit results 
 -[ ] Nice snipets on the result list depending on the node type
 -[ ] Should be easy to add new graphs, idea have a table function like "fun | asTable('x', 'y')"
+-[ ] Graphs should be more talkative
 
 -[ ] Bug with classes highlighting
-
+-[ ] Slots/Buckets for charts #charts
 -[ ] Baseline
 -[ ] It should be possible to load a single folder or a single file, right now it is very repository dependent
 -[ ] Should we separate runTimeData from vertice data? (Right now you can fuck the state of the graph really bad!)
@@ -68,6 +68,8 @@
 -[ ] Memory control (Register how many Ram is being used by the cache etc)
 -[ ] Reliability: When db is down the app should keep working
 -[ ] Error Handling: Good error messages for broken files, errors when loading the graphs
+-[ ] Optimize searchs? constraint by type query? limit results? index common queries? load metrics dinamically?
+
 
 IceBox:
 -[ ] Cyclomatic Complexity #metrics (use https://github.com/escomplex/)
