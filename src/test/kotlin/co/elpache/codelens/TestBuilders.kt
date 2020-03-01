@@ -1,6 +1,6 @@
 package co.elpache.codelens
 
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.verticeOf
@@ -52,7 +52,7 @@ fun selectCode(
   tree: CodeTree,
   cssSelector: String
 ): List<Map<String, Any>> {
-  return tree.finder().find(cssSelector).map { it.vertice.toMap() }
+  return tree.find(cssSelector).map { it.vertice.toMap() }
 }
 
 fun createCommit(commit: String) = Commit(commit, "", 0)

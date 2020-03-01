@@ -2,7 +2,6 @@ package co.elpache.codelens.app
 
 
 import co.elpache.codelens.Factory
-import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.useCases.CodeExplorerUseCases
 import co.elpache.codelens.useCases.CodeSmellsUseCases
 import co.elpache.codelens.useCases.EvolutionUseCases
@@ -53,7 +52,7 @@ class CodeLensApp {
 
     return InitializingBean {
       if (!env.activeProfiles.contains("test")) {
-        codeExplorerUseCases.codeTree.finder()
+        codeExplorerUseCases.codeTree
         GlobalScope.launch {
           ec.preloadCommits(40)
         }

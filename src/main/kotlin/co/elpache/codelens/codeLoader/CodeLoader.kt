@@ -1,6 +1,6 @@
 package co.elpache.codelens.codeLoader
 
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.CodeTree
 
 abstract class NodeLoader {
@@ -17,7 +17,7 @@ abstract class NodeLoader {
 
   fun load(): CodeTree {
     val tree = doLoad()
-    languageSupportRegistry.forEach { it.applyMetrics(tree.finder()) }
+    languageSupportRegistry.forEach { it.applyMetrics(ContextNode(tree.rootVid(), tree)) }
     return tree
   }
 

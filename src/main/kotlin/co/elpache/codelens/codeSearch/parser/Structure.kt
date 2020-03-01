@@ -3,6 +3,7 @@ package co.elpache.codelens.codeSearch.parser
 
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.PathFinder
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.RESERVED_PARAMS
 import mu.KotlinLogging
 
@@ -57,8 +58,13 @@ data class Query(
   val selectors: List<TypeSelector>,
   val aggregator: SelectorFunction? = null
 ) : Expression {
+  fun evaluate(tree: CodeTree): Any? {
+    val res = PathFinder(tree).find(this)
+    return if (aggregator != null) res.size else res
+  }
+
   override fun evaluate(context: ContextNode): Any? {
-    val res = PathFinder(context).find(this)
+    val res = PathFinder(context.tree, context.vid).find(this)
     return if (aggregator != null) res.size else res
   }
 }

@@ -1,7 +1,7 @@
 package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeSearch.parser.SelectorFunction
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.CodeTree
@@ -57,7 +57,7 @@ class SearchTest {
       )
     )
 
-  private fun search(query: String) = tree.finder().find(query).map { it.vertice.vid }
+  private fun search(query: String) = tree.find(query).map { it.vertice.vid }
 
   @Test
   fun `Test Single child`() {
@@ -71,7 +71,7 @@ class SearchTest {
     tree.addVertice(verticeOf("2", "sum" to 3))
     tree.addVertice(verticeOf("3", "sum" to 4))
 
-    assertThat(tree.finder().find("*[sum=2]")[0].toMap()).isEqualTo(mapOf("vid" to "1", "sum" to 2))
+    assertThat(tree.find("*[sum=2]")[0].toMap()).isEqualTo(mapOf("vid" to "1", "sum" to 2))
   }
   @Test
   fun `Test children search`() {
@@ -92,14 +92,10 @@ class SearchTest {
     assertThat(search("a[name='parent']")).containsExactlyInAnyOrder("1")
   }
 
-  @Test
-  fun `Aggregator search`() {
-    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(3)
-  }
 
   @Test
   fun `Can set metrics into nodes with as`() {
-    val res = treeWithFunctions.finder().find("fun[{param|count()} as paramCount]")
+    val res = treeWithFunctions.find("fun[{param|count()} as paramCount]")
 
     assertThat(res.vids()).containsExactly("1.1", "2.1")
 
@@ -109,7 +105,7 @@ class SearchTest {
 
   @Test
   fun `Test nested query`() {
-    val res = treeWithFunctions.finder().find("fun[{param int}]")
+    val res = treeWithFunctions.find("fun[{param int}]")
     assertThat(res.vids()).containsExactly("1.1")
   }
 
@@ -128,7 +124,7 @@ class SearchTest {
   @Test
   fun `Search from current item`() {
     assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")
-    tree.finder().find("b").first().let {
+    tree.find("b").first().let {
       assertThat(it.find("$>c>e")).hasSize(1)
     }
   }
@@ -155,7 +151,7 @@ class SearchTest {
   fun `Pseudo elements search`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
-    assertThat(tree.finder().find("b :childDs").vids())
+    assertThat(tree.find("b :childDs").vids())
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
   }
 
@@ -164,14 +160,14 @@ class SearchTest {
   fun `Pseudoelements run`() {
     tree.v("1.1")[":childDs"] = "$ d"
 
-    assertThat(tree.finder().find("b :childDs").vids())
+    assertThat(tree.find("b :childDs").vids())
       .containsExactlyInAnyOrder("1.1.2", "1.1.2.1")
   }
 
   @Test
   @Ignore
   fun `Pseudo elements search error`() {
-    assertThat(tree.finder().find("d :unregistered").vids()).isEmpty()
+    assertThat(tree.find("d :unregistered").vids()).isEmpty()
   }
 
   @Test
@@ -179,6 +175,6 @@ class SearchTest {
     SelectorFunction.addFunction("sayMyName", "d") { _, _ ->
       "DeeDee"
     }
-    assertThat(tree.finder().find("d[sayMyName() as myName]").first().vertice["myName"]).isEqualTo("DeeDee")
+    assertThat(tree.find("d[sayMyName() as myName]").first().vertice["myName"]).isEqualTo("DeeDee")
   }
 }

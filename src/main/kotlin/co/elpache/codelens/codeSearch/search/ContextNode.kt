@@ -5,9 +5,8 @@ import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 
-fun CodeTree.finder() = ContextNode(rootVid(), this)
-
-fun CodeTree.find(query: String) = ContextNode(rootVid(), this).find(query)
+fun CodeTree.find(query: String) =
+  (parseQuery(query).evaluate(this) as List<ContextNode>)
 
 fun CodeTree.printTree() = ContextNode(rootVid(), this).printTree()
 

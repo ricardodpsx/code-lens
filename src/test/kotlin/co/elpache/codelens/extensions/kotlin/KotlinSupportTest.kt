@@ -2,7 +2,6 @@ package codelens
 
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.find
-import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.selectCode
 import org.assertj.core.api.Assertions.assertThat
@@ -42,7 +41,7 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select Functions by line`() {
-    val list = codeBase.finder().find("fun[lines=4]").map { it.vertice.toMap() }
+    val list = codeBase.find("fun[lines=4]").map { it.vertice.toMap() }
     assertThat(list).extracting("name").contains("methodWithFourLines")
   }
 

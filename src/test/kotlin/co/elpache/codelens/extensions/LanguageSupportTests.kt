@@ -2,7 +2,6 @@ package codelens
 
 import co.elpache.codelens.codeLoader.FolderLoader
 import co.elpache.codelens.codeSearch.search.find
-import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.extensions.js.jsLanguageIntegration
 import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import org.assertj.core.api.SoftAssertions
@@ -15,7 +14,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
 
   val search = { css: String ->
-    tree.finder().find(css).map { it.vertice.toMap() }
+    tree.find(css).map { it.vertice.toMap() }
   }
 
   val getValue = { funName: String, metric: String -> search(funName).first { it.containsKey(metric) }[metric] }
@@ -57,7 +56,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   fun `Test Calls`() {
     assertThat(search("call")).extracting("firstLine").contains("functionWith3Params(1, 2, 3)")
 
-    tree.finder().find("call[firstLine^='functionWith3Params']").first().printTree()
+    tree.find("call[firstLine^='functionWith3Params']").first().printTree()
 
     assertThat(search("call[firstLine^='functionWith3Params']>args>arg")).hasSize(3)
     assertThat(getValue("call[firstLine^='functionWith3Params']", "args")).isEqualTo(3)
@@ -79,7 +78,7 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
 
-    tree.finder().find("#Rectangle4").first().printTree()
+    tree.find("#Rectangle4").first().printTree()
 
     assertThat(getValue("#Rectangle4", "methods")).isEqualTo(3)
     assertThat(getValue("#Rectangle4", "constructors")).isEqualTo(1)

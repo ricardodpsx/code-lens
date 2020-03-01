@@ -2,7 +2,6 @@ package co.elpache.codelens.useCases;
 
 import co.elpache.codelens.Factory
 import co.elpache.codelens.app.CodeLensApp
-import co.elpache.codelens.codeSearch.search.finder
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,7 +27,7 @@ class PerformanceIT {
 
     measureTime {
       val uc = CodeExplorerUseCases(factory)
-      uc.codeTree.finder()
+      uc.codeTree
     }
   }
 

@@ -3,18 +3,23 @@ package co.elpache.codelens.codeSearch.search
 import co.elpache.codelens.codeSearch.parser.Query
 import co.elpache.codelens.codeSearch.parser.RelationType
 import co.elpache.codelens.codeSearch.parser.TypeSelector
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vid
 
 val funcRegistry2 = HashMap<String, (res: PathFinder, params: List<String>) -> Any>()
 
-class PathFinder(private val ctx: ContextNode) {
-  val tree = ctx.tree
-  val vid = ctx.vid
-
+class PathFinder(val tree: CodeTree, val from: Vid? = null) {
   fun find(query: Query): List<ContextNode> {
-    return findRec(ctx, query.selectors).map { ContextNode(it, tree) }
+    return if (from == null) {
+      val res = tree.vertices.filter { query.selectors.first().evaluate(ContextNode(it.key, tree)) }
+      val result = mutableSetOf<Vid>()
+      res.forEach {
+        result.addAll(findRec(ContextNode(it.key, tree), query.selectors))
+      }
+      result.map { ContextNode(it, tree) }
+    } else
+      findRec(ContextNode(from, tree), query.selectors).map { ContextNode(it, tree) }
   }
-
 }
 
 fun findRec(ctx: ContextNode, selectors: List<TypeSelector>): Set<Vid> {
@@ -45,7 +50,7 @@ fun findRec(ctx: ContextNode, selectors: List<TypeSelector>): Set<Vid> {
     ctx.adj(currentSelector.relation.name).forEach {
       var found = findNext(it, selectors.drop(1))
 
-      if (found.isEmpty()) found = findNext(it, selectors)
+      //if (found.isEmpty()) found = findNext(it, selectors)
 
       res.addAll(found)
     }

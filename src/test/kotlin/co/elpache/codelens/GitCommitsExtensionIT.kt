@@ -1,7 +1,7 @@
 package co.elpache.codelens;
 
 import co.elpache.codelens.app.CodeLensApp
-import co.elpache.codelens.codeSearch.search.finder
+import co.elpache.codelens.codeSearch.search.find
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -40,7 +40,7 @@ class GitCommitsExtensionIT {
       "f13056f78491cab196849f1965fec95264bb1d13"
     )
 
-    assertThat(code.finder().find("#changing-commits>commit").map { it.vertice["id"] }).containsAll(commits.map { it.id })
+    assertThat(code.find("#changing-commits>commit").map { it.vertice["id"] }).containsAll(commits.map { it.id })
   }
 
 
