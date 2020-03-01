@@ -1,16 +1,6 @@
-package codelens.cssSelector
+package co.elpache.codelens.codeSearch.parser
 
-import co.elpachecode.codelens.cssSelector.AliasExpression
-import co.elpachecode.codelens.cssSelector.BinnaryExpression
-import co.elpachecode.codelens.cssSelector.Expression
-import co.elpachecode.codelens.cssSelector.LiteralExpression
-import co.elpachecode.codelens.cssSelector.NameExpression
-import co.elpachecode.codelens.cssSelector.Query
-import co.elpachecode.codelens.cssSelector.Relation
-import co.elpachecode.codelens.cssSelector.RelationType
-import co.elpachecode.codelens.cssSelector.SelectorFunction
-import co.elpachecode.codelens.cssSelector.parseQuery
-import co.elpachecode.codelens.cssSelector.parseSetQuery
+
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 

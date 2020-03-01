@@ -1,6 +1,7 @@
 package codelens
 
 import co.elpache.codelens.codeLoader.FolderLoader
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.extensions.kotlin.kotlinLanguageIntegration
 import co.elpache.codelens.selectCode
@@ -19,6 +20,7 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select files`() {
+    codeBase.find("file[name*='Example']")
     assertThat(selectCode(codeBase, "file[name*='Example']"))
       .extracting("name")
       .containsExactlyInAnyOrder("ExampleClass", "ExampleClassB")
@@ -28,7 +30,7 @@ class KotlinSupportTest {
   fun `Can select by name`() {
     assertThat(selectCode(codeBase, "#ExampleClassB"))
       .extracting("name")
-      .containsExactlyInAnyOrder("ExampleClassB")
+      .containsExactlyInAnyOrder("ExampleClassB", "ExampleClassB")
   }
 
 
@@ -47,7 +49,7 @@ class KotlinSupportTest {
   @Test
   fun `Looking for nested functions`() {
     val list = selectCode(codeBase, "file[name*='ExampleClassB'] fun fun fun")
-    assertThat(list).extracting("name").containsExactlyInAnyOrder("b")
+    assertThat(list).extracting("name").containsExactlyInAnyOrder("c", "b")
   }
 
   @Test

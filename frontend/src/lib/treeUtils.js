@@ -23,8 +23,18 @@ export function allVertices({vertices = {}}) {
   return Object.keys(vertices).map(k => vertices[k])
 }
 
-export function adj(g, v) {
-  return children(g, v).map(vid => vertice(g, vid))
+export function adj(v, name) {
+  if (!v) return []
+  return v.relations.filter(it => it.name === name).map(it => it.to)
+}
+
+export function primaryType(v) {
+  return v.type.split(" ")[0].trim()
+}
+
+export function isOfType(v, type) {
+  if (!v || !v.type) return false
+  return v.type.indexOf(type) !== -1
 }
 
 export function children(g, vid) {
@@ -40,9 +50,9 @@ export function parent(g, v) {
 
 export function fileAncestor(graph, vid) {
   if (!vertice(graph, vid)) return null
-  if (vertice(graph, vid).type === "file") return vid
+  if (isOfType(vertice(graph, vid), "codeFile")) return vid
   let a = ancestors(graph, vid)
-  return a.find(f => vertice(graph, f).type === "file")
+  return a.find(f => isOfType(vertice(graph, f), "codeFile"))
 }
 
 export function slice(text, graph) {
@@ -55,7 +65,7 @@ export function slice(text, graph) {
 
   allVertices(graph).forEach(v => {
     if (v.start === undefined) {
-      let children = adj(graph, v.vid)
+      let children = children(graph, v.vid)
       children.sort((a, b) => a.start - b.start)
       v.start = children[0].start
       v.end = last(children).end

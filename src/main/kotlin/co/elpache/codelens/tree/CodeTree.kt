@@ -87,6 +87,7 @@ open class CodeTree {
   }
 
 
+  //Todo: This methods is not correct anymore
   fun treeFromChildren(children: List<Vertice>): CodeTree? {
     if (children.isEmpty()) return null
     var resTree = CodeTree()

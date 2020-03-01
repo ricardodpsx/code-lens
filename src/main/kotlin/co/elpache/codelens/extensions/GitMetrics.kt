@@ -3,9 +3,9 @@ package co.elpache.codelens.extensions
 import co.elpache.codelens.Commit
 import co.elpache.codelens.GitRepository
 import co.elpache.codelens.codeLoader.LanguageIntegration
+import co.elpache.codelens.codeSearch.parser.SelectorFunction
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.verticeOf
-import co.elpachecode.codelens.cssSelector.SelectorFunction
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime

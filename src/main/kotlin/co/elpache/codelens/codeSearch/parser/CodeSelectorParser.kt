@@ -1,6 +1,6 @@
 @file:Suppress("Reformat")
 
-package co.elpachecode.codelens.cssSelector
+package co.elpache.codelens.codeSearch.parser
 
 import co.elpache.codelens.parser.antlr4.AstQBaseListener
 import co.elpache.codelens.parser.antlr4.AstQLexer

@@ -1,7 +1,7 @@
 import React from "react";
 import "./FileViewer.css"
 import CodeEntity from "./CodeEntity";
-import {root, slice, vdata} from "../../lib/treeUtils";
+import {isOfType, root, slice, vdata} from "../../lib/treeUtils";
 import {connect} from "react-redux";
 import {selectNodeInFile} from "../../appModel";
 
@@ -21,7 +21,7 @@ function TextParts({text, nodeData}) {
 
 function CodeText({slicedText, ast, results, onNodeSelected}) {
   let nodeData = vdata(ast, slicedText.vid)
-  let nodeSelected = nodeData.type !== "file" && results.indexOf(slicedText.vid) !== -1
+  let nodeSelected = !isOfType(nodeData, "codeFile") && results.indexOf(slicedText.vid) !== -1
   return <CodeEntity vid={slicedText.vid}
                      key={slicedText.vid}
                      selected={nodeSelected}

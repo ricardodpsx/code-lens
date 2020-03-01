@@ -17,6 +17,7 @@ import FileViewer from "../fileViewer/FileViewer";
 import CodeEntityData from "../CodeData";
 import History from "../charts/History";
 import EvolutionOfFrequency from "../charts/EvolutionOfFrequency";
+import DependencyGraph from "../DependencyGraph";
 
 const useStyles = makeStyles(theme => ({
   control: {
@@ -61,6 +62,7 @@ function CodeExplorer({activeTab, tabItems: TabItems, selectedFile}) {
          <Tabs value={activeTab} onChange={(event, newValue) => selectTab(newValue)}>
            <Tab label="Search results" value={TabItems.SearchResultsTab}/>
            <Tab label="Frequency" value={TabItems.FrequenciesTab}/>
+           <Tab label="Graph" value={TabItems.Graph}/>
            <Tab label="Evolution Metrics" value={TabItems.EvolutionOfMetric}/>
            <Tab label="Evolution of Frequency" value={TabItems.EvolutionOfFrequency}/>
            {selectedFile &&
@@ -73,6 +75,12 @@ function CodeExplorer({activeTab, tabItems: TabItems, selectedFile}) {
          <TabPanel value={activeTab} index={TabItems.FrequenciesTab}>
            <Paper>
              <Metrics/>
+           </Paper>
+         </TabPanel>
+
+         <TabPanel value={activeTab} index={TabItems.Graph}>
+           <Paper>
+             <DependencyGraph/>
            </Paper>
          </TabPanel>
 

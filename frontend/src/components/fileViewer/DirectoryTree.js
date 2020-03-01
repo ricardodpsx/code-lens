@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import '../App.css';
-import {allVertices, ancestors, children, vdata, vertice} from '../../lib/treeUtils'
+import {allVertices, ancestors, children, isOfType, vdata, vertice} from '../../lib/treeUtils'
 /* eslint no-console:0, react/no-danger: 0 */
 import 'rc-tree/assets/index.css';
 import Tree, {TreeNode} from 'rc-tree';
@@ -24,7 +24,7 @@ const STYLE = `
 
 function expand(g, v) {
   if (!g || !v) return
-  if (vertice(g, v) && vertice(g, v).type === "file") return
+  if (vertice(g, v) && isOfType(vertice(g, v), "codeFile")) return
 
   return children(g, v).map(c => {
        return <TreeNode title={vdata(g, c).fileName} key={c}>
@@ -42,7 +42,7 @@ function DirectoryTree({codeTree, selectedFile}) {
   let selectedFileAncestors = selectedFile ? ancestors(codeTree, selectedFile) : []
   const [expandedKeys, setExpandedKeys] = useState([codeTree.rootVid])
 
-  let allKeys = allVertices(codeTree).filter(v => v.type === "dir").map(v => v.vid)
+  let allKeys = allVertices(codeTree).filter(v => isOfType(v, "dir")).map(v => v.vid)
 
   useEffect(() => {
     setExpandedKeys(expandedKeys.concat(selectedFileAncestors))

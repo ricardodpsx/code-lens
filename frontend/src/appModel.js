@@ -5,6 +5,7 @@ import {fileAncestor, vdata, vertice} from "./lib/treeUtils";
 export let tabItems = {
   SearchResultsTab: "SearchResultsTab",
   FrequenciesTab: "Frequencies",
+  Graph: "Graph",
   SelectedFile: "Selected File",
   EvolutionOfMetric: "Evolution Metrics",
   EvolutionOfFrequency: "Evolution of Frequency"
@@ -16,7 +17,8 @@ export let appModelDef = {
     selectTab: r((data) => ({activeTab: data})),
     $when: {
       query: {
-        updateResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab),
+        //updateResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab),
+        //filterResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
         filterResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
       }
     }

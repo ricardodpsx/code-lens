@@ -1,9 +1,8 @@
 @file:Suppress("Reformat")
-
-package co.elpachecode.codelens.cssSelector
+package co.elpache.codelens.codeSearch.parser
 
 import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.codeSearch.search.PathFinder2
+import co.elpache.codelens.codeSearch.search.PathFinder
 import co.elpache.codelens.tree.RESERVED_PARAMS
 import mu.KotlinLogging
 
@@ -59,7 +58,7 @@ data class Query(
   val aggregator: SelectorFunction? = null
 ) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    val res = PathFinder2(context).find(this)
+    val res = PathFinder(context).find(this)
     return if (aggregator != null) res.size else res
   }
 }

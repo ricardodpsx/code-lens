@@ -22,7 +22,6 @@ class DefaultFileLoader(file: File, basePath: File) : FileLoader<String>(file, "
 fun fileId(path: String) = path.replace("-", "_").replace("/", "-")
 
 abstract class FileLoader<T>(val file: File, val lang: String, val basePath: File) : NodeLoader() {
-  val type = "file"
   val fileName = file.name
   val name: String = file.nameWithoutExtension
   val startOffset: Int = 0
@@ -35,7 +34,7 @@ abstract class FileLoader<T>(val file: File, val lang: String, val basePath: Fil
       "fileName" to file.name,
       "name" to file.nameWithoutExtension,
       "extension" to file.extension,
-      "type" to "file",
+      "type" to "file codeFile",
       "lang" to lang,
       "path" to file.relativeTo(basePath).toString(),
       "start" to 0,

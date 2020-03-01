@@ -17,4 +17,5 @@ node_modules
 .DS_STORE
 code-examples
 tmp
+tmp-test
 /docs/CodeLens.vpp.*

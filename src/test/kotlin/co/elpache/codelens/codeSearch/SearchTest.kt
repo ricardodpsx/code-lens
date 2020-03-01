@@ -1,11 +1,11 @@
 package co.elpache.codelens.codeSearch
 
+import co.elpache.codelens.codeSearch.parser.SelectorFunction
 import co.elpache.codelens.codeSearch.search.finder
 import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.verticeOf
-import co.elpachecode.codelens.cssSelector.SelectorFunction
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Test
@@ -61,9 +61,7 @@ class SearchTest {
 
   @Test
   fun `Test Single child`() {
-//    assertThat(search("a")).containsExactlyInAnyOrder("1", "1.3")
-    assertThat(search("a")).containsExactlyInAnyOrder("1")
-    assertThat(search("a a")).containsExactlyInAnyOrder("1.3")
+    assertThat(search("a")).containsExactlyInAnyOrder("1", "1.3")
   }
 
   @Test
@@ -78,15 +76,14 @@ class SearchTest {
   @Test
   fun `Test children search`() {
     println(tree.asString())
-    assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2")
-    assertThat(search("a b b")).containsExactlyInAnyOrder("1.1.3")
+    assertThat(search("a b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
 
     assertThat(search("a[name='parent'] d d")).containsExactlyInAnyOrder("1.1.2.1")
   }
 
   @Test
   fun `support multiple types`() {
-    assertThat(search("AA b")).containsExactlyInAnyOrder("1.1", "1.2")
+    assertThat(search("AA b")).containsExactlyInAnyOrder("1.1", "1.2", "1.1.3")
   }
 
   @Test
@@ -97,7 +94,7 @@ class SearchTest {
 
   @Test
   fun `Aggregator search`() {
-    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(2)
+    assertThat(tree.finder().findValue("a b | count()")).isEqualTo(3)
   }
 
   @Test
@@ -182,7 +179,6 @@ class SearchTest {
     SelectorFunction.addFunction("sayMyName", "d") { _, _ ->
       "DeeDee"
     }
-
     assertThat(tree.finder().find("d[sayMyName() as myName]").first().vertice["myName"]).isEqualTo("DeeDee")
   }
 }

@@ -19,9 +19,7 @@ class App extends Component {
              </Route>
 
              <Route path="/">
-
                <CodeExplorer/>
-
              </Route>
 
            </Switch>

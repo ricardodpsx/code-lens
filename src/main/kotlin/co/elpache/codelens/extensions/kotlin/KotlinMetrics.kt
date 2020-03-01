@@ -17,7 +17,7 @@ fun applyKotlinMetrics(ctx: ContextNode) {
 //    )
 //  }
 
-  ctx.find("file[lang='kotlin']").forEach { fileNode ->
+  ctx.find("codeFile[lang='kotlin']").forEach { fileNode ->
     fileNode.vertice["lines"] = fileNode.code.relevantCodeLines()
     fileNode.vertice["textLines"] = fileNode.code.split("\n").size
     fileNode.vertice["functions"] = fileNode.find("fun").size
@@ -31,7 +31,7 @@ fun applyKotlinMetrics(ctx: ContextNode) {
         val pack = parts.dropLast(1).joinToString(".")
         val name = parts.last()
 
-        val found = ctx.find("file[{$>body>packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
+        val found = ctx.find("codeFile[{$>body>packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
         if (found != null) {
           tree.addRelation("imports", fileNode.vid, found.vid)
         }

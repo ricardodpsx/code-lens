@@ -12,7 +12,7 @@ import kotlin.math.max
 fun applyJsMetrics(code: ContextNode) {
 
   //Todo: Somethings can be moved to nodePosprocess
-  code.find("file[lang='js']").forEach { fileNode ->
+  code.find("codeFile[lang='js']").forEach { fileNode ->
 
     with(fileNode) {
 
@@ -48,12 +48,11 @@ fun applyJsMetrics(code: ContextNode) {
         val relPath = File(f.getString("value"))
         val fPath = File(tree.rootVid + "/" + fileNode.vertice.getString("path")).parentFile
 
-        val possiblePath = fileId(fPath.resolve("$relPath").normalize().toString())
+        val possiblePath = fileId(fPath.resolve("$relPath.js").normalize().toString())
 
         if (tree.contains(possiblePath))
           tree.addRelation("imports", fileNode.vid, possiblePath)
       }
-
     }
 
     fileNode["lines"] = fileNode.code.relevantCodeLines()

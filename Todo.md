@@ -56,8 +56,9 @@
 -[ ] Pagination/Limit results 
 -[ ] Nice snipets on the result list depending on the node type
 -[ ] Should be easy to add new graphs, idea have a table function like "fun | asTable('x', 'y')"
--[ ] Graphs should be more talkative
-
+-[ ] Charts should be more talkative
+-[ ] Search information
+ 
 -[ ] Bug with classes highlighting
 -[ ] Slots/Buckets for charts #charts
 -[ ] Baseline

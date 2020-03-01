@@ -1,9 +1,9 @@
 package co.elpache.codelens.codeSearch.search
 
+import co.elpache.codelens.codeSearch.parser.parseQuery
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
-import co.elpachecode.codelens.cssSelector.parseQuery
 
 fun CodeTree.finder() = ContextNode(rootVid(), this)
 
@@ -21,8 +21,6 @@ open class ContextNode(val vid: Vid, val tree: CodeTree) {
   companion object {
     val pseudoElementsRegistry = HashMap<String, String>()
   }
-
-  fun descendants() = tree.descendants(vid).map { ContextNode(it, tree) }
 
   open fun find(css: String): List<ContextNode> {
     return (parseQuery(css).evaluate(this) as List<ContextNode>)

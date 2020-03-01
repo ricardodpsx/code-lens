@@ -1,9 +1,9 @@
 package codelens.cssSelector
 
+import co.elpache.codelens.codeSearch.parser.parseQuery
 import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.verticeOf
-import co.elpachecode.codelens.cssSelector.parseQuery
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
