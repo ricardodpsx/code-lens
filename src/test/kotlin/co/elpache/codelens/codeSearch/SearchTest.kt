@@ -2,10 +2,10 @@ package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeSearch.parser.SelectorFunction
 import co.elpache.codelens.codeSearch.search.find
-import co.elpache.codelens.codeSearch.search.vids
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.verticeOf
+import co.elpache.codelens.tree.vids
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Ignore
 import org.junit.Test
@@ -28,7 +28,6 @@ class SearchTest {
       ),
       codeTree(verticeOf("1.2", "type" to "b")),
       codeTree(
-
         verticeOf("1.3", "type" to "a"),
         codeTree(verticeOf("1.3.1", "type" to "d"))
       )
@@ -57,7 +56,7 @@ class SearchTest {
       )
     )
 
-  private fun search(query: String) = tree.find(query).map { it.vertice.vid }
+  private fun search(query: String) = tree.find(query).map { it.vid }
 
   @Test
   fun `Test Single child`() {
@@ -125,7 +124,7 @@ class SearchTest {
   fun `Search from current item`() {
     assertThat(search("a c>e")).containsExactlyInAnyOrder("1.1.1.1")
     tree.find("b").first().let {
-      assertThat(it.find("$>c>e")).hasSize(1)
+      assertThat(tree.find("$>c>e", it)).hasSize(1)
     }
   }
 
@@ -175,6 +174,6 @@ class SearchTest {
     SelectorFunction.addFunction("sayMyName", "d") { _, _ ->
       "DeeDee"
     }
-    assertThat(tree.find("d[sayMyName() as myName]").first().vertice["myName"]).isEqualTo("DeeDee")
+    assertThat(tree.find("d[sayMyName() as myName]").first()["myName"]).isEqualTo("DeeDee")
   }
 }

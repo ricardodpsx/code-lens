@@ -19,7 +19,7 @@ describe("code explorer", () => {
     })
 
     it('can update results', async () => {
-      loadGraph.mockResolvedValue({results: ["1", "2"], metricNames: ["a", "b"], codeTree: {rootVid: "1"}})
+      loadGraph.mockResolvedValue({results: ["1", "2"], metricNames: ["a", "b"], codeTree: {rootDirVid: "1"}})
 
       query.setQuery("fun")
 
@@ -28,7 +28,7 @@ describe("code explorer", () => {
       expect(loadGraph).toHaveBeenCalledWith("fun")
       expect(query.results).toEqual(["1", "2"]);
       expect(query.metricNames).toEqual(["a", "b"]);
-      expect(query.codeTree).toEqual({rootVid: "1"});
+      expect(query.codeTree).toEqual({rootDirVid: "1"});
     })
 
   })
@@ -36,8 +36,8 @@ describe("code explorer", () => {
   describe("File Selection", () => {
     let {model: {query, selectedFile}} = createApp(appModelDef)
 
-    query.updateResults({codeTree: {rootVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
-    loadFile.mockResolvedValue({ast: {rootVid: "2"}, text: "file contents"})
+    query.updateResults({codeTree: {rootDirVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
+    loadFile.mockResolvedValue({ast: {rootDirVid: "2"}, text: "file contents"})
 
     it("can be selected", () => {
       selectedFile.selectFile("1")
@@ -46,13 +46,13 @@ describe("code explorer", () => {
     })
 
     it("Can load contents", async () => {
-      query.updateResults({codeTree: {rootVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
+      query.updateResults({codeTree: {rootDirVid: "1", vertices: {"1": {type: "file", data: {fileName: "aFile.js"}}}}})
 
       selectedFile.selectFile("1")
       await resolvePromises()
       expect(loadFile).toHaveBeenCalledWith("1")
       expect(selectedFile.text).toEqual("file contents")
-      expect(selectedFile.ast).toEqual({rootVid: "2"})
+      expect(selectedFile.ast).toEqual({rootDirVid: "2"})
     })
 
   })
@@ -64,10 +64,14 @@ describe("code explorer", () => {
       query.updateResults(
          {
            codeTree: {
-             rootVid: "1",
+             rootDirVid: "1",
+             edges: {
+               "1": [{name: "children", to: "2"}],
+               "2": [{name: "parent", to: "1"}]
+             },
              vertices: {
-               "1": {type: "file", data: {fileName: "aFile.js"}, relations: [{name: "children", to: "2"}]},
-               "2": {type: "astNode", relations: [{name: "parent", to: "1"}]}
+               "1": {type: "file  codeFile", data: {fileName: "aFile.js"}},
+               "2": {type: "astNode"}
              }
            }
          })
@@ -77,8 +81,8 @@ describe("code explorer", () => {
       expect(tabs.activeTab).toEqual(tabItems.SelectedFile)
     })
 
-    it("Switches to results when results are updated", async () => {
-      query.updateResults(["1", "2"])
+    it("Switches to results when results are filtered", async () => {
+      query.filterResults(["1", "2"])
       expect(tabs.activeTab).toEqual(tabItems.SearchResultsTab)
     })
   })

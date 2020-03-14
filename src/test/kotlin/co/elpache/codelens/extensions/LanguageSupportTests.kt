@@ -14,10 +14,12 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
 
 
   val search = { css: String ->
-    tree.find(css).map { it.vertice.toMap() }
+    tree.find(css).map { it.toMap() }
   }
 
-  val getValue = { funName: String, metric: String -> search(funName).first { it.containsKey(metric) }[metric] }
+  val getValue = { funName: String, metric: String ->
+    search(funName).first { it.containsKey(metric) }[metric]
+  }
 
   @After
   fun after() {
@@ -27,7 +29,8 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   @Test
   fun `Can get the code of a node`() {
     tree.find("#functions fun").first()
-    assertThat(tree.find("#functions fun").first().code).isNotEmpty
+    val n = tree.find("#functions fun").first()
+    assertThat(tree.code(n.vid)).isNotEmpty
   }
 
   @Test
@@ -56,8 +59,6 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   fun `Test Calls`() {
     assertThat(search("call")).extracting("firstLine").contains("functionWith3Params(1, 2, 3)")
 
-    tree.find("call[firstLine^='functionWith3Params']").first().printTree()
-
     assertThat(search("call[firstLine^='functionWith3Params']>args>arg")).hasSize(3)
     assertThat(getValue("call[firstLine^='functionWith3Params']", "args")).isEqualTo(3)
   }
@@ -78,8 +79,6 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
     assertThat(search("#Animal fun")).extracting("name").contains("speak")
 
-    tree.find("#Rectangle4").first().printTree()
-
     assertThat(getValue("#Rectangle4", "methods")).isEqualTo(3)
     assertThat(getValue("#Rectangle4", "constructors")).isEqualTo(1)
   }
@@ -87,7 +86,8 @@ abstract class LanguageSupportTests(val ext: String, path: String) : SoftAsserti
   @Test
   fun `can import`() {
     val res = tree.find("#withImports").first()
-    assertThat(res.find("file-imports>file[name='functions']").first()["name"]).isEqualTo("functions")
-    assertThat(res.find("file[{$-imports>file[name='functions']}]").first()["name"]).isEqualTo("withImports")
+
+    assertThat(tree.find("file-imports>file[name='functions']", res).first()["name"]).isEqualTo("functions")
+    assertThat(tree.find("file[{$-imports>file[name='functions']}]", res).first()["name"]).isEqualTo("withImports")
   }
 }

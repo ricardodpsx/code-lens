@@ -85,7 +85,7 @@ function DirectoryTree({codeTree, selectedFile}) {
             onSelect={handleSelect}
             selectedKeys={[selectedFile]}
             expandedKeys={expandedKeys}>
-           {expand(codeTree, codeTree.rootVid)}
+           {expand(codeTree, codeTree.rootDirVid)}
          </Tree>
        </Paper>
      </div>

@@ -58,6 +58,7 @@
 -[ ] Should be easy to add new graphs, idea have a table function like "fun | asTable('x', 'y')"
 -[ ] Charts should be more talkative
 -[ ] Search information
+-[ ] Fix  FileViewer
  
 -[ ] Bug with classes highlighting
 -[ ] Slots/Buckets for charts #charts

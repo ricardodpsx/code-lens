@@ -1,12 +1,12 @@
 package co.elpache.codelens.extensions.kotlin
 
-import co.elpache.codelens.codeSearch.search.ContextNode
-import co.elpache.codelens.codeSearch.search.firstNode
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.tree.CodeTree
+import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
 import kotlin.math.max
 
-fun applyKotlinMetrics(ctx: ContextNode) {
+fun applyKotlinMetrics(tree: CodeTree) {
   val filesByPackage = HashMap<String, ArrayList<Vid>>()
 
 //  ctx.find("file[lang='kotlin']>packageDirective").forEach {
@@ -17,57 +17,50 @@ fun applyKotlinMetrics(ctx: ContextNode) {
 //    )
 //  }
 
-  ctx.find("codeFile[lang='kotlin']").forEach { fileNode ->
-    fileNode.vertice["lines"] = fileNode.code.relevantCodeLines()
-    fileNode.vertice["textLines"] = fileNode.code.split("\n").size
-    fileNode.vertice["functions"] = fileNode.find("fun").size
-    fileNode.vertice["classes"] = fileNode.find("class").size
-    fileNode.vertice["bindings"] = fileNode.find("binding").size
+  tree.find("codeFile[lang='kotlin']").forEach { fileNode ->
+
+    fun Vertice.find(query: String) = tree.find(query, this)
+    fun Vertice.code() = tree.code(this.vid)
+
+    fileNode["lines"] = fileNode.code().relevantCodeLines()
+    fileNode["textLines"] = fileNode.code().split("\n").size
+    fileNode["functions"] = fileNode.find("fun").size
+    fileNode["classes"] = fileNode.find("class").size
+    fileNode["bindings"] = fileNode.find("binding").size
 
     with(fileNode) {
 
       find("import").forEach {
-        val parts = it.vertice.getString("name").split(".")
+        val parts = it.getString("name").split(".")
         val pack = parts.dropLast(1).joinToString(".")
         val name = parts.last()
 
-        val found = ctx.find("codeFile[{$>body>packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
+        val found = tree.find("codeFile[{$>body>packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
         if (found != null) {
           tree.addRelation("imports", fileNode.vid, found.vid)
         }
       }
 
-
-//      find("import").forEach {
-//        val parts = it.vertice.getString("name").split(".")
-//        val pack = parts.dropLast(1).joinToString(".")
-//        val name = parts.last()
-//        val found = ctx.find("file[{packageDirective[name^='$pack']} && {$>body>#$name}]").firstOrNull()
-//        if(found != null) {
-//          tree.addRelation("imports", fileNode.vid, found.vid)
-//        }
-//      }
-
       find("call").forEach {
-        it.vertice["args"] = it.find("$>args>arg").size
+        it["args"] = it.find("$>args>arg").size
       }
 
       find("fun").forEach {
-        it.vertice["textLines"] = it.code.split("\n").size
-        it.vertice["lines"] = it.code.relevantCodeLines() - 1
-        it.vertice["depth"] = depth(it.tree, it["vid"].toString()) - 1
-        it.vertice[":params"] = "$>params>param"
-        it.vertice["params"] = it.find("$>params>param").size
+        it["textLines"] = it.code().split("\n").size
+        it["lines"] = it.code().relevantCodeLines() - 1
+        it["depth"] = depth(tree, it.vid) - 1
+        it["params"] = it.find("$>params>param").size
       }
 
-      find("class").forEach {
-        it.vertice["lines"] = it.code.relevantCodeLines()
+      find("class").forEach { c ->
+        c["lines"] = c.code().relevantCodeLines()
 
-        val body = it.find("$>ClassBody").firstNode()
-        it.vertice["constructors"] = body.find("$>fun[astType*='Constructor']").size
-        it.vertice["methods"] = body.find("$>fun").size
-        it.vertice["properties"] = body.find("$>binding").size
-        it.vertice["lines"] = it.code.relevantCodeLines()
+        c.find("$>ClassBody").firstOrNull()?.let {
+          c["constructors"] = it.find("$>fun[astType*='Constructor']").size
+          c["methods"] = it.find("$>fun").size
+          c["properties"] = it.find("$>binding").size
+          c["lines"] = it.code().relevantCodeLines()
+        }
       }
     }
   }

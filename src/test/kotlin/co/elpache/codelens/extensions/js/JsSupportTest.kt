@@ -7,7 +7,7 @@ class JsSupportTest : LanguageSupportTests("js", "../code-examples/js/fixtures/"
   @Test
   fun `can print js tree`() {
     tree.find("#functions").forEach {
-      it.printTree()
+      tree.print(it.vid)
     }
   }
 }

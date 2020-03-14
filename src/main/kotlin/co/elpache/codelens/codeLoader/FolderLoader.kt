@@ -6,6 +6,7 @@ import co.elpache.codelens.tree.verticeOf
 import mu.KotlinLogging
 import java.io.File
 import java.util.LinkedList
+
 //Todo: The git pattern may cause a bug
 val ignorePatterns = listOf("(.*node_modules.*|.*\\.git)")
 
@@ -42,6 +43,7 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
     data class Child(val node: File, val parent: Vertice?)
 
     val queue = LinkedList<Child>()
+
     queue.addLast(Child(dir, null))
 
     while (queue.isNotEmpty()) {
@@ -50,8 +52,12 @@ open class FolderLoader(val dir: File, val basePath: File = dir) : NodeLoader() 
         if (cur.isDirectory) {
           val node = codeTree.addVertice(
             verticeOf(
-              cur.path,
-              "fileName" to cur.name, "type" to "file dir", "name" to cur.name
+              fileId(cur.path),
+              "path" to cur.path,
+              "fileName" to cur.name,
+              "type" to "file dir",
+              "name" to cur.name,
+              "isRoot" to if (cur == basePath) true else null
             )
           )
 

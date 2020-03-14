@@ -1,8 +1,8 @@
 package co.elpache.codelens.useCases
 
 import co.elpache.codelens.Factory
-import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.find
+import co.elpache.codelens.codeSearch.search.findValue
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
@@ -27,21 +27,15 @@ data class ParamFrequencyRow(val paramValue: Double, val frequency: Int, val nod
 data class AnalyticsResults(val rows: List<ParamFrequencyRow>)
 
 class CodeExplorerUseCases(factory: Factory = Factory()) {
-
-
   val codeTree by lazy { factory.createBaseCode() }
 
   fun find(query: String) = codeTree.find(query)
 
   fun selectCodeWithParents(query: Vid): SearchResults {
-    //Todo: Refactor, make it handle parse exception specifically
     return try {
-      val res = find(query).map { it.vertice }
-      SearchResults(
-        codeTree.treeFromChildren(res),
-        res
-      )
+      codeTree.findValue(query)
     } catch (e: Exception) {
+      e.printStackTrace()
       SearchResults()
     }
   }
@@ -62,18 +56,18 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
     AnalyticsResults(
       frequency(
         find(query).filter { it[param] != null }
-          .map { it.vertice to it.vertice.getDouble(param) })
+          .map { it to it.getDouble(param) })
     )
 
 
   fun getMetricStatistics(query: String, param: String): DescriptiveStatistics {
     return statistics(find(query).filter { it[param] != null }
-      .map { it.vertice.vid to it.vertice.getDouble(param) })
+      .map { it.vid to it.getDouble(param) })
   }
 
   fun loadNodeContents(vid: String) =
     NodeContentsResults(
-      ContextNode(vid, codeTree).code,
+      codeTree.code(vid),
       codeTree.subTree(vid)
     )
 
@@ -92,9 +86,6 @@ class CodeExplorerUseCases(factory: Factory = Factory()) {
 
   fun search(query: String): List<Vertice> {
     return codeTree.find(query)
-      .map {
-        it.vertice
-      }
   }
 
 }

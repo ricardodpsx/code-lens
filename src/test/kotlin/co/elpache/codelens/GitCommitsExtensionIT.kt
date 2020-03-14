@@ -40,7 +40,7 @@ class GitCommitsExtensionIT {
       "f13056f78491cab196849f1965fec95264bb1d13"
     )
 
-    assertThat(code.find("#changing-commits>commit").map { it.vertice["id"] }).containsAll(commits.map { it.id })
+    assertThat(code.find("commit").map { it["id"] }).containsAll(commits.map { it.id })
   }
 
 

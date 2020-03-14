@@ -1,7 +1,7 @@
 package co.elpache.codelens.extensions.js
 
 import co.elpache.codelens.codeLoader.fileId
-import co.elpache.codelens.codeSearch.search.ContextNode
+import co.elpache.codelens.codeSearch.search.find
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.Vertice
 import co.elpache.codelens.tree.Vid
@@ -9,29 +9,33 @@ import java.io.File
 import kotlin.math.max
 
 
-fun applyJsMetrics(code: ContextNode) {
+fun applyJsMetrics(tree: CodeTree) {
 
   //Todo: Somethings can be moved to nodePosprocess
-  code.find("codeFile[lang='js']").forEach { fileNode ->
+  tree.find("codeFile[lang='js']").forEach { fileNode ->
+    //Todo Can we use a FoundVertice abstraction?
+    fun Vertice.find(query: String) = tree.find(query, this)
+
+    fun Vertice.code() = tree.code(this.vid)
 
     with(fileNode) {
 
       find("params>*").forEach {
-        it.vertice.addType("param")
+        it.addType("param")
       }
 
       find("args>*").forEach {
-        it.vertice.addType("arg")
+        it.addType("arg")
       }
 
       find("Identifier").forEach {
-        it.parent?.set("name", it.vertice.getString("name"))
+        tree.parentNode(it.vid)?.set("name", it.getString("name"))
       }
 
       find("fun").forEach {
-        it["textLines"] = it.code.split("\n").size
-        it["lines"] = it.code.relevantCodeLines() - 1
-        it["depth"] = depth(it.tree, it["vid"].toString()) - 1
+        it["textLines"] = tree.code(it.vid).split("\n").size
+        it["lines"] = tree.code(it.vid).relevantCodeLines() - 1
+        it["depth"] = depth(tree, it.vid) - 1
       }
 
       find("call[{$>args>arg | count()} as args]")
@@ -41,12 +45,12 @@ fun applyJsMetrics(code: ContextNode) {
       find("class[{$ fun[kind='method' || kind='get' || kind='constructor'] | count()} as methods]")
 
       find("class").forEach {
-        it["lines"] = it.code.relevantCodeLines()
+        it["lines"] = tree.code(it.vid).relevantCodeLines()
       }
 
-      find("import>string").map { it.vertice }.forEach { f ->
+      find("import>string").forEach { f ->
         val relPath = File(f.getString("value"))
-        val fPath = File(tree.rootVid + "/" + fileNode.vertice.getString("path")).parentFile
+        val fPath = File(tree.rootDir().getString("path") + "/" + fileNode.getString("path")).parentFile
 
         val possiblePath = fileId(fPath.resolve("$relPath.js").normalize().toString())
 
@@ -55,8 +59,8 @@ fun applyJsMetrics(code: ContextNode) {
       }
     }
 
-    fileNode["lines"] = fileNode.code.relevantCodeLines()
-    fileNode["textLines"] = fileNode.code.split("\n").size
+    fileNode["lines"] = fileNode.code().relevantCodeLines()
+    fileNode["textLines"] = fileNode.code().split("\n").size
     fileNode["functions"] = fileNode.find("$>body>fun").size
     fileNode["classes"] = fileNode.find("$>body>class").size
     fileNode["bindings"] = fileNode.find("$>body>binding").size

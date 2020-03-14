@@ -1,6 +1,5 @@
 package co.elpache.codelens.tree
 
-import java.util.TreeSet
 
 typealias Vid = String
 
@@ -14,6 +13,14 @@ fun Map<String, Any>.toVData(): Vertice {
   return vData
 }
 
+fun Collection<Vertice>.vids() = map { it.vid }
+
+fun Collection<Vertice>.paramsValues(key: String, param: String): List<Pair<Vid, Double>> {
+  return filter { it.contains(param) }
+    .map { Pair(it[key].toString(), it.getDouble(param)) }
+}
+
+
 fun verticeOf(vid: String, vararg pair: Pair<String, Any?>): Vertice {
   val vData = Vertice()
   vData["vid"] = vid
@@ -24,9 +31,14 @@ fun verticeOf(vid: String, vararg pair: Pair<String, Any?>): Vertice {
   return vData
 }
 
-class Vertice(val data: HashMap<String, Any> = HashMap(), val relations: TreeSet<Edge> = TreeSet()) {
+fun Map<String, Any>.getString(key: String) = (this[key] as? String) ?: ""
+fun Map<String, Any>.getInt(key: String) = (this[key]?.toString()?.toIntOrNull()) ?: 0
+fun Map<String, Any>.getDouble(key: String): Double = (this[key]?.toString()?.toDoubleOrNull()) ?: 0.0
+
+class Vertice(val data: HashMap<String, Any> = HashMap()) {
 
   fun clone(): Vertice {
+    //Todo: Avoid returning reference
     return Vertice(data)
   }
 
@@ -97,9 +109,14 @@ data class Edge(
   val name: String,
   val to: Vid,
   val toName: String?,
-  val toType: String
+  val toType: String,
+  val data: HashMap<String, Any> = HashMap()
 ) : Comparable<Edge> {
   override fun compareTo(other: Edge): Int =
     "$name-$to".compareTo(other = "${other.name}-${other.to}")
+
+  fun clone(): Edge {
+    return Edge(name, to, toName, toType, HashMap(data))
+  }
 }
 

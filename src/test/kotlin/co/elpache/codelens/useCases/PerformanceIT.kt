@@ -25,17 +25,16 @@ class PerformanceIT {
   fun `Common query times`() {
     var factory = Factory(path = "tmp", currentCodePath = "../code-examples/", context = applicationContext)
 
-    measureTime {
-      val uc = CodeExplorerUseCases(factory)
-      uc.codeTree
-    }
+    var uc = CodeExplorerUseCases(factory)
+    checkTime(7) { uc.codeTree }
+
+    checkTime(1) { uc.find("fun[{try}]") }
   }
 
-  fun measureTime(cb: () -> Unit) {
-    val time = measureTimeMillis {
-      cb()
-    }
+  fun checkTime(maxSeconds: Int, cb: () -> Unit) {
+    val time = measureTimeMillis { cb() }
     assertThat(time / 1000).isLessThan(7)
+    System.out.println("Time $time")
   }
 
 

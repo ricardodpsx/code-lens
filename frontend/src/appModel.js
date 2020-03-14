@@ -17,8 +17,6 @@ export let appModelDef = {
     selectTab: r((data) => ({activeTab: data})),
     $when: {
       query: {
-        //updateResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab),
-        //filterResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
         filterResults: (_, {tabs: {selectTab}}) => selectTab(tabItems.SearchResultsTab)
       }
     }
@@ -59,7 +57,8 @@ export let appModelDef = {
       },
       effects: [
         (fileVid, {selectedFile: {setFileContents}}) => loadFile(fileVid).then(setFileContents),
-        (fileVid, {tabs: {selectTab}}) => selectTab(tabItems.SelectedFile)
+        (fileVid, {tabs: {selectTab}}) =>
+           selectTab(tabItems.SelectedFile)
       ]
     }
   },

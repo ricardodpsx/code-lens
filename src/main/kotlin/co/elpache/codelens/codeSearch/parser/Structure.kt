@@ -5,6 +5,9 @@ import co.elpache.codelens.codeSearch.search.ContextNode
 import co.elpache.codelens.codeSearch.search.PathFinder
 import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.RESERVED_PARAMS
+import co.elpache.codelens.tree.Vertice
+import co.elpache.codelens.tree.vids
+import co.elpache.codelens.useCases.SearchResults
 import mu.KotlinLogging
 
 data class ParamSet(val paramName: String, val query: Query)
@@ -13,7 +16,6 @@ enum class RelationType {
   DIRECT_RELATION,
   FOLLOW_RELATION
 }
-
 
 private val logger = KotlinLogging.logger {}
 
@@ -53,19 +55,45 @@ data class SelectorFunction(
     }
 
 }
+
+
+
+typealias AggregationFunction = (CodeTree, List<Vertice>, List<Any?>) -> Any?
+
 //Query ast
 data class Query(
   val selectors: List<TypeSelector>,
   val aggregator: SelectorFunction? = null
 ) : Expression {
-  fun evaluate(tree: CodeTree): Any? {
-    val res = PathFinder(tree).find(this)
-    return if (aggregator != null) res.size else res
+  companion object {
+    val aggregatorRegistry: HashMap<String, AggregationFunction> = HashMap()
+
+    init {
+      aggregatorRegistry["count"] = { _, results, params -> results.size }
+      aggregatorRegistry["collapsing"] = { tree, results, params ->
+        val collapsed = tree.treeFromChildren(results.vids())
+        val vid = params.first().toString()
+        collapsed.addTransitiveRelationships(vid)
+        collapsed.collapse(vid)
+        SearchResults(collapsed, results)
+      }
+    }
   }
 
-  override fun evaluate(context: ContextNode): Any? {
+  private fun callAggregator(aggregator: SelectorFunction, tree: CodeTree, res: List<Vertice>): Any? {
+    if (!aggregatorRegistry.containsKey(aggregator.name)) error("Aggregator function '${aggregator.name}' not found")
+    return aggregatorRegistry[aggregator.name]!!(tree, res, aggregator.params.map {
+      it.evaluate(ContextNode(tree.rootDirVid(), tree))
+    })
+  }
+
+  override fun
+      evaluate(context: ContextNode): Any? {
     val res = PathFinder(context.tree, context.vid).find(this)
-    return if (aggregator != null) res.size else res
+    return if (aggregator != null)
+      callAggregator(aggregator, context.tree, res)
+    else
+      res
   }
 }
 
@@ -157,7 +185,7 @@ data class TypeSelector(
   fun isPseudoElement() = name.startsWith(":")
 
   override fun evaluate(context: ContextNode): Boolean {
-    val values = context[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
+    val values = context.vertice[attributeToMatch].toString().split(" ").map { it.trim().toLowerCase() }
 
     if (name != "*" && values.none { it == name.toLowerCase() })
       return false
@@ -177,12 +205,12 @@ data class AttributeSelector(
 
 data class AliasExpression(val name: String, val expr: Expression) : Expression {
   override fun evaluate(context: ContextNode): Any? {
-    if (context.containsKey(name))
+    if (context.vertice.containsKey(name))
       logger.warn { "Trying to set the alias alias $name for an existing element " }
 
     return expr.evaluate(context)?.let {
       if (RESERVED_PARAMS.contains(name)) logger.warn { "Can not override $name" }
-      else context[name] = it
+      else context.vertice[name] = it
       it
     }
   }

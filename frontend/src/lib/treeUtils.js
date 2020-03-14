@@ -16,16 +16,20 @@ export function vdata(graph = {}, v) {
 }
 
 export function root(graph) {
-  return graph.vertices[graph.rootVid]
+  return graph.vertices[graph.rootDirVid]
 }
 
 export function allVertices({vertices = {}}) {
   return Object.keys(vertices).map(k => vertices[k])
 }
 
-export function adj(v, name) {
-  if (!v) return []
-  return v.relations.filter(it => it.name === name).map(it => it.to)
+export function edgesOf(tree, vid) {
+  return tree.edges[vid] || []
+}
+
+export function adj(tree, vid, name) {
+  if (!vid) return []
+  return edgesOf(tree, vid).filter(it => it.name === name).map(it => it.to)
 }
 
 export function primaryType(v) {
@@ -38,14 +42,12 @@ export function isOfType(v, type) {
 }
 
 export function children(g, vid) {
-  let v = vertice(g, vid)
-  if (!v) return []
-  return v.relations.filter(it => it.name === "children").map(it => it.to)
+  return adj(g, vid, "children")
 }
 
 export function parent(g, v) {
-  if (!vertice(g, v)) return null
-  return vertice(g, v).relations.filter(it => it.name === "parent").map(it => it.to)[0]
+  let res = adj(g, v, "parent")
+  return (res && res[0]) || null
 }
 
 export function fileAncestor(graph, vid) {
@@ -65,10 +67,10 @@ export function slice(text, graph) {
 
   allVertices(graph).forEach(v => {
     if (v.start === undefined) {
-      let children = children(graph, v.vid)
-      children.sort((a, b) => a.start - b.start)
-      v.start = children[0].start
-      v.end = last(children).end
+      let c = children(graph, v.vid).map(it => vertice(graph, it))
+      c.sort((a, b) => a.start - b.start)
+      v.start = c[0].start
+      v.end = last(c).end
     }
 
     if (v.start <= v.end)
@@ -110,7 +112,7 @@ export function slice(text, graph) {
 }
 
 
-export function slice2(text, graph, v = graph.rootVid) {
+export function slice2(text, graph, v = graph.rootDirVid) {
   console.info("Slicing 2")
   let last = 0
   let res = []

@@ -20,7 +20,7 @@ class FolderLoaderTest {
     assertThat(tree.vertices.map { it.value.toMap() }).extracting("name")
       .contains("fixtures", "api-server", "frontend", "language")
 
-    assertThat(tree.find("#frontend #src dir").map { it.vertice.toMap() }).extracting("name")
+    assertThat(tree.find("#frontend #src dir").map { it.toMap() }).extracting("name")
       .contains("api", "components", "reducer")
 
   }
@@ -31,7 +31,7 @@ class FolderLoaderTest {
     assertThat(tree.vertices.map { it.value.toMap() }).extracting("fileName")
       .contains("index.js", "registerServiceWorker.js")
 
-    assertThat(tree.find("#frontend #src #api file").map { it.vertice.toMap() }).extracting("name")
+    assertThat(tree.find("#frontend #src #api file").map { it.toMap() }).extracting("name")
       .contains("rest", "postsApi")
   }
 }

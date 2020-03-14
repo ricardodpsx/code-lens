@@ -52,7 +52,7 @@ fun selectCode(
   tree: CodeTree,
   cssSelector: String
 ): List<Map<String, Any>> {
-  return tree.find(cssSelector).map { it.vertice.toMap() }
+  return tree.find(cssSelector).map { it.toMap() }
 }
 
 fun createCommit(commit: String) = Commit(commit, "", 0)

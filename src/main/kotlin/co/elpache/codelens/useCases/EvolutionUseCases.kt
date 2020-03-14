@@ -3,7 +3,7 @@ package co.elpache.codelens.useCases
 import co.elpache.codelens.Commit
 import co.elpache.codelens.Factory
 import co.elpache.codelens.codeSearch.search.find
-import co.elpache.codelens.codeSearch.search.paramsValues
+import co.elpache.codelens.tree.paramsValues
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import mu.KotlinLogging

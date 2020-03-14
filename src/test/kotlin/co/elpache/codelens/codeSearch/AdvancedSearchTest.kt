@@ -1,11 +1,12 @@
 package co.elpache.codelens.codeSearch
 
 import co.elpache.codelens.codeSearch.search.find
-import co.elpache.codelens.codeSearch.search.vids
+import co.elpache.codelens.codeSearch.search.findValue
 import co.elpache.codelens.codeTree
 import co.elpache.codelens.tree.verticeOf
+import co.elpache.codelens.tree.vids
+import co.elpache.codelens.useCases.SearchResults
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Ignore
 import org.junit.Test
 
 class AdvancedSearchTest {
@@ -34,13 +35,14 @@ class AdvancedSearchTest {
   }
 
   @Test
-  @Ignore
   fun `Test collapsing`() {
-    tree.addRelation("imports", "1.1", "2.1")
-    tree.addRelation("imports", "1.1", "2.2")
-    tree.addRelation("imports", "1.2", "2.2")
+    tree.addRelation("imports", "1.2", "2.1")
+    tree.addRelation("imports", "1.3", "2.2")
 
-    tree.find("file|collapsing()")
+    val (tree, res) = tree.findValue("file|collapsing('1.1')") as SearchResults
+
+    assertThat(tree!!.adj("1.1", "imports"))
+      .containsExactly("2.1", "2.2")
   }
 
 }

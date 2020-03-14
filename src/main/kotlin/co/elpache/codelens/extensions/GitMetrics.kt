@@ -4,7 +4,8 @@ import co.elpache.codelens.Commit
 import co.elpache.codelens.GitRepository
 import co.elpache.codelens.codeLoader.LanguageIntegration
 import co.elpache.codelens.codeSearch.parser.SelectorFunction
-import co.elpache.codelens.codeSearch.search.ContextNode
+import co.elpache.codelens.codeSearch.search.find
+import co.elpache.codelens.tree.CodeTree
 import co.elpache.codelens.tree.verticeOf
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,13 +28,13 @@ val gitIntegrations = LanguageIntegration(
   filePattern = ".*"
 )
 
-fun applyGitMetrics(ctx: ContextNode) {
+fun applyGitMetrics(ctx: CodeTree) {
   //Todo: Need factory configurations
-  ctx.find("*[path]").forEach { f ->
-    val commits = repo.logOf(f.vertice.getString("path"))
-    f.vertice["commits"] = commits.size
+  ctx.find("file").forEach { f ->
+    val commits = repo.logOf(f.getString("path"))
+    f["commits"] = commits.size
     commits.forEach { c ->
-      f.tree.addVertice(
+      ctx.addVertice(
         verticeOf(
           c.id,
           "type" to "commit",
@@ -44,8 +45,9 @@ fun applyGitMetrics(ctx: ContextNode) {
         )
 
       )
-      ctx.tree.addRelation("files", c.id, f.vid)
-      ctx.tree.addRelation("commits", f.vid, c.id)
+      ctx.addChild(ctx.rootDirVid(), c.id)
+      ctx.addRelation("files", c.id, f.vid)
+      ctx.addRelation("commits", f.vid, c.id)
     }
   }
 

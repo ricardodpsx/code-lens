@@ -3,28 +3,35 @@ package co.elpache.codelens.tree
 import org.jetbrains.kotlin.backend.common.pop
 import java.util.LinkedList
 import java.util.TreeMap
+import java.util.TreeSet
 
 open class CodeTree {
 
   val vertices: TreeMap<Vid, Vertice> = TreeMap()
 
-  var rootVid: Vid? = null
+  val edges: HashMap<Vid, MutableSet<Edge>> = HashMap()
 
-  fun rootVid() = rootVid ?: error("RootNode not Set, Did you forgot to add a root node?")
+  var rootDirVid: Vid? = null
 
-  fun addVertice(data: Vertice): Vertice {
-    if (rootVid == null) rootVid = data.vid
-    if (contains(data.vid)) return data
-    vertices[data.vid] = data.clone()
-    return data
+  fun rootDirVid() = rootDirVid ?: error("RootNode not Set, Did you forgot to add a root node?")
+
+  var byTypeCache = HashMap<Vid, MutableList<Vid>>()
+
+  fun addVertice(v: Vertice): Vertice {
+    if (rootDirVid == null) rootDirVid = v.vid
+
+    if (contains(v.vid)) return v
+    vertices[v.vid] = v.clone()
+    return v
   }
 
   fun children(vid: Vid) = adj(vid, "children")
 
-  fun addChild(from: Vid, to: Vid): CodeTree {
-    addRelation("children", from, to)
-    addRelation("parent", to, from)
-    return this
+  fun addChild(from: Vid, to: Vid) {
+    if (parent(to) == null) {
+      addRelation("children", from, to)
+      addRelation("parent", to, from)
+    }
   }
 
   fun addChild(from: Vid, node: Vertice): CodeTree {
@@ -35,7 +42,7 @@ open class CodeTree {
     return this
   }
 
-  fun descendants(vid: Vid, descendantList: ArrayList<Vid> = arrayListOf()): List<Vid> {
+  fun descendants(vid: Vid, descendantList: MutableSet<Vid> = mutableSetOf()): Set<Vid> {
     for (cVid in children(vid)) {
       descendantList.add(cVid)
       descendants(cVid, descendantList)
@@ -45,12 +52,13 @@ open class CodeTree {
 
   fun subTree(vid: Vid): CodeTree {
     val ct = CodeTree()
-    ct.rootVid = vid
+    ct.rootDirVid = vid
     val items = ArrayList<Vid>()
     items.add(vid)
     while (items.isNotEmpty()) {
       val p = items.pop()
       ct.vertices[p] = vertices[p]!!
+      ct.edges[p] = edges[p]!!
       children(p).forEach {
         items.add(it)
       }
@@ -58,12 +66,15 @@ open class CodeTree {
     return ct
   }
 
+  fun print(from: Vid = rootDirVid()) {
+    println(subTree(from).asString())
+  }
 
   fun asString(): String {
     val out = StringBuilder()
-    val root = v(rootVid()).plus("code" to "<Excluded>").minus("vid")
+    val root = v(rootDirVid()).plus("code" to "<Excluded>").minus("vid")
     out.append("${root}\n")
-    dfs(rootVid(), "-", out)
+    dfs(rootDirVid(), "-", out)
     return out.toString()
   }
 
@@ -86,19 +97,27 @@ open class CodeTree {
     return list.toList()
   }
 
+  fun treeFromChildren(vids: List<Vid>): CodeTree {
+    if (vids.isEmpty()) return CodeTree()
 
-  //Todo: This methods is not correct anymore
-  fun treeFromChildren(children: List<Vertice>): CodeTree? {
-    if (children.isEmpty()) return null
     var resTree = CodeTree()
-    children.forEach { v ->
-      ancestors(v.vid).reversed()
+    //add tree
+    vids.forEach { v ->
+      ancestors(v).reversed()
         .windowed(2, partialWindows = true).forEach {
           resTree.addVertice(v(it[0]))
           if (it.size == 2) resTree = resTree.addChild(it[0], v(it[1]))
         }
     }
-    resTree.rootVid = rootVid
+    //Add rest of the relationships
+    resTree.vertices.keys.forEach { vid ->
+      edgesOf(vid).filter { it.name != "parent" && it.name != "children" }.forEach { e ->
+        if (resTree.vertices.containsKey(e.to)) {
+          resTree.addRelation(e.name, vid, e.to)
+        }
+      }
+    }
+    resTree.rootDirVid = rootDirVid
     return resTree
   }
 
@@ -114,8 +133,9 @@ open class CodeTree {
 
   fun addSubTree(subTree: CodeTree, to: Vid): CodeTree {
     val expectedSize = subTree.vertices.size + vertices.size
-    vertices.putAll(subTree.vertices)
-    addChild(to, subTree.rootVid())
+    vertices.putAll(subTree.vertices.toList())
+    edges.putAll(subTree.edges.toList())
+    addChild(to, subTree.rootDirVid())
 
     if (vertices.size != expectedSize)
       throw Error("The trees should be disjoint")
@@ -125,20 +145,30 @@ open class CodeTree {
 
   fun addRelation(name: String, from: Vid, to: Vid) {
     if (adj(from, name).contains(to)) return
-    vertices[from]!!.relations.add(Edge(name, to, v(to).getString("name"), v(to).getString("type")))
+    if (name == "parent" && parent(from) != null) error("Only one parent accepted")
+    edges.computeIfAbsent(from) { TreeSet() }
+    edges[from]?.add(Edge(name, to, v(to).getString("name"), v(to).getString("type")))
   }
 
-  fun adj(vid: String): List<Vid> =
-    vertices[vid]!!.relations.map { it.to }
+  fun adj(vid: String): List<Vid> = edges[vid]?.map { it.to } ?: emptyList()
 
   fun adj(vid: String, relName: String): List<Vid> =
-    vertices[vid]!!.relations.filter { it.name == relName }.map { it.to }
+    edges.getOrDefault(vid, emptyList<Edge>()).filter { it.name == relName }.map { it.to }
 
+  fun code(vid: Vid): String {
+    return if (v(vid).isA("file"))
+      v(vid).getString("code")
+    else {
+      val fileNode = ancestors(vid).find { v(it).isA("file") } as Vid
+      val contents = v(fileNode).getString("code")
+      contents.substring(v(vid).start, v(vid).end)
+    }
+  }
 
   fun inorder(): List<Vid> {
     val out = mutableListOf<Vertice>()
-    out.add(v(rootVid!!))
-    dfs(rootVid!!, out)
+    out.add(v(rootDirVid!!))
+    dfs(rootDirVid!!, out)
     return out.map { it["value"] as String }
   }
 
@@ -152,7 +182,71 @@ open class CodeTree {
   fun join(child: CodeTree) {
     assert(vertices.keys.intersect(child.vertices.keys.minus("rootVid")).isEmpty()) { "Trees should be disjoint" }
     vertices.putAll(child.vertices)
-    addChild(rootVid!!, child.rootVid!!)
+    edges.putAll(child.edges)
+    addChild(rootDirVid!!, child.rootDirVid!!)
+  }
+
+  fun rootDir(): Vertice = v(rootDirVid())
+
+  private fun edgesOf(v: Vid) = edges[v] ?: emptySet<Edge>()
+
+  fun edgeOf(from: Vid, to: String, relName: String) =
+    edges[from]?.firstOrNull { it.to == to && it.name == relName }
+
+  private data class Backref(val from: String, val to: String, val name: String)
+
+  private fun backReferences() = edges.flatMap { e ->
+    e.value.filter { it.name != "parent" && it.name != "children" }
+      .map { Backref(e.key, it.to, it.name) }
+  }.groupBy { it.to }
+
+  fun addTransitiveRelationships(vid: Vid) {
+    val backRefs = backReferences()
+
+    descendants(vid).forEach { d ->
+      edgesOf(d)
+        .filter { it.name != "parent" && it.name != "children" }
+        .forEach { de ->
+          addRelation(de.name, vid, de.to)
+          edgeOf(vid, de.to, de.name)?.let {
+            it.data["${it.name}Count"] = it.data.getInt("${it.name}Count") + 1
+          }
+        }
+
+      backRefs[d]?.forEach {
+        addRelation(it.name, it.from, vid)
+      }
+    }
+  }
+
+  fun collapse(vid: Vid) {
+    val descendants = descendants(vid)
+    val prevEdges = edges.toList()
+    descendants.forEach { d ->
+      edges.remove(d)
+      vertices.remove(d)
+    }
+    prevEdges.forEach { e ->
+      edges[e.first]?.removeIf { descendants.contains(it.to) }
+    }
+  }
+
+  fun relationData(from: Vid, to: Vid, relName: String): Map<String, Any> {
+    return edges[from]
+      ?.firstOrNull { it.to == to && it.name == relName }
+      ?.data ?: mapOf()
+  }
+
+  fun clone(): CodeTree {
+    val newTree = CodeTree()
+    edges.forEach {
+      newTree.edges[it.key] = it.value.map { it.clone() }.toMutableSet()
+    }
+    vertices.forEach {
+      newTree.vertices[it.key] = it.value.clone()
+    }
+    newTree.rootDirVid = rootDirVid
+    return newTree
   }
 
 }

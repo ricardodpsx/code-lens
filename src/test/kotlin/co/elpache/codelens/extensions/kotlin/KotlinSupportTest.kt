@@ -41,7 +41,7 @@ class KotlinSupportTest {
 
   @Test
   fun `Can select Functions by line`() {
-    val list = codeBase.find("fun[lines=4]").map { it.vertice.toMap() }
+    val list = codeBase.find("fun[lines=4]").map { it.toMap() }
     assertThat(list).extracting("name").contains("methodWithFourLines")
   }
 
