@@ -216,6 +216,8 @@ class CodeTreeTest {
 
     assertThat(tree.relationData("b", "c", "rel")["relCount"]).isEqualTo(2)
     assertThat(tree.adj("e", "backwards")).contains("b")
+
+    tree.print()
   }
 
 

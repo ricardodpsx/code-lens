@@ -1,45 +1,12 @@
 import {applyMiddleware, compose, createStore} from "redux";
-import {get, isArray, isFunction, isPlainObject, isUndefined, merge, set} from "lodash"
+import {get, isArray, isFunction, isPlainObject, isUndefined, merge, set, last} from "lodash"
 import React from "react";
 
 let toList = obj => isArray(obj) ? obj : (!obj) ? [] : [obj]
 
-function allActions(appModelDef, context) {
-  return Object.entries(appModelDef)
-     .reduce((acc, [k, v]) => ({...acc, [k]: allModelActions(appModelDef, context, k)}), {})
-}
-
-function allModelActions(appModelDef, context, modelName) {
-  return Object.entries(appModelDef[modelName])
-     .filter(([k]) => !k.startsWith("$"))
-     .reduce((acc, [k, v]) => ({
-       ...acc, [k]:
-          data => context.store.dispatch({type: modelName + k, data, modelName, interactionName: k})
-     }), {})
-}
-
-function allStates(appModelDef, context) {
-  return Object.entries(appModelDef)
-     .reduce((acc, [k, v]) => ({...acc, [k]: context.store.getState()[k]}), {})
-}
-
-function getChangeValueString(lazyLoadProp, context) {
-  return lazyLoadProp.onChangeOf.reduce((acc, path) => JSON.stringify(get(context.store.getState(), path)) + acc, "")
-}
-
-function createEffectsMiddleware(appModelDef, context, modelProxy, store, next, action) {
+function createEffectsMiddleware(appModelDef, actionsProxy, store, next, action) {
 
   let {modelName, interactionName, data} = action
-
-  if (interactionName === "$init") {
-    let res = next(action)
-    let lazyLoadProp = appModelDef[modelName].$init
-    if (context.lazyPrevValues[modelName] !== getChangeValueString(lazyLoadProp, context)) {
-      lazyLoadProp.effect(merge({}, allStates(appModelDef, context), allActions(appModelDef, context, modelName)))
-      context.lazyPrevValues[modelName] = getChangeValueString(lazyLoadProp, context)
-    }
-    return res
-  }
 
   let result = next(action)
 
@@ -48,34 +15,32 @@ function createEffectsMiddleware(appModelDef, context, modelProxy, store, next, 
   Object.entries(appModelDef).forEach(([dstModelName, dstModel]) => {
     let whenEffects = toList(get(dstModel, ["$when", modelName, interactionName], []))
 
-    whenEffects.forEach(fn => fn(data, modelProxy, store.getState()))
+    whenEffects.forEach(fn => fn(data, actionsProxy, getState(appModelDef, store)))
   })
 
-  effects.forEach(fn => fn(data, modelProxy))
+  effects.forEach(fn => fn(data, actionsProxy))
 
   return result
 }
 
-function createActionProxy(appModelDef, context) {
+function createActionProxy(appModelDef, store) {
   const modelActions = new Proxy({}, {
     get: function (context, prop) {
       return actionProxy(prop)
     }
   });
 
-
   function actionProxy(modelName) {
     check(!!appModelDef[modelName], `model '${modelName}' is not declared`)
     return new Proxy({}, {
       get: function (_, prop) {
-        if (prop === "toString") return () => JSON.stringify(context.store.getState()[modelName])
+        if (prop === "toString") return () => JSON.stringify(getState(appModelDef, store)[modelName])
 
-
-        checkModel(context, appModelDef, modelName, prop)
+        //checkModel(store, appModelDef, modelName, prop)
         let isAction = !!appModelDef[modelName][prop]
-        let modelState = get(context.store.getState(), [modelName, prop], null)
+        let modelState = getState(appModelDef, store, modelName, prop)
         if (isAction)
-          return (data) => context.store.dispatch({type: modelName + prop, data, modelName, interactionName: prop})
+          return (data) => store.dispatch({type: modelName + prop, data, modelName, interactionName: prop})
         else
           return modelState
       }
@@ -86,8 +51,8 @@ function createActionProxy(appModelDef, context) {
 }
 
 
-function checkModel(context, appModelDef, modelName, prop) {
-  let modelState = context.store.getState()[modelName]
+function checkModel(store, appModelDef, modelName, prop) {
+  let modelState = store.getState()[modelName]
   let isAction = !!appModelDef[modelName][prop]
 
   check(modelState == null || isPlainObject(modelState), `Model values should be objects, ${modelName} is ${typeof modelState}`)
@@ -100,44 +65,62 @@ function check(assertion, message) {
     throw new Error(message)
 }
 
-export function createApp(appModelDef) {
-  let context = {lazyPrevValues: {}}; //late assingnment
-  let modelProxy = createActionProxy(appModelDef, context);
+
+function buildReducer(appModelDef) {
+
+  let initialState = {}
+  Object.entries(appModelDef)
+     .forEach(([k, v]) => {
+       check(v.$default == null || isPlainObject(v.$default), "Model values should be objects")
+       initialState[k] = v.$default
+     })
+
+  function rootReducer(state = initialState, {modelName, interactionName, data}) {
+    if (!modelName) return state
+    let subModelName = last(modelName.split("."))
+    let interaction = appModelDef[subModelName][interactionName]
+    let reducer = isFunction(interaction) ? interaction : interaction.reducer
+    if (!reducer) return state
+
+    let nextState = reducer(data, state[subModelName], state)
+
+    let prevState = state[subModelName]
+    let res = isPlainObject(nextState) ? {...prevState, ...nextState} : nextState
+
+    return {...state, [subModelName]: res}
+  }
+
+  return {rootReducer}
+}
+
+function getState(appModelDef, store, modelName, prop) {
+  if(!modelName) return store.getState()
+  return get(store.getState(), [modelName, prop], null)
+}
+
+export function createApp(...appModelDefs) {
+  let appModelDef = appModelDefs[0]
+
+  if(!appModelDef.$name)
+    appModelDef.$name = "model"
 
   const composeEnhancers =
      typeof window === 'object' &&
      window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
         window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose;
 
-  const effectMiddleware = store => next => action => createEffectsMiddleware(appModelDef, context, modelProxy, store, next, action)
+  let {rootReducer} = buildReducer(appModelDef);
 
-  const enhancer = composeEnhancers(applyMiddleware(effectMiddleware));
-
-  let intialState = {}
-  Object.entries(appModelDef)
-     .forEach(([k, v]) => {
-       check(v.$default == null || isPlainObject(v.$default), "Model values should be objects")
-       intialState[k] = v.$default
-     })
-
-  function rootReducer(state = intialState, {modelName, interactionName, data}) {
-    if (!modelName) return state
-
-    let interaction = appModelDef[modelName][interactionName]
-    let reducer = isFunction(interaction) ? interaction : interaction.reducer
-    if (!reducer) return state
-
-    let nextState = reducer(data, state[modelName], state)
-
-    let prevState = state[modelName]
-    let res = isPlainObject(nextState) ? {...prevState, ...nextState} : nextState
-
-    return {...state, [modelName]: res}
+  const effectMiddleware = store => {
+    let actionsProxy = createActionProxy(appModelDef, store);
+    return next => action => createEffectsMiddleware(appModelDef, actionsProxy, store, next, action)
   }
 
-  context.modelProxy = modelProxy
-  context.store = createStore(rootReducer, intialState, enhancer)
-  return {store: context.store, model: modelProxy}
+  const enhancer = composeEnhancers(applyMiddleware(effectMiddleware));
+  let store = createStore(rootReducer, enhancer)
+  let modelProxy = createActionProxy(appModelDef, store);
+
+  return {store, model: modelProxy}
 }
 
 export function r(reducer, ...effects) {

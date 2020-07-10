@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {loadSmells} from "../api";
+import {loadSmells} from "../../api";
 import Paper from "@material-ui/core/Paper/Paper";
 import List from "@material-ui/core/List/List";
 import ListItem from "@material-ui/core/ListItem/ListItem";
-import {useStyles} from "./layout/baseStyles";
+import {useStyles} from "../layout/baseStyles";
 import Divider from "@material-ui/core/Divider/Divider";
 import ErrorIcon from '@material-ui/icons/Error';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import {green, red} from '@material-ui/core/colors';
-import {setQuery} from "../appModel";
+import {setQuery} from "../../appModel";
 
 
 export default function SmellList() {

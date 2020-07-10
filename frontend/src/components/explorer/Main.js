@@ -5,19 +5,18 @@ import Typography from "@material-ui/core/Typography/Typography";
 import Box from "@material-ui/core/Box/Box";
 import {makeStyles} from "@material-ui/core";
 import {connect} from "react-redux";
-import SearchResults from "../SearchResults";
+import SearchResults from "./SearchResults";
 import DirectoryTree from "../fileViewer/DirectoryTree";
 import {selectTab} from "../../appModel";
-import QuerySearch from "../QuerySearch";
+import QuerySearch from "./QuerySearch";
 import Tabs from "@material-ui/core/Tabs/Tabs";
 import Tab from "@material-ui/core/Tab/Tab";
-import Metrics from "../charts/Metrics";
-import SmellList from "../SmellList";
+import Metrics from "./charts/Metrics";
+import SmellList from "./SmellList";
 import FileViewer from "../fileViewer/FileViewer";
 import CodeEntityData from "../CodeData";
-import History from "../charts/History";
-import EvolutionOfFrequency from "../charts/EvolutionOfFrequency";
-import DependencyGraph from "../DependencyGraph";
+import History from "./charts/History";
+import EvolutionOfFrequency from "./charts/EvolutionOfFrequency";
 
 const useStyles = makeStyles(theme => ({
   control: {
@@ -62,7 +61,6 @@ function CodeExplorer({activeTab, tabItems: TabItems, selectedFile}) {
          <Tabs value={activeTab} onChange={(event, newValue) => selectTab(newValue)}>
            <Tab label="Search results" value={TabItems.SearchResultsTab}/>
            <Tab label="Frequency" value={TabItems.FrequenciesTab}/>
-           <Tab label="Graph" value={TabItems.Graph}/>
            <Tab label="Evolution Metrics" value={TabItems.EvolutionOfMetric}/>
            <Tab label="Evolution of Frequency" value={TabItems.EvolutionOfFrequency}/>
            {selectedFile &&
@@ -78,11 +76,6 @@ function CodeExplorer({activeTab, tabItems: TabItems, selectedFile}) {
            </Paper>
          </TabPanel>
 
-         <TabPanel value={activeTab} index={TabItems.Graph}>
-           <Paper>
-             <DependencyGraph/>
-           </Paper>
-         </TabPanel>
 
          <TabPanel value={activeTab} index={TabItems.EvolutionOfMetric}>
            <Paper>

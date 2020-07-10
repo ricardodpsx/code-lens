@@ -72,9 +72,15 @@ data class Query(
       aggregatorRegistry["count"] = { _, results, params -> results.size }
       aggregatorRegistry["collapsing"] = { tree, results, params ->
         val collapsed = tree.treeFromChildren(results.vids())
-        val vid = params.first().toString()
-        collapsed.addTransitiveRelationships(vid)
-        collapsed.collapse(vid)
+        results.filter { it.isA("dir") }.forEach { p ->
+          val vid = p.vid
+          collapsed.addTransitiveRelationships(vid)
+        }
+
+        results.filter { it.isA("dir") }.forEach {
+          collapsed.collapse(it.vid)
+        }
+
         SearchResults(collapsed, results)
       }
     }

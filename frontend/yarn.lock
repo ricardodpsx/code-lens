@@ -10960,6 +10960,11 @@ vis-network@^5.1.1:
     vis-data "^6.1.1"
     vis-util "^1.1.6"
 
+vis-network@^7.4.0:
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/vis-network/-/vis-network-7.4.0.tgz#312298d7cd26d3146a2800317de5d6daae0b1f8c"
+  integrity sha512-4vJH4D8HTLGPePX4h+CcWUnrgZhfiI2VrkHETnPXegKZZE06O4UJrydxooJuo0gh/hakDNo/2FtOZls/ewi+5A==
+
 vis-util@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/vis-util/-/vis-util-3.0.0.tgz#9b0da1e86e9beb5fbea17f5af3a49263c48d7c87"

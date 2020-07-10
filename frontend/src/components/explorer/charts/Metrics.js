@@ -1,7 +1,7 @@
 import React from "react";
 import BarChart from "./BarChart";
 import {connect} from "react-redux";
-import {filterResults, selectMetric} from "../../appModel";
+import {filterResults, selectMetric} from "../../../appModel";
 import MetricNameSelect from "./MetricNameSelect";
 
 function Metrics({data, selectedMetric}) {

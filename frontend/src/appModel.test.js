@@ -113,7 +113,7 @@ describe("code explorer", () => {
       loadFrequencyHistory.mockResolvedValue(frequencyOfQueryData)
       loadHistory.mockResolvedValue(evolutionOfParamData)
 
-      evolution.$init()
+      evolution.loadFrequencyEvolution()
       console.info(evolution.toString())
       evolution.selectParam("a")
 

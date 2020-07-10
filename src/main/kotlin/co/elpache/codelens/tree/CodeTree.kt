@@ -196,7 +196,7 @@ open class CodeTree {
   private data class Backref(val from: String, val to: String, val name: String)
 
   private fun backReferences() = edges.flatMap { e ->
-    e.value.filter { it.name != "parent" && it.name != "children" }
+    e.value.filter { it.name == "imports" }
       .map { Backref(e.key, it.to, it.name) }
   }.groupBy { it.to }
 
@@ -205,7 +205,7 @@ open class CodeTree {
 
     descendants(vid).forEach { d ->
       edgesOf(d)
-        .filter { it.name != "parent" && it.name != "children" }
+        .filter { it.name == "imports" }
         .forEach { de ->
           addRelation(de.name, vid, de.to)
           edgeOf(vid, de.to, de.name)?.let {
@@ -220,7 +220,7 @@ open class CodeTree {
   }
 
   fun collapse(vid: Vid) {
-    val descendants = descendants(vid)
+    val descendants = descendants(vid).filterNot {  v(it).isA("dir") }
     val prevEdges = edges.toList()
     descendants.forEach { d ->
       edges.remove(d)

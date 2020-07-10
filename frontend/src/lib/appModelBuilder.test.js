@@ -76,34 +76,4 @@ describe("redux app model", () => {
     expect(contactForm.name).toEqual(firstContact.name)
     expect(contactForm.phone).toEqual(firstContact.phone)
   })
-
-  it("Can have an effect that happens when accessing a model prop", async () => {
-    let sideEffect = {c: 0}
-    let appModelDef = {
-      info: {
-        $default: {name: null, lastName: "P", listenForChanges: ""},
-        updateName: (name) => ({name}),
-        $init: {
-          effect: ({info: {updateName, lastName}}) => {
-            expect(lastName).toEqual("P")
-            sideEffect.c++
-            return Promise.resolve(sideEffect.c).then(() => updateName("lazy Ricardo " + sideEffect.c))
-          },
-          onChangeOf: ["info.listenForChanges"]
-        }
-      }
-    }
-
-    let {model: {info}} = createApp(appModelDef)
-
-    expect(info.name).toBe(null)
-    info.$init()
-    await resolvePromises()
-    expect(info.name).toBe("lazy Ricardo 1")
-    await resolvePromises()
-
-    //Should not call again if the listeningForChanges hasn't changed
-    expect(info.name).toBe("lazy Ricardo 1")
-  })
-
 })

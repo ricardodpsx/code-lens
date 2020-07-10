@@ -1,11 +1,9 @@
 import Input from '@material-ui/core/Input';
 import React, {useEffect, useState} from "react";
-import {connect} from "react-redux";
-import {setQuery} from "../appModel";
 import SearchIcon from '@material-ui/icons/Search';
 import IconButton from '@material-ui/core/IconButton';
 
-function QuerySearch({query}) {
+export default function QuerySearchField({query, setQuery}) {
   let [text, setText] = useState(query)
   useEffect(() => {
     if (query !== text) setText(query)
@@ -26,6 +24,3 @@ function QuerySearch({query}) {
     </IconButton>
   </form>
 }
-
-let mapStateToProps = ({query: {text}}) => ({query: text})
-export default connect(mapStateToProps)(QuerySearch)

@@ -1,11 +1,11 @@
 /* eslint-disable react/jsx-no-undef */
 import React from 'react';
-import {formatDate} from "../../lib/stringUtils";
+import {formatDate} from "../../../lib/stringUtils";
 import BarChart from "./BarChart";
 import {connect} from "react-redux";
 import MetricNameSelect from "./MetricNameSelect";
-import {selectEvolutionParam} from "../../appModel";
-import {Title} from "../layout/Title";
+import {selectEvolutionParam} from "../../../appModel";
+import {Title} from "../../layout/Title";
 
 
 function History({selectedParam, history}) {

@@ -1,7 +1,7 @@
-import {CodeEntityInfo} from "./CodeData";
+import {CodeEntityInfo} from "../CodeData";
 import React from "react";
 import {connect} from "react-redux";
-import {selectTreeNode} from "../appModel";
+import {selectTreeNode} from "../../appModel";
 
 function SearchResults({codeTree, results}) {
   if (!results || results.length === 0) return "No results"

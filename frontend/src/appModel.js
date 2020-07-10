@@ -86,18 +86,25 @@ export let appModelDef = {
     ),
     updateFrequency: frequency => ({frequency}),
     updateHistory: history => ({history}),
-    $init: {
-      effect: ({evolution: {updateFrequency}, query: {text}}) => {
+    loadFrequencyEvolution: {
+      effects: (_, {evolution: {updateFrequency}, query: {text}}) => {
         loadFrequencyHistory(text).then(updateFrequency)
-      },
-      onChangeOf: ["query.text"]
+      }
     }
+  },
+  dependencies: {
+    $default: {query: "", results: [], codeTree: null},
+    updateResults: ({results, codeTree}) => ({results, codeTree}),
+    setQuery: r(query => ({query}),
+       (_, {dependencies: {query, updateResults}}) => {
+         loadGraph(query).then(res => updateResults(res))
+       })
   }
 }
 
 
 let {store, model} = createApp(appModelDef)
-let {query, tabs, metrics, selectedFile, evolution} = model
+let {query, tabs, metrics, selectedFile, evolution, dependencies} = model
 
 export {store, model}
 export let setQuery = query.setQuery
@@ -108,4 +115,5 @@ export let selectFile = selectedFile.selectFile
 export let selectNodeInFile = selectedFile.selectNode
 export let selectTreeNode = query.selectTreeNode
 export let selectEvolutionParam = evolution.selectParam
-export let loadFrequencyEvolution = evolution.$init
+export let loadFrequencyEvolution = evolution.loadFrequencyEvolution
+export let setDependenciesQuery = dependencies.setQuery
